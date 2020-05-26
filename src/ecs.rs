@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use mint;
+
 use ggez;
 use ggez::{Context, GameResult};
 use ggez::graphics;
@@ -33,10 +35,48 @@ impl HealthComponent {
     }
 }
 
+pub struct PositionComponent {
+    x: f32,
+    y: f32,
+}
+
+impl PositionComponent {
+    pub fn new(_x: f32, _y: f32) -> PositionComponent {
+        PositionComponent {
+            x: _x,
+            y: _y,
+        }
+    }
+
+    pub fn to_point(&self) -> na::Point2<f32> {
+        na::Point2::new(self.x, self.y)
+    }
+}
+
+pub struct VelocityComponent {
+    dx: f32,
+    dy: f32,
+}
+
+impl VelocityComponent {
+    pub fn new(x: f32, y: f32) -> VelocityComponent {
+        VelocityComponent {
+            dx: x,
+            dy: y,
+        }
+    }
+
+    pub fn to_vector(&self) -> mint::Vector2<f32> {
+        mint::Vector2 {x: self.dx, y: self.dy,}
+    }
+}
+
 // TODO: rework with traits perhaps <25-05-20, vvvm23> //
 pub enum Component {
     RenderableComponent(RenderableComponent),
     HealthComponent(HealthComponent),
+    VelocityComponent(VelocityComponent),
+    PositionComponent(PositionComponent),
 }
 
 struct Entity {
@@ -60,6 +100,8 @@ pub struct World {
 
     renderable_components: HashMap<u16, RenderableComponent>,
     health_components: HashMap<u16, HealthComponent>,
+    position_components: HashMap<u16, PositionComponent>,
+    velocity_components: HashMap<u16, VelocityComponent>,
 }
 
 impl World {
@@ -70,7 +112,8 @@ impl World {
 
             renderable_components: HashMap::new(),
             health_components: HashMap::new(),
-
+            position_components: HashMap::new(),
+            velocity_components: HashMap::new(),
         }
     }
 
@@ -88,6 +131,7 @@ impl World {
 
         for c in partial.components {
             // TODO: A bit hacky here... <25-05-20, vvvm23> //
+            // TODO: Is it though? maybe return a failed state enum instead! <26-05-20, vvvm23> //
             match c {
                 Component::HealthComponent(hc) => {self.health_components.insert(
                     self.max_id,
@@ -96,6 +140,14 @@ impl World {
                 Component::RenderableComponent(rc) => {self.renderable_components.insert(
                     self.max_id,
                     rc,
+                ); ()},
+                Component::PositionComponent(pc) => {self.position_components.insert(
+                    self.max_id,
+                    pc,
+                ); ()},
+                Component::VelocityComponent(vc) => {self.velocity_components.insert(
+                    self.max_id,
+                    vc,
                 ); ()},
             }
         }
