@@ -36,8 +36,8 @@ impl HealthComponent {
 }
 
 pub struct PositionComponent {
-    x: f32,
-    y: f32,
+    pub x: f32,
+    pub y: f32,
 }
 
 impl PositionComponent {
@@ -51,11 +51,26 @@ impl PositionComponent {
     pub fn to_point(&self) -> na::Point2<f32> {
         na::Point2::new(self.x, self.y)
     }
+
+    pub fn translate(&mut self, x: f32, y: f32) {
+        self.x += x;
+        self.y += y;
+    }
+
+    pub fn translate_vector(&mut self, v: mint::Vector2<f32>) {
+        self.x += v.x;
+        self.y += v.y;
+    }
+
+    pub fn translate_component(&mut self, c: &VelocityComponent) {
+        self.x += c.dx;
+        self.y += c.dy;
+    }
 }
 
 pub struct VelocityComponent {
-    dx: f32,
-    dy: f32,
+    pub dx: f32,
+    pub dy: f32,
 }
 
 impl VelocityComponent {
@@ -79,7 +94,7 @@ pub enum Component {
     PositionComponent(PositionComponent),
 }
 
-struct Entity {
+pub struct Entity {
     id: u16,
 }
 
@@ -96,12 +111,12 @@ impl PartialEntity {
 
 pub struct World {
     pub max_id: u16,
-    entities: Vec<Entity>,
+    pub entities: Vec<Entity>,
 
-    renderable_components: HashMap<u16, RenderableComponent>,
-    health_components: HashMap<u16, HealthComponent>,
-    position_components: HashMap<u16, PositionComponent>,
-    velocity_components: HashMap<u16, VelocityComponent>,
+    pub renderable_components: HashMap<u16, RenderableComponent>,
+    pub health_components: HashMap<u16, HealthComponent>,
+    pub position_components: HashMap<u16, PositionComponent>,
+    pub velocity_components: HashMap<u16, VelocityComponent>,
 }
 
 impl World {
@@ -154,4 +169,5 @@ impl World {
 
         self.max_id += 1;
     }
+
 }
