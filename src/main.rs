@@ -78,7 +78,7 @@ fn main() -> GameResult {
 
     let e: PartialEntity = ecs::World::create_entity()
         .add_component(Component::RenderablePrimitiveComponent(RenderablePrimitiveComponent::new(
-            ecs::Shape::Circle{r: 100.0}, graphics::DrawMode::fill(), graphics::WHITE,
+            ecs::Shape::Circle{r: 100.0}, graphics::DrawMode::fill(), graphics::Color{r:1.0, g:0.0, b:0.0, a:1.0},
         )))
         .add_component(Component::PositionComponent(PositionComponent::new(
             1920.0, 0.0,
@@ -88,17 +88,19 @@ fn main() -> GameResult {
         )));
     world.build_entity(e);
 
-    let e: PartialEntity = ecs::World::create_entity()
-        .add_component(Component::RenderableSpriteComponent(RenderableSpriteComponent::new(
-            ctx, "/cheem.png", 0.5, 0.5,
-        )))
-        .add_component(Component::PositionComponent(PositionComponent::new(
-            0.0, 0.0,
-        )))
-        .add_component(Component::VelocityComponent(VelocityComponent::new(
-            2.0, 2.0,
-        )));
-    world.build_entity(e);
+    for i in 1..100 {
+        let e: PartialEntity = ecs::World::create_entity()
+            .add_component(Component::RenderableSpriteComponent(RenderableSpriteComponent::new(
+                ctx, "/cheem.png", 0.5, 0.5,
+            )))
+            .add_component(Component::PositionComponent(PositionComponent::new(
+                960.0 + (i as f32)/10.0, 0.0,
+            )))
+            .add_component(Component::VelocityComponent(VelocityComponent::new(
+                -1.0 + (i as f32)*0.02, 1.0,
+            )));
+        world.build_entity(e);
+    }
 
     // tmp main loop
     for i in 1..1000 {
