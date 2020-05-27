@@ -48,11 +48,19 @@ impl RenderablePrimitiveComponent {
 }
 
 pub struct RenderableSpriteComponent {
-
+    pub texture_path: String,
+    pub texture: graphics::Image,
+    pub scale: mint::Vector2<f32>,
 }
 
 impl RenderableSpriteComponent {
-
+    pub fn new(ctx: &mut Context, path: &str, scale_x: f32, scale_y: f32) -> RenderableSpriteComponent {
+        RenderableSpriteComponent {
+            texture_path: path.to_string(),
+            texture: graphics::Image::new(ctx, path).unwrap(),
+            scale: mint::Vector2{x: scale_x, y: scale_y},
+        }
+    }
 }
 
 pub struct HealthComponent {
@@ -127,6 +135,7 @@ pub enum Component {
     VelocityComponent(VelocityComponent),
     PositionComponent(PositionComponent),
     RenderablePrimitiveComponent(RenderablePrimitiveComponent),
+    RenderableSpriteComponent(RenderableSpriteComponent),
 }
 
 pub struct Entity {
@@ -152,6 +161,7 @@ pub struct World {
     pub position_components: HashMap<u16, PositionComponent>,
     pub velocity_components: HashMap<u16, VelocityComponent>,
     pub renderable_primitive_components: HashMap<u16, RenderablePrimitiveComponent>,
+    pub renderable_sprite_components: HashMap<u16, RenderableSpriteComponent>,
 }
 
 impl World {
@@ -164,6 +174,7 @@ impl World {
             position_components: HashMap::new(),
             velocity_components: HashMap::new(),
             renderable_primitive_components: HashMap::new(),
+            renderable_sprite_components: HashMap::new(),
         }
     }
 
@@ -196,6 +207,10 @@ impl World {
                     vc,
                 ); ()},
                 Component::RenderablePrimitiveComponent(rc) => {self.renderable_primitive_components.insert(
+                    self.max_id,
+                    rc,
+                ); ()},
+                Component::RenderableSpriteComponent(rc) => {self.renderable_sprite_components.insert(
                     self.max_id,
                     rc,
                 ); ()},
