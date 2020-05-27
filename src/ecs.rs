@@ -7,19 +7,6 @@ use ggez::{Context, GameResult};
 use ggez::graphics;
 use ggez::nalgebra as na;
 
-pub struct RenderableComponent {
-    path: String,
-}
-
-impl RenderableComponent {
-    pub fn new(sprite_path: String) -> RenderableComponent {
-        let c = RenderableComponent {
-            path: sprite_path,
-        };
-        c
-    }
-}
-
 pub enum Shape {
     Circle{ r: f32 }, // Radius
     Rectangle{ w: f32, h: f32 }, // width, height
@@ -136,10 +123,10 @@ impl VelocityComponent {
 
 // TODO: rework with traits perhaps <25-05-20, vvvm23> //
 pub enum Component {
-    RenderableComponent(RenderableComponent),
     HealthComponent(HealthComponent),
     VelocityComponent(VelocityComponent),
     PositionComponent(PositionComponent),
+    RenderablePrimitiveComponent(RenderablePrimitiveComponent),
 }
 
 pub struct Entity {
@@ -161,10 +148,10 @@ pub struct World {
     pub max_id: u16,
     pub entities: Vec<Entity>,
 
-    pub renderable_components: HashMap<u16, RenderableComponent>,
     pub health_components: HashMap<u16, HealthComponent>,
     pub position_components: HashMap<u16, PositionComponent>,
     pub velocity_components: HashMap<u16, VelocityComponent>,
+    pub renderable_primitive_components: HashMap<u16, RenderablePrimitiveComponent>,
 }
 
 impl World {
@@ -173,10 +160,10 @@ impl World {
             max_id: 0,
             entities: Vec::new(),
 
-            renderable_components: HashMap::new(),
             health_components: HashMap::new(),
             position_components: HashMap::new(),
             velocity_components: HashMap::new(),
+            renderable_primitive_components: HashMap::new(),
         }
     }
 
@@ -200,10 +187,6 @@ impl World {
                     self.max_id,
                     hc,
                 ); ()},
-                Component::RenderableComponent(rc) => {self.renderable_components.insert(
-                    self.max_id,
-                    rc,
-                ); ()},
                 Component::PositionComponent(pc) => {self.position_components.insert(
                     self.max_id,
                     pc,
@@ -211,6 +194,10 @@ impl World {
                 Component::VelocityComponent(vc) => {self.velocity_components.insert(
                     self.max_id,
                     vc,
+                ); ()},
+                Component::RenderablePrimitiveComponent(rc) => {self.renderable_primitive_components.insert(
+                    self.max_id,
+                    rc,
                 ); ()},
             }
         }
