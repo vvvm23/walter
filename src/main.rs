@@ -79,6 +79,21 @@ fn main() -> GameResult {
         )));
     world.build_entity(e);
 
+    let e: PartialEntity = ecs::World::create_entity()
+        .add_component(Component::RenderableComponent(RenderableComponent::new(
+            "wow".to_string()
+        )))
+        .add_component(Component::HealthComponent(HealthComponent::new(
+            100,
+        )))
+        .add_component(Component::PositionComponent(PositionComponent::new(
+            1920.0, 0.0,
+        )))
+        .add_component(Component::VelocityComponent(VelocityComponent::new(
+            -4.0, 4.0,
+        )));
+    world.build_entity(e);
+
     let wm: ggez::conf::WindowMode = ggez::conf::WindowMode {
         width: 1920.0,
         height: 1080.0,

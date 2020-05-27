@@ -20,6 +20,28 @@ impl RenderableComponent {
     }
 }
 
+enum Shape {
+    Circle,
+    Rectangle,
+}
+
+pub struct RenderablePrimitiveComponent {
+    shape: Shape,
+
+}
+
+impl RenderablePrimitiveComponent {
+
+}
+
+pub struct RenderableSpriteComponent {
+
+}
+
+impl RenderableSpriteComponent {
+
+}
+
 pub struct HealthComponent {
     hp: u16,
     alive: bool,
