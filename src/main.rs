@@ -5,7 +5,7 @@ use std;
 use ecs::Component;
 use ecs::PartialEntity;
 
-use ecs::{HealthComponent, VelocityComponent, PositionComponent, RenderablePrimitiveComponent, RenderableSpriteComponent};
+use ecs::{HealthComponent, VelocityComponent, PositionComponent, RenderablePrimitiveComponent, RenderableSpriteComponent, AudioComponent};
 
 use ggez::nalgebra as na;
 use ggez::graphics;
@@ -22,7 +22,7 @@ fn velocity_system(world: &mut ecs::World) {
 }
 
 fn rendering_system(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
-    //graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
+    graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
 
     primitive_rendering(world, ctx);
     sprite_rendering(world, ctx);
@@ -67,7 +67,7 @@ fn main() -> GameResult {
 
     let wm: ggez::conf::WindowMode = ggez::conf::WindowMode {
         width: 1920.0,
-        height: 1080.0,
+        height: 800.0,
         ..Default::default()
     };
 
@@ -75,6 +75,12 @@ fn main() -> GameResult {
     //let cb = ggez::ContextBuilder::new("walter 0.0", "vvvm23").window_mode(wm);
     
     let (ctx, event_loop) = &mut cb.build()?;
+
+    let e: PartialEntity = ecs::World::create_entity()
+        .add_component(Component::AudioComponent(AudioComponent::new(
+            ctx, "/music.flac", true
+        )));
+    world.build_entity(e);
 
     let e: PartialEntity = ecs::World::create_entity()
         .add_component(Component::RenderablePrimitiveComponent(RenderablePrimitiveComponent::new(
@@ -88,19 +94,22 @@ fn main() -> GameResult {
         )));
     world.build_entity(e);
 
-    for i in 1..100 {
+    for i in 1..10 {
         let e: PartialEntity = ecs::World::create_entity()
             .add_component(Component::RenderableSpriteComponent(RenderableSpriteComponent::new(
                 ctx, "/cheem.png", 0.5, 0.5,
             )))
             .add_component(Component::PositionComponent(PositionComponent::new(
-                960.0 + (i as f32)/10.0, 0.0,
+                960.0, 0.0,
             )))
             .add_component(Component::VelocityComponent(VelocityComponent::new(
-                -1.0 + (i as f32)*0.02, 1.0,
+                -1.0 + (i as f32)*0.2, 1.0,
             )));
         world.build_entity(e);
     }
+
+    world.audio_components.get_mut(&0).unwrap().set_volume(0.1);
+    world.audio_components.get_mut(&0).unwrap().play();
 
     // tmp main loop
     for i in 1..1000 {

@@ -6,6 +6,35 @@ use ggez;
 use ggez::{Context, GameResult};
 use ggez::graphics;
 use ggez::nalgebra as na;
+use ggez::audio;
+use ggez::audio::SoundSource;
+
+pub struct AudioComponent {
+    music_path: String,
+    music: audio::Source,
+    repeat: bool,
+}
+
+impl AudioComponent {
+    pub fn new(ctx: &mut Context, path: &str, repeat: bool) -> AudioComponent {
+        AudioComponent {
+            music_path: path.to_string(),
+            music: audio::Source::new(ctx, path).unwrap(),
+            repeat: repeat,
+        }
+    }
+
+    pub fn set_volume(&mut self, volume: f32) {
+        self.music.set_volume(volume);
+    }
+
+    pub fn play(&mut self) {
+        if self.repeat {
+            self.music.repeat();
+        }
+        self.music.play_detached();
+    }
+}
 
 pub enum Shape {
     Circle{ r: f32 }, // Radius
@@ -136,6 +165,7 @@ pub enum Component {
     PositionComponent(PositionComponent),
     RenderablePrimitiveComponent(RenderablePrimitiveComponent),
     RenderableSpriteComponent(RenderableSpriteComponent),
+    AudioComponent(AudioComponent),
 }
 
 pub struct Entity {
@@ -162,6 +192,7 @@ pub struct World {
     pub velocity_components: HashMap<u16, VelocityComponent>,
     pub renderable_primitive_components: HashMap<u16, RenderablePrimitiveComponent>,
     pub renderable_sprite_components: HashMap<u16, RenderableSpriteComponent>,
+    pub audio_components: HashMap<u16, AudioComponent>,
 }
 
 impl World {
@@ -175,6 +206,7 @@ impl World {
             velocity_components: HashMap::new(),
             renderable_primitive_components: HashMap::new(),
             renderable_sprite_components: HashMap::new(),
+            audio_components: HashMap::new(),
         }
     }
 
@@ -213,6 +245,10 @@ impl World {
                 Component::RenderableSpriteComponent(rc) => {self.renderable_sprite_components.insert(
                     self.max_id,
                     rc,
+                ); ()},
+                Component::AudioComponent(ac) => {self.audio_components.insert(
+                    self.max_id,
+                    ac,
                 ); ()},
             }
         }
