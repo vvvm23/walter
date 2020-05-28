@@ -9,6 +9,8 @@ use ggez::nalgebra as na;
 use ggez::audio;
 use ggez::audio::SoundSource;
 
+// Audio Component //
+// TODO: decide whether to have file switching or use multiple components for each sound. <28-05-20, vvvm23> //
 pub struct AudioComponent {
     music_path: String,
     music: audio::Source,
@@ -36,12 +38,13 @@ impl AudioComponent {
     }
 }
 
+// Enum for available primitive shapes.
 pub enum Shape {
     Circle{ r: f32 }, // Radius
     Rectangle{ w: f32, h: f32 }, // width, height
 }
 
-// TODO: draw mode should really be enum <28-05-20, vvvm23> //
+// Component to draw simple shapes
 pub struct RenderablePrimitiveComponent {
     shape: Shape,
     draw_mode: graphics::DrawMode,
@@ -77,6 +80,10 @@ impl RenderablePrimitiveComponent {
     }
 }
 
+// Component to draw sprites //
+// TODO: switchable sprite for animation, either in form of another component or in here <28-05-20, vvvm23> //
+// TODO: share textures to reduce time fetching textures <28-05-20, vvvm23> //
+// TODO: texture atlas? <28-05-20, vvvm23> //
 pub struct RenderableSpriteComponent {
     pub texture_path: String,
     pub texture: graphics::Image,
@@ -93,6 +100,9 @@ impl RenderableSpriteComponent {
     }
 }
 
+// Component to define entity health points.
+// All entities with HealthComponent can have health and can be killed.
+// TODO: death callback <28-05-20, vvvm23> //
 pub struct HealthComponent {
     hp: u16,
     alive: bool,
@@ -108,6 +118,8 @@ impl HealthComponent {
     }
 }
 
+// Component to define position of entity
+// When rendering, use this to define position. Else, default to origin.
 pub struct PositionComponent {
     pub x: f32,
     pub y: f32,
@@ -125,22 +137,28 @@ impl PositionComponent {
         na::Point2::new(self.x, self.y)
     }
 
+    // translate by f32 args
     pub fn translate(&mut self, x: f32, y: f32) {
         self.x += x;
         self.y += y;
     }
 
+    // translate by mint::Vector2
     pub fn translate_vector(&mut self, v: mint::Vector2<f32>) {
         self.x += v.x;
         self.y += v.y;
     }
 
+    // translate by a ecs::VelocityComponent
     pub fn translate_component(&mut self, c: &VelocityComponent) {
         self.x += c.dx;
         self.y += c.dy;
     }
 }
 
+// Component to define entity speed
+// All entities with velocity and position component will move based on velocity
+// TODO: rotational velocity <28-05-20, vvvm23> //
 pub struct VelocityComponent {
     pub dx: f32,
     pub dy: f32,
@@ -154,11 +172,14 @@ impl VelocityComponent {
         }
     }
 
+    // convert to mint::Vector2 
+    // TODO: overriding possible in rust? <28-05-20, vvvm23> //
     pub fn to_vector(&self) -> mint::Vector2<f32> {
         mint::Vector2 {x: self.dx, y: self.dy,}
     }
 }
 
+// Component Enum to allow for match later
 // TODO: rework with traits perhaps <25-05-20, vvvm23> //
 pub enum Component {
     HealthComponent(HealthComponent),
@@ -169,10 +190,12 @@ pub enum Component {
     AudioComponent(AudioComponent),
 }
 
+// Simple wrapper for entity ID
 pub struct Entity {
     id: u16,
 }
 
+// Partially constructed entity, containing components added so far.
 pub struct PartialEntity {
     components: Vec<Component>,
 }
@@ -184,6 +207,7 @@ impl PartialEntity {
     }
 }
 
+// Defines current world state, contains all components currently in world.
 pub struct World {
     pub max_id: u16,
     pub entities: Vec<Entity>,
@@ -197,6 +221,7 @@ pub struct World {
 }
 
 impl World {
+    // Generate a new world with empty component tables
     pub fn new() -> World {
         World {
             max_id: 0,
@@ -211,12 +236,14 @@ impl World {
         }
     }
 
+    // Return an entity builder
     pub fn create_entity() -> PartialEntity {
         PartialEntity {
             components: Vec::new(),
         }
     }
 
+    // Given a partial entity, build it into a concrete one.
     pub fn build_entity(&mut self, partial: PartialEntity) {
         let e: Entity = Entity {
             id: self.max_id,

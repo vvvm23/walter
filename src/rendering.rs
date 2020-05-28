@@ -7,6 +7,8 @@ use ggez::nalgebra as na;
 use ggez::graphics;
 use ggez::{Context, GameResult};
 
+// Initialises the window given the width and height
+// TODO: pass more window parameters, eg. screen mode <28-05-20, vvvm23> //
 pub fn init_window(width: f32, height: f32) -> GameResult<Context> {
     let wm: ggez::conf::WindowMode = ggez::conf::WindowMode {
         width: width,
@@ -20,6 +22,7 @@ pub fn init_window(width: f32, height: f32) -> GameResult<Context> {
     Ok(ctx)
 }
 
+// System to handle all renderable components. calls other rendering subsystems
 pub fn rendering_system(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
     graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
 
@@ -30,6 +33,7 @@ pub fn rendering_system(world: &mut ecs::World, ctx: &mut Context) -> GameResult
     Ok(())
 }
 
+// System to render all primitive components. Simply iterates through these components and draws.
 pub fn primitive_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
     for (id, c) in world.renderable_primitive_components.iter() {
         let point: na::Point2<f32>;
@@ -45,6 +49,8 @@ pub fn primitive_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameRes
     Ok(())
 }
 
+// System to render all sprite components. Simply iterates through these components and draws.
+// TODO: Sprite batching <28-05-20, vvvm23> //
 pub fn sprite_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
     for (id, c) in world.renderable_sprite_components.iter() {
         let point: na::Point2<f32>;

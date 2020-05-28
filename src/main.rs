@@ -9,6 +9,8 @@ use ecs::{HealthComponent, VelocityComponent, PositionComponent, RenderablePrimi
 use ggez::graphics;
 use ggez::{Context, GameResult};
 
+// System to update position of components based on velocity
+// TODO: move out of main <28-05-20, vvvm23> //
 fn velocity_system(world: &mut ecs::World) {
     for (id, c) in world.velocity_components.iter() {
         if (world.position_components.contains_key(id)) {
@@ -20,16 +22,20 @@ fn velocity_system(world: &mut ecs::World) {
 }
 
 fn main() -> GameResult {
+    // create empty world
     let mut world: ecs::World = ecs::World::new();
 
+    // initialise window
     let ctx: &mut Context = &mut rendering::init_window(1920.0, 1080.0).unwrap();
 
+    // Create global audio entity for some music :)
     let e: PartialEntity = ecs::World::create_entity()
         .add_component(Component::AudioComponent(AudioComponent::new(
             ctx, "/music.flac", true
         )));
     world.build_entity(e);
 
+    // Create a circle and add some velocity
     let e: PartialEntity = ecs::World::create_entity()
         .add_component(Component::RenderablePrimitiveComponent(RenderablePrimitiveComponent::new(
             ecs::Shape::Circle{r: 100.0}, graphics::DrawMode::fill(), graphics::Color{r:1.0, g:0.0, b:0.0, a:1.0},
@@ -42,6 +48,7 @@ fn main() -> GameResult {
         )));
     world.build_entity(e);
 
+    // Create 10 cheems and add velocity
     for i in 1..10 {
         let e: PartialEntity = ecs::World::create_entity()
             .add_component(Component::RenderableSpriteComponent(RenderableSpriteComponent::new(
@@ -56,10 +63,11 @@ fn main() -> GameResult {
         world.build_entity(e);
     }
 
-    world.audio_components.get_mut(&0).unwrap().set_volume(0.0);
+    // Set volume and play audio
+    world.audio_components.get_mut(&0).unwrap().set_volume(0.1);
     world.audio_components.get_mut(&0).unwrap().play();
 
-    // tmp main loop
+    // tmp game loop
     for i in 1..1000 {
         println!("Iteration {}", i);
         velocity_system(&mut world);
