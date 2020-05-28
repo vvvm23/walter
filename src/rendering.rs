@@ -7,6 +7,19 @@ use ggez::nalgebra as na;
 use ggez::graphics;
 use ggez::{Context, GameResult};
 
+pub fn init_window(width: f32, height: f32) -> GameResult<Context> {
+    let wm: ggez::conf::WindowMode = ggez::conf::WindowMode {
+        width: width,
+        height: height,
+        ..Default::default()
+    };
+
+    let cb = ggez::ContextBuilder::new("walter 0.0", "vvvm23").add_resource_path(std::path::PathBuf::from("")).window_mode(wm);
+    
+    let (ctx, event_loop) = cb.build()?;
+    Ok(ctx)
+}
+
 pub fn rendering_system(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
     graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
 

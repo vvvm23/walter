@@ -41,6 +41,7 @@ pub enum Shape {
     Rectangle{ w: f32, h: f32 }, // width, height
 }
 
+// TODO: draw mode should really be enum <28-05-20, vvvm23> //
 pub struct RenderablePrimitiveComponent {
     shape: Shape,
     draw_mode: graphics::DrawMode,

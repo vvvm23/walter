@@ -1,14 +1,11 @@
 mod ecs;
 mod rendering;
 
-use std;
-
 use ecs::Component;
 use ecs::PartialEntity;
 
 use ecs::{HealthComponent, VelocityComponent, PositionComponent, RenderablePrimitiveComponent, RenderableSpriteComponent, AudioComponent};
 
-use ggez::nalgebra as na;
 use ggez::graphics;
 use ggez::{Context, GameResult};
 
@@ -25,16 +22,7 @@ fn velocity_system(world: &mut ecs::World) {
 fn main() -> GameResult {
     let mut world: ecs::World = ecs::World::new();
 
-    let wm: ggez::conf::WindowMode = ggez::conf::WindowMode {
-        width: 1920.0,
-        height: 800.0,
-        ..Default::default()
-    };
-
-    let cb = ggez::ContextBuilder::new("walter 0.0", "vvvm23").add_resource_path(std::path::PathBuf::from("")).window_mode(wm);
-    //let cb = ggez::ContextBuilder::new("walter 0.0", "vvvm23").window_mode(wm);
-    
-    let (ctx, event_loop) = &mut cb.build()?;
+    let ctx: &mut Context = &mut rendering::init_window(1920.0, 1080.0).unwrap();
 
     let e: PartialEntity = ecs::World::create_entity()
         .add_component(Component::AudioComponent(AudioComponent::new(
