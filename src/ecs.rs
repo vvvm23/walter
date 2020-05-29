@@ -18,16 +18,45 @@ pub struct FighterComponent {
     //ai: AI, AI enum
 }
 
+impl FighterComponent {
+    pub fn decrease_sp(&mut self, dsp: u16) {
+        if dsp > self.sp {
+            self.sp = 0;
+            return;
+        }
+        self.sp -= dsp;
+    }
+
+    pub fn increase_sp(&mut self, dsp: u16) {
+        if dsp + self.sp > self.max_sp {
+            self.sp = self.max_sp;
+            return;
+        }
+        self.sp += dsp;
+    }
+}
+
 pub struct Move {
-    name: String,
-    use_message: String, // Some special sequence to enter entity name
-    description: String,
-    attack_damage: Option<u16>, // Maybe replace with a power value
-    attack_debuff: Vec<StatusEffect>,
-    defence_heal: Option<u16>,
-    defence_buff: Vec<StatusEffect>,
-    aoe: bool,
-    crit: bool,
+    pub name: String,
+    pub hp_cost: Option<u16>,
+    pub sp_cost: Option<u16>,
+    pub use_message: String, // Some special sequence to enter entity name
+    pub description: String,
+
+    pub hp_power: Option<u16>,
+    pub sp_power: Option<u16>,
+    pub target_status: Option<Vec<StatusEffect>>,
+    pub source_status: Option<Vec<StatusEffect>>,
+
+    pub aoe: bool,
+    pub aoe_target: Option<AreaTarget>,
+    pub crit: bool,
+}
+
+enum AreaTarget {
+    Ally,
+    Enemy,
+    All,
 }
 
 pub enum StatusEffect {
@@ -50,6 +79,10 @@ pub enum StatusEffect {
 
     Charge,
     TotalProtect,
+    PassiveHeal,
+    PassiveLeach,
+
+    Clear,
 }
 
 // Component for any entity that can equip equipment
@@ -161,6 +194,7 @@ impl RenderableSpriteComponent {
 // TODO: death callback <28-05-20, vvvm23> //
 pub struct HealthComponent {
     hp: u16,
+    max_hp: u16,
     alive: bool,
 }
 
@@ -168,9 +202,34 @@ impl HealthComponent {
     pub fn new(max_hp: u16) -> HealthComponent {
         let c = HealthComponent {
             hp: max_hp,
+            max_hp: max_hp,
             alive: true,
         };
         c
+    }
+
+    pub fn decrease_health(&mut self, dhp: u16) {
+        if dhp > self.hp {
+            self.hp = 0;
+            self.alive = false;
+            return;
+        }
+        self.hp -= dhp;
+    }
+
+    pub fn increase_health(&mut self, dhp: u16) {
+        if dhp + self.hp > self.max_hp {
+            self.hp = self.max_hp;
+            return;
+        }
+        self.hp += dhp;
+    }
+
+    pub fn set_health(&mut self, hp: u16) {
+        if hp == 0 {
+            self.alive = false;
+        }
+        self.hp = hp;
     }
 }
 
@@ -269,6 +328,7 @@ pub enum Component {
     RenderablePrimitiveComponent(RenderablePrimitiveComponent),
     RenderableSpriteComponent(RenderableSpriteComponent),
     AudioComponent(AudioComponent),
+    FighterComponent(FighterComponent),
 }
 
 // Simple wrapper for entity ID
@@ -301,9 +361,9 @@ pub struct World {
     pub renderable_primitive_components:     HashMap<u16, RenderablePrimitiveComponent>,
     pub renderable_sprite_components:        HashMap<u16, RenderableSpriteComponent>,
     pub audio_components:                    HashMap<u16, AudioComponent>,
+    pub fighter_components:                  HashMap<u16, FighterComponent>,
 }
 
-// TODO: system to safely delete entity from world <28-05-20, vvvm23> //
 impl World {
     // Generate a new world with empty component tables
     pub fn new() -> World {
@@ -319,6 +379,7 @@ impl World {
             renderable_primitive_components:     HashMap::new(),
             renderable_sprite_components:        HashMap::new(),
             audio_components:                    HashMap::new(),
+            fighter_components:                  HashMap::new(),
         }
     }
 
@@ -372,6 +433,10 @@ impl World {
                     self.max_id,
                     ac,
                 ); ()},
+                Component::FighterComponent(fc) => {self.fighter_components.insert(
+                    self.max_id,
+                    fc,
+                ); ()},
             }
         }
 
@@ -389,5 +454,6 @@ impl World {
         self.renderable_primitive_components.remove(eid);
         self.renderable_sprite_components.remove(eid);
         self.audio_components.remove(eid);
+        self.fighter_components.remove(eid);
     }
 }
