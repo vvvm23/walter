@@ -1,5 +1,6 @@
 mod ecs;
 mod rendering;
+mod physics;
 
 use ecs::Component;
 use ecs::PartialEntity;
@@ -9,27 +10,6 @@ use ecs::{RotationComponent, RotationalVelocityComponent};
 
 use ggez::graphics;
 use ggez::{Context, GameResult};
-
-// System to update position of components based on velocity
-// TODO: move out of main <28-05-20, vvvm23> //
-fn velocity_system(world: &mut ecs::World) {
-    for (id, c) in world.velocity_components.iter() {
-        if (world.position_components.contains_key(id)) {
-            let pc: &mut ecs::PositionComponent = world.position_components.get_mut(id).unwrap();
-            pc.translate_component(c);
-            println!("{}: {}, {}", id, pc.x, pc.y);
-        }
-    }
-}
-
-fn rot_velocity_system(world: &mut ecs::World) {
-    for (id, c) in world.rotational_velocity_components.iter() {
-        if (world.rotation_components.contains_key(id)) {
-            let rc: &mut ecs::RotationComponent = world.rotation_components.get_mut(id).unwrap();
-            rc.rot += c.drot;
-        }
-    }
-}
 
 fn main() -> GameResult {
     // create empty world
@@ -103,8 +83,8 @@ fn main() -> GameResult {
             world.remove_entity(&eid);
         }
 
-        velocity_system(&mut world);
-        rot_velocity_system(&mut world);
+        physics::velocity_system(&mut world);
+        physics::rot_velocity_system(&mut world);
         rendering::rendering_system(&mut world, ctx);
         println!("");
     }

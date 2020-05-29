@@ -52,7 +52,6 @@ pub fn primitive_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameRes
             draw_param = draw_param.rotation(rc.rot);
         }
 
-        //graphics::draw(ctx, &mesh, (point,))?;
         graphics::draw(ctx, &mesh, draw_param)?;
     }
     Ok(())
@@ -79,11 +78,6 @@ pub fn sprite_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameResult
         }
     
         graphics::draw(ctx, &c.texture, draw_param)?;
-
-        //graphics::draw(ctx, &c.texture, graphics::DrawParam::default()
-            //.dest(point)
-            //.scale(c.scale)
-            //)?;
     }
     Ok(())
 }
