@@ -14,8 +14,42 @@ pub struct FighterComponent {
     sp: u16,
     max_sp: u16,
     infinite_sp: bool,
-    //moves: Vec<Move>, probably Move enum,
+    moves: Vec<Move>
     //ai: AI, AI enum
+}
+
+pub struct Move {
+    name: String,
+    use_message: String, // Some special sequence to enter entity name
+    description: String,
+    attack_damage: Option<u16>, // Maybe replace with a power value
+    attack_debuff: Vec<StatusEffect>,
+    defence_heal: Option<u16>,
+    defence_buff: Vec<StatusEffect>,
+    aoe: bool,
+    crit: bool,
+}
+
+pub enum StatusEffect {
+    DefenceDown(u8),
+    AttackDown(u8),
+    AgilityDown(u8),
+    AccuracyDown(u8),
+    CritDown(u8),
+
+    DefenceUp(u8),
+    AttackUp(u8),
+    AgilityUp(u8),
+    AccuracyUp(u8),
+    CritUp(u8),
+
+    Burn(u8), // Applies damage every turn
+    Stunned(u8), // Chance to not move
+    Confused(u8), // Will use random move and target
+    Fear(u8), // Chance to not move, chance to run away
+
+    Charge,
+    TotalProtect,
 }
 
 // Component for any entity that can equip equipment
