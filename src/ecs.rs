@@ -9,6 +9,28 @@ use ggez::nalgebra as na;
 use ggez::audio;
 use ggez::audio::SoundSource;
 
+// Component for any entity that can take part in battle.
+pub struct FighterComponent {
+    sp: u16,
+    max_sp: u16,
+    infinite_sp: bool,
+    //moves: Vec<Move>, probably Move enum,
+    //ai: AI, AI enum
+}
+
+// Component for any entity that can equip equipment
+pub struct EquippedFighterComponent {
+    // Armour Slot: Vec<Equipment>,
+    // Melee Slot: Vec<Equipment>,
+    // Ranged Slot: Vec<Equipment>,
+    // Buff Slot: Vec<Equipment>,
+}
+
+// Component for any entity that can use an on hand inventory
+pub struct HandInventoryComponent {
+    // inventory: Vec<Item>, Items enum
+}
+
 // Audio Component //
 // TODO: decide whether to have file switching or use multiple components for each sound. <28-05-20, vvvm23> //
 pub struct AudioComponent {
