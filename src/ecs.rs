@@ -210,7 +210,7 @@ impl PartialEntity {
 // Defines current world state, contains all components currently in world.
 pub struct World {
     pub max_id: u16,
-    pub entities: Vec<Entity>,
+    pub entities: HashMap<u16, Entity>,
 
     pub health_components: HashMap<u16, HealthComponent>,
     pub position_components: HashMap<u16, PositionComponent>,
@@ -220,12 +220,13 @@ pub struct World {
     pub audio_components: HashMap<u16, AudioComponent>,
 }
 
+// TODO: system to safely delete entity from world <28-05-20, vvvm23> //
 impl World {
     // Generate a new world with empty component tables
     pub fn new() -> World {
         World {
             max_id: 0,
-            entities: Vec::new(),
+            entities: HashMap::new(),
 
             health_components: HashMap::new(),
             position_components: HashMap::new(),
@@ -248,7 +249,7 @@ impl World {
         let e: Entity = Entity {
             id: self.max_id,
         };
-        self.entities.push(e);
+        self.entities.insert(self.max_id, e);
 
         for c in partial.components {
             // TODO: A bit hacky here... <25-05-20, vvvm23> //
@@ -282,6 +283,17 @@ impl World {
         }
 
         self.max_id += 1;
+    }
+
+    // TODO: custom remove entity callbacks. (some entities should have special behaviour on delete) <29-05-20, vvvm23> //
+    pub fn remove_entity(&mut self, eid: &u16) {
+        self.entities.remove(eid);
+        self.health_components.remove(eid);        
+        self.position_components.remove(eid);        
+        self.velocity_components.remove(eid);
+        self.renderable_primitive_components.remove(eid);
+        self.renderable_sprite_components.remove(eid);
+        self.audio_components.remove(eid);
     }
 
 }
