@@ -36,6 +36,20 @@ impl FighterComponent {
     }
 }
 
+// Component for all entities that have stats
+pub struct StatsComponent {
+    level: u8,
+
+    attack: u16,
+    defence: u16,
+    agility: u16,
+    accuracy: u16,
+    crit: u16,
+    speed: u16,
+
+    weight: u16,
+}
+
 pub struct Move {
     pub name: String,
     pub hp_cost: Option<u16>,

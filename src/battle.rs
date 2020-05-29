@@ -47,6 +47,7 @@ fn execute_move(world: &mut ecs::World, source: &mut Entity, target: &mut Entity
     // TODO: calculate to hit chance using base chance, accuracy and evasion <29-05-20, vvvm23> //
     // TODO: calculate crit chance using base crit chance and other factors <29-05-20, vvvm23> //
     // TODO: negate certain effects <29-05-20, vvvm23> //
+    // TODO: proc abilities <29-05-20, vvvm23> //
 
     // adjust hp and sp on a hit
     if selected_move.is_attack {
