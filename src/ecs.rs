@@ -43,6 +43,7 @@ pub struct Move {
     pub use_message: String, // Some special sequence to enter entity name
     pub description: String,
 
+    pub is_attack: bool,
     pub hp_power: Option<u16>,
     pub sp_power: Option<u16>,
     pub target_status: Option<Vec<StatusEffect>>,
@@ -50,10 +51,14 @@ pub struct Move {
 
     pub aoe: bool,
     pub aoe_target: Option<AreaTarget>,
+
     pub crit: bool,
+    pub crit_chance: f32,
+
+    pub base_accuracy: f32,
 }
 
-enum AreaTarget {
+pub enum AreaTarget {
     Ally,
     Enemy,
     All,
