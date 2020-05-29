@@ -44,7 +44,16 @@ pub fn primitive_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameRes
         }
 
         let mesh = c.build_mesh(ctx);
-        graphics::draw(ctx, &mesh, (point,))?;
+        let mut draw_param = graphics::DrawParam::default()
+            .dest(point);
+
+        if world.rotation_components.contains_key(id) {
+            let rc: &ecs::RotationComponent = world.rotation_components.get(id).unwrap();
+            draw_param = draw_param.rotation(rc.rot);
+        }
+
+        //graphics::draw(ctx, &mesh, (point,))?;
+        graphics::draw(ctx, &mesh, draw_param)?;
     }
     Ok(())
 }
@@ -59,10 +68,22 @@ pub fn sprite_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameResult
         } else {
             point = world.position_components.get(id).unwrap().to_point();
         }
-        graphics::draw(ctx, &c.texture, graphics::DrawParam::default()
+
+        let mut draw_param = graphics::DrawParam::default()
             .dest(point)
-            .scale(c.scale)
-            )?;
+            .scale(c.scale);
+
+        if world.rotation_components.contains_key(id) {
+            let rc: &ecs::RotationComponent = world.rotation_components.get(id).unwrap();
+            draw_param = draw_param.rotation(rc.rot);
+        }
+    
+        graphics::draw(ctx, &c.texture, draw_param)?;
+
+        //graphics::draw(ctx, &c.texture, graphics::DrawParam::default()
+            //.dest(point)
+            //.scale(c.scale)
+            //)?;
     }
     Ok(())
 }

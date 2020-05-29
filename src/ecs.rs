@@ -126,10 +126,10 @@ pub struct PositionComponent {
 }
 
 impl PositionComponent {
-    pub fn new(_x: f32, _y: f32) -> PositionComponent {
+    pub fn new(x: f32, y: f32) -> PositionComponent {
         PositionComponent {
-            x: _x,
-            y: _y,
+            x: x,
+            y: y,
         }
     }
 
@@ -156,9 +156,32 @@ impl PositionComponent {
     }
 }
 
+pub struct RotationComponent {
+    pub rot: f32,
+}
+
+impl RotationComponent {
+    pub fn new(rot: f32) -> RotationComponent {
+        RotationComponent {
+            rot: rot
+        }
+    }
+}
+
+pub struct RotationalVelocityComponent {
+    pub drot: f32,
+}
+
+impl RotationalVelocityComponent {
+    pub fn new(drot: f32) -> RotationalVelocityComponent {
+        RotationalVelocityComponent {
+            drot: drot,
+        }
+    }
+}
+
 // Component to define entity speed
 // All entities with velocity and position component will move based on velocity
-// TODO: rotational velocity <28-05-20, vvvm23> //
 pub struct VelocityComponent {
     pub dx: f32,
     pub dy: f32,
@@ -185,6 +208,8 @@ pub enum Component {
     HealthComponent(HealthComponent),
     VelocityComponent(VelocityComponent),
     PositionComponent(PositionComponent),
+    RotationalVelocityComponent(RotationalVelocityComponent),
+    RotationComponent(RotationComponent),
     RenderablePrimitiveComponent(RenderablePrimitiveComponent),
     RenderableSpriteComponent(RenderableSpriteComponent),
     AudioComponent(AudioComponent),
@@ -212,12 +237,14 @@ pub struct World {
     pub max_id: u16,
     pub entities: HashMap<u16, Entity>,
 
-    pub health_components: HashMap<u16, HealthComponent>,
-    pub position_components: HashMap<u16, PositionComponent>,
-    pub velocity_components: HashMap<u16, VelocityComponent>,
-    pub renderable_primitive_components: HashMap<u16, RenderablePrimitiveComponent>,
-    pub renderable_sprite_components: HashMap<u16, RenderableSpriteComponent>,
-    pub audio_components: HashMap<u16, AudioComponent>,
+    pub health_components:                   HashMap<u16, HealthComponent>,
+    pub position_components:                 HashMap<u16, PositionComponent>,
+    pub velocity_components:                 HashMap<u16, VelocityComponent>,
+    pub rotation_components:                 HashMap<u16, RotationComponent>,
+    pub rotational_velocity_components:      HashMap<u16, RotationalVelocityComponent>,
+    pub renderable_primitive_components:     HashMap<u16, RenderablePrimitiveComponent>,
+    pub renderable_sprite_components:        HashMap<u16, RenderableSpriteComponent>,
+    pub audio_components:                    HashMap<u16, AudioComponent>,
 }
 
 // TODO: system to safely delete entity from world <28-05-20, vvvm23> //
@@ -228,12 +255,14 @@ impl World {
             max_id: 0,
             entities: HashMap::new(),
 
-            health_components: HashMap::new(),
-            position_components: HashMap::new(),
-            velocity_components: HashMap::new(),
-            renderable_primitive_components: HashMap::new(),
-            renderable_sprite_components: HashMap::new(),
-            audio_components: HashMap::new(),
+            health_components:                   HashMap::new(),
+            position_components:                 HashMap::new(),
+            velocity_components:                 HashMap::new(),
+            rotation_components:                 HashMap::new(),
+            rotational_velocity_components:      HashMap::new(),
+            renderable_primitive_components:     HashMap::new(),
+            renderable_sprite_components:        HashMap::new(),
+            audio_components:                    HashMap::new(),
         }
     }
 
@@ -267,6 +296,14 @@ impl World {
                     self.max_id,
                     vc,
                 ); ()},
+                Component::RotationComponent(rc) => {self.rotation_components.insert(
+                    self.max_id,
+                    rc,
+                ); ()},
+                Component::RotationalVelocityComponent(rc) => {self.rotational_velocity_components.insert(
+                    self.max_id,
+                    rc
+                ); ()},
                 Component::RenderablePrimitiveComponent(rc) => {self.renderable_primitive_components.insert(
                     self.max_id,
                     rc,
@@ -290,10 +327,11 @@ impl World {
         self.entities.remove(eid);
         self.health_components.remove(eid);        
         self.position_components.remove(eid);        
+        self.rotation_components.remove(eid);
+        self.rotational_velocity_components.remove(eid);
         self.velocity_components.remove(eid);
         self.renderable_primitive_components.remove(eid);
         self.renderable_sprite_components.remove(eid);
         self.audio_components.remove(eid);
     }
-
 }

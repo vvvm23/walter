@@ -5,6 +5,7 @@ use ecs::Component;
 use ecs::PartialEntity;
 
 use ecs::{HealthComponent, VelocityComponent, PositionComponent, RenderablePrimitiveComponent, RenderableSpriteComponent, AudioComponent};
+use ecs::{RotationComponent, RotationalVelocityComponent};
 
 use ggez::graphics;
 use ggez::{Context, GameResult};
@@ -17,6 +18,15 @@ fn velocity_system(world: &mut ecs::World) {
             let pc: &mut ecs::PositionComponent = world.position_components.get_mut(id).unwrap();
             pc.translate_component(c);
             println!("{}: {}, {}", id, pc.x, pc.y);
+        }
+    }
+}
+
+fn rot_velocity_system(world: &mut ecs::World) {
+    for (id, c) in world.rotational_velocity_components.iter() {
+        if (world.rotation_components.contains_key(id)) {
+            let rc: &mut ecs::RotationComponent = world.rotation_components.get_mut(id).unwrap();
+            rc.rot += c.drot;
         }
     }
 }
@@ -45,6 +55,12 @@ fn main() -> GameResult {
         )))
         .add_component(Component::VelocityComponent(VelocityComponent::new(
             -2.0, 2.0,
+        )))
+        .add_component(Component::RotationComponent(RotationComponent::new(
+            0.0, 
+        )))
+        .add_component(Component::RotationalVelocityComponent(RotationalVelocityComponent::new(
+            0.1
         )));
     world.build_entity(e);
 
@@ -59,7 +75,14 @@ fn main() -> GameResult {
             )))
             .add_component(Component::VelocityComponent(VelocityComponent::new(
                 -1.0 + (i as f32)*0.2, 1.0,
+            )))
+            .add_component(Component::RotationComponent(RotationComponent::new(
+                -1.0 + (i as f32)*0.2,
+            )))
+            .add_component(Component::RotationalVelocityComponent(RotationalVelocityComponent::new(
+                0.1
             )));
+
         world.build_entity(e);
     }
 
@@ -81,9 +104,9 @@ fn main() -> GameResult {
         }
 
         velocity_system(&mut world);
+        rot_velocity_system(&mut world);
         rendering::rendering_system(&mut world, ctx);
         println!("");
-
     }
     Ok(())
 }
