@@ -19,6 +19,23 @@ pub struct FighterComponent {
 }
 
 impl FighterComponent {
+    pub fn new(sp: Option<u16>, moves: Vec<Move>) -> FighterComponent {
+        match sp {
+            None => FighterComponent {
+                sp: 9999,
+                max_sp: 9999,
+                infinite_sp: true,
+                moves: moves,
+            },
+            Some(i) => FighterComponent {
+                sp: i,
+                max_sp: i,
+                infinite_sp: false,
+                moves: moves,
+            },
+        }
+    }
+
     pub fn decrease_sp(&mut self, dsp: u16) {
         if dsp > self.sp {
             self.sp = 0;
@@ -48,14 +65,21 @@ pub struct StatsComponent {
     speed: u16,
 
     weight: u16,
+    support: u16,
 }
+
+//impl StatsComponent {
+    //pub fn new() -> StatsComponent {
+        
+    //}
+//}
 
 pub struct Move {
     pub name: String,
-    pub hp_cost: Option<u16>,
-    pub sp_cost: Option<u16>,
     pub use_message: String, // Some special sequence to enter entity name
     pub description: String,
+    pub hp_cost: Option<u16>,
+    pub sp_cost: Option<u16>,
 
     pub is_attack: bool,
     pub hp_power: Option<u16>,
@@ -70,6 +94,33 @@ pub struct Move {
     pub crit_chance: f32,
 
     pub base_accuracy: f32,
+}
+
+impl Move {
+    pub fn new(name: String, use_message: String, description: String,
+               hp_cost: Option<u16>, sp_cost: Option<u16>,
+               is_attack: bool, hp_power: Option<u16>, sp_power: Option<u16>,
+               target_status: Option<Vec<StatusEffect>>, source_status: Option<Vec<StatusEffect>>,
+               aoe: bool, aoe_target: Option<AreaTarget>,
+               crit: bool, crit_chance: f32, base_accuracy: f32,) -> Move {
+        Move {
+            name: name,
+            use_message: use_message,
+            description: description,
+            hp_cost: hp_cost,
+            sp_cost: sp_cost,
+            is_attack: is_attack,
+            hp_power: hp_power,
+            sp_power: sp_power,
+            target_status: target_status,
+            source_status: source_status,
+            aoe: aoe,
+            aoe_target: aoe_target,
+            crit: crit,
+            crit_chance: crit_chance,
+            base_accuracy: base_accuracy,
+        }
+    }
 }
 
 pub enum AreaTarget {
@@ -348,11 +399,12 @@ pub enum Component {
     RenderableSpriteComponent(RenderableSpriteComponent),
     AudioComponent(AudioComponent),
     FighterComponent(FighterComponent),
+    StatsComponent(StatsComponent),
 }
 
 // Simple wrapper for entity ID
 pub struct Entity {
-    id: u16,
+    pub id: u16,
 }
 
 // Partially constructed entity, containing components added so far.
@@ -372,15 +424,16 @@ pub struct World {
     pub max_id: u16,
     pub entities: HashMap<u16, Entity>,
 
-    pub health_components:                   HashMap<u16, HealthComponent>,
-    pub position_components:                 HashMap<u16, PositionComponent>,
-    pub velocity_components:                 HashMap<u16, VelocityComponent>,
-    pub rotation_components:                 HashMap<u16, RotationComponent>,
-    pub rotational_velocity_components:      HashMap<u16, RotationalVelocityComponent>,
-    pub renderable_primitive_components:     HashMap<u16, RenderablePrimitiveComponent>,
-    pub renderable_sprite_components:        HashMap<u16, RenderableSpriteComponent>,
-    pub audio_components:                    HashMap<u16, AudioComponent>,
-    pub fighter_components:                  HashMap<u16, FighterComponent>,
+    pub health_components:                  HashMap<u16, HealthComponent>,
+    pub position_components:                HashMap<u16, PositionComponent>,
+    pub velocity_components:                HashMap<u16, VelocityComponent>,
+    pub rotation_components:                HashMap<u16, RotationComponent>,
+    pub rotational_velocity_components:     HashMap<u16, RotationalVelocityComponent>,
+    pub renderable_primitive_components:    HashMap<u16, RenderablePrimitiveComponent>,
+    pub renderable_sprite_components:       HashMap<u16, RenderableSpriteComponent>,
+    pub audio_components:                   HashMap<u16, AudioComponent>,
+    pub fighter_components:                 HashMap<u16, FighterComponent>,
+    pub stats_components:                   HashMap<u16, StatsComponent>,
 }
 
 impl World {
@@ -390,15 +443,16 @@ impl World {
             max_id: 0,
             entities: HashMap::new(),
 
-            health_components:                   HashMap::new(),
-            position_components:                 HashMap::new(),
-            velocity_components:                 HashMap::new(),
-            rotation_components:                 HashMap::new(),
-            rotational_velocity_components:      HashMap::new(),
-            renderable_primitive_components:     HashMap::new(),
-            renderable_sprite_components:        HashMap::new(),
-            audio_components:                    HashMap::new(),
-            fighter_components:                  HashMap::new(),
+            health_components:                  HashMap::new(),
+            position_components:                HashMap::new(),
+            velocity_components:                HashMap::new(),
+            rotation_components:                HashMap::new(),
+            rotational_velocity_components:     HashMap::new(),
+            renderable_primitive_components:    HashMap::new(),
+            renderable_sprite_components:       HashMap::new(),
+            audio_components:                   HashMap::new(),
+            fighter_components:                 HashMap::new(),
+            stats_components:                   HashMap::new(),
         }
     }
 
@@ -456,6 +510,10 @@ impl World {
                     self.max_id,
                     fc,
                 ); ()},
+                Component::StatsComponent(sc) => {self.stats_components.insert(
+                    self.max_id,
+                    sc,
+                ); ()}
             }
         }
 
@@ -474,5 +532,6 @@ impl World {
         self.renderable_sprite_components.remove(eid);
         self.audio_components.remove(eid);
         self.fighter_components.remove(eid);
+        self.stats_components.remove(eid);
     }
 }

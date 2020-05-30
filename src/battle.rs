@@ -8,15 +8,15 @@ enum MoveResult {
 }
 
 fn execute_move(world: &mut ecs::World, source: &mut Entity, target: &mut Entity, selected_move: ecs::Move) -> MoveResult {
-    if !world.health_components.contains_key(target.id) {
+    if !world.health_components.contains_key(&target.id) {
         println!("Target cannot take damage!");
         return MoveResult::NoEffect;
     }
-    
-    let target_health: &mut ecs::HealthComponent = world.health_components.get_mut(target.id).unwrap();
-    let target_fighter: &mut ecs::FighterComponent = world.fighter_components.get_mut(target.id).unwrap();
-    let source_health: &mut ecs::HealthComponent =  world.health_components.get_mut(target.id).unwrap();
-    let source_fighter: &mut ecs::FighterComponent = world.fighter_components.get_mut(source.id).unwrap();
+
+    let target_health: &ecs::HealthComponent = world.health_components.get(&target.id).unwrap();
+    let target_fighter: &ecs::FighterComponent = world.fighter_components.get(&target.id).unwrap();
+    let source_health: &ecs::HealthComponent =  world.health_components.get(&target.id).unwrap();
+    let source_fighter: &ecs::FighterComponent = world.fighter_components.get(&source.id).unwrap();
 
     let hp_power: u16 = match selected_move.hp_power {
         None => 0,
@@ -26,12 +26,12 @@ fn execute_move(world: &mut ecs::World, source: &mut Entity, target: &mut Entity
         None => 0,
         Some(i) => i,
     };
-    let attack_status: Vec<StatusEffect> = match selected_move.attack_status {
-        None => 0,
+    let target_status: Vec<ecs::StatusEffect> = match selected_move.target_status {
+        None => Vec::new(),
         Some(i) => i,
     };
-    let defence_status: Vec<StatusEffect> = match selected_move.defence_status {
-        None => 0,
+    let source_status: Vec<ecs::StatusEffect> = match selected_move.source_status {
+        None => Vec::new(),
         Some(i) => i,
     };
     let hp_cost: u16 = match selected_move.hp_cost {
@@ -49,19 +49,29 @@ fn execute_move(world: &mut ecs::World, source: &mut Entity, target: &mut Entity
     // TODO: negate certain effects <29-05-20, vvvm23> //
     // TODO: proc abilities <29-05-20, vvvm23> //
 
-    // adjust hp and sp on a hit
-    if selected_move.is_attack {
-        target_health.decrease_health(hp_power);
-        target_fighter.decrease_sp(sp_power);
-    } else {
-        target_health.increase_health(hp_power);
-        target_fighter.increase_sp(sp_power);
+    {
+        // Take mutable reference in scope so we dont have two mutable references to same vector.
+        let target_health: &mut ecs::HealthComponent = world.health_components.get_mut(&target.id).unwrap();
+        let target_fighter: &mut ecs::FighterComponent = world.fighter_components.get_mut(&target.id).unwrap();
+
+        // adjust hp and sp on a hit
+        if selected_move.is_attack {
+            target_health.decrease_health(hp_power);
+            target_fighter.decrease_sp(sp_power);
+        } else {
+            target_health.increase_health(hp_power);
+            target_fighter.increase_sp(sp_power);
+        }
     }
 
     // decrease sp and hp on a miss or hit
-    // TODO: move this to correct place, so always lose even on miss or null <29-05-20, vvvm23> //
-    source_health.decrease_health(hp_cost);
-    source_fighter.decrease_sp(sp_cost);
-
+    {
+        // TODO: move this to correct place, so always lose even on miss or null <29-05-20, vvvm23> //
+        // Again, take mutable reference in scope so we dont have two mutable references to same vector.
+        let source_health: &mut ecs::HealthComponent =  world.health_components.get_mut(&target.id).unwrap();
+        let source_fighter: &mut ecs::FighterComponent = world.fighter_components.get_mut(&source.id).unwrap();
+        source_health.decrease_health(hp_cost);
+        source_fighter.decrease_sp(sp_cost);
+    }
     MoveResult::Effective
 }
