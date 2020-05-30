@@ -18,7 +18,7 @@ fn main() -> GameResult {
     let mut world: ecs::World = ecs::World::new();
 
     // initialise window
-    let ctx: &mut Context = &mut rendering::init_window(1920.0, 1080.0).unwrap();
+    let ctx: &mut Context = &mut rendering::init_window(1600.0, 1200.0).unwrap();
 
     // create a test move:
     let test_move: ecs::Move = ecs::Move::new(
@@ -33,11 +33,55 @@ fn main() -> GameResult {
     );
 
     // Create global audio entity for some music :)
-    let e: PartialEntity = ecs::World::create_entity()
-        .add_component(Component::AudioComponent(AudioComponent::new(
-            ctx, "/music.flac", true
+    //let e: PartialEntity = ecs::World::create_entity()
+        //.add_component(Component::AudioComponent(AudioComponent::new(
+            //ctx, "/music.flac", true
+        //)));
+    //world.build_entity(e);
+
+    let e_source: PartialEntity = ecs::World::create_entity()
+        .add_component(Component::HealthComponent(HealthComponent::new(
+            1000,
+        )))
+        .add_component(Component::FighterComponent(FighterComponent::new(
+            Some(500), vec![test_move]
         )));
-    world.build_entity(e);
+    world.build_entity(e_source);
+
+    let test_move: ecs::Move = ecs::Move::new(
+        "Megidolaon".to_string(), "{source} let loose terrifying energy!".to_string(),
+        "Extreme Almighty damage to all foes.".to_string(),
+        None, Some(50),
+        true, Some(120), None,
+        None, None,
+        true, Some(ecs::AreaTarget::Enemy),
+        false, 0.0,
+        1.0,
+    );
+
+    let e_target: PartialEntity = ecs::World::create_entity()
+        .add_component(Component::HealthComponent(HealthComponent::new(
+            500,
+        )))
+        .add_component(Component::FighterComponent(FighterComponent::new(
+            Some(50), vec![test_move]
+        )));
+    world.build_entity(e_target);
+
+    let test_move: ecs::Move = ecs::Move::new(
+        "Megidolaon".to_string(), "{source} let loose terrifying energy!".to_string(),
+        "Extreme Almighty damage to all foes.".to_string(),
+        None, Some(50),
+        true, Some(120), None,
+        None, None,
+        true, Some(ecs::AreaTarget::Enemy),
+        false, 0.0,
+        1.0,
+    );
+
+    println!("{}", world.health_components.get(&1).unwrap().hp);
+    battle::execute_move(&mut world, 0, 1, &test_move);
+    println!("{}", world.health_components.get(&1).unwrap().hp);
 
     // Create a circle and add some velocity
     //let e: PartialEntity = ecs::World::create_entity()
@@ -85,22 +129,22 @@ fn main() -> GameResult {
     //world.audio_components.get_mut(&0).unwrap().play();
 
     // tmp game loop
-    for i in 1..1000 {
-        println!("Iteration {}", i);
+    //for i in 1..1000 {
+        //println!("Iteration {}", i);
         
-        let mut eid: u16 = 0;
-        if i % 100 == 0  {
-            for (id, c) in world.renderable_sprite_components.iter() {
-                eid = *id;
-                break;
-            }
-            world.remove_entity(&eid);
-        }
+        //let mut eid: u16 = 0;
+        //if i % 100 == 0  {
+            //for (id, c) in world.renderable_sprite_components.iter() {
+                //eid = *id;
+                //break;
+            //}
+            //world.remove_entity(&eid);
+        //}
 
-        physics::velocity_system(&mut world);
-        physics::rot_velocity_system(&mut world);
-        rendering::rendering_system(&mut world, ctx);
-        println!("");
-    }
+        //physics::velocity_system(&mut world);
+        //physics::rot_velocity_system(&mut world);
+        //rendering::rendering_system(&mut world, ctx);
+        //println!("");
+    //}
     Ok(())
 }

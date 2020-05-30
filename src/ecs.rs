@@ -19,8 +19,7 @@ pub struct FighterComponent {
 }
 
 impl FighterComponent {
-    pub fn new(sp: Option<u16>, moves: Vec<Move>) -> FighterComponent {
-        match sp {
+    pub fn new(sp: Option<u16>, moves: Vec<Move>) -> FighterComponent { match sp {
             None => FighterComponent {
                 sp: 9999,
                 max_sp: 9999,
@@ -78,6 +77,9 @@ pub struct Move {
     pub name: String,
     pub use_message: String, // Some special sequence to enter entity name
     pub description: String,
+
+    // pub sound: ggez::Audio::AudioSource ?
+
     pub hp_cost: Option<u16>,
     pub sp_cost: Option<u16>,
 
@@ -263,9 +265,9 @@ impl RenderableSpriteComponent {
 // All entities with HealthComponent can have health and can be killed.
 // TODO: death callback <28-05-20, vvvm23> //
 pub struct HealthComponent {
-    hp: u16,
-    max_hp: u16,
-    alive: bool,
+    pub hp: u16,
+    pub max_hp: u16,
+    pub alive: bool,
 }
 
 impl HealthComponent {
