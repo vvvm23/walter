@@ -3,6 +3,8 @@ mod rendering;
 mod physics;
 mod battle;
 
+use std::rc::Rc;
+
 use ecs::Component;
 use ecs::PartialEntity;
 
@@ -21,7 +23,7 @@ fn main() -> GameResult {
     let ctx: &mut Context = &mut rendering::init_window(1600.0, 1200.0).unwrap();
 
     // create a test move:
-    let test_move: ecs::Move = ecs::Move::new(
+    let test_move: Rc<ecs::Move> = Rc::new(ecs::Move::new(
         "Megidolaon".to_string(), "{source} let loose terrifying energy!".to_string(),
         "Extreme Almighty damage to all foes.".to_string(),
         None, Some(50),
@@ -30,7 +32,7 @@ fn main() -> GameResult {
         true, Some(ecs::AreaTarget::Enemy),
         false, 0.0,
         1.0,
-    );
+    ));
 
     // Create global audio entity for some music :)
     //let e: PartialEntity = ecs::World::create_entity()
@@ -48,17 +50,6 @@ fn main() -> GameResult {
         )));
     world.build_entity(e_source);
 
-    let test_move: ecs::Move = ecs::Move::new(
-        "Megidolaon".to_string(), "{source} let loose terrifying energy!".to_string(),
-        "Extreme Almighty damage to all foes.".to_string(),
-        None, Some(50),
-        true, Some(120), None,
-        None, None,
-        true, Some(ecs::AreaTarget::Enemy),
-        false, 0.0,
-        1.0,
-    );
-
     let e_target: PartialEntity = ecs::World::create_entity()
         .add_component(Component::HealthComponent(HealthComponent::new(
             500,
@@ -68,19 +59,8 @@ fn main() -> GameResult {
         )));
     world.build_entity(e_target);
 
-    let test_move: ecs::Move = ecs::Move::new(
-        "Megidolaon".to_string(), "{source} let loose terrifying energy!".to_string(),
-        "Extreme Almighty damage to all foes.".to_string(),
-        None, Some(50),
-        true, Some(120), None,
-        None, None,
-        true, Some(ecs::AreaTarget::Enemy),
-        false, 0.0,
-        1.0,
-    );
-
     println!("{}", world.health_components.get(&1).unwrap().hp);
-    battle::execute_move(&mut world, 0, 1, &test_move);
+    battle::execute_move(&mut world, 0, 1);
     println!("{}", world.health_components.get(&1).unwrap().hp);
 
     // Create a circle and add some velocity

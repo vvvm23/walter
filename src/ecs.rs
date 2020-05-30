@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use mint;
 
@@ -11,26 +12,29 @@ use ggez::audio::SoundSource;
 
 // Component for any entity that can take part in battle.
 pub struct FighterComponent {
-    sp: u16,
-    max_sp: u16,
-    infinite_sp: bool,
-    moves: Vec<Move>
+    pub sp: u16,
+    pub max_sp: u16,
+    pub infinite_sp: bool,
+    pub moves: Vec<Rc<Move>>,
+    pub current_move: Option<Rc<Move>>,
     //ai: AI, AI enum
 }
 
 impl FighterComponent {
-    pub fn new(sp: Option<u16>, moves: Vec<Move>) -> FighterComponent { match sp {
+    pub fn new(sp: Option<u16>, moves: Vec<Rc<Move>>) -> FighterComponent { match sp {
             None => FighterComponent {
                 sp: 9999,
                 max_sp: 9999,
                 infinite_sp: true,
                 moves: moves,
+                current_move: None,
             },
             Some(i) => FighterComponent {
                 sp: i,
                 max_sp: i,
                 infinite_sp: false,
                 moves: moves,
+                current_move: None,
             },
         }
     }
