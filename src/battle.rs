@@ -36,7 +36,7 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
     }
 
     let source_stats: &ecs::StatsComponent = world.stats_components.get(&source_id).unwrap();
-    let target_stats: &ecs::StatsComponent = world.stats_components.get(&source_id).unwrap();
+    let target_stats: &ecs::StatsComponent = world.stats_components.get(&target_id).unwrap();
 
     if let None = source_fighter.current_move {
         println!("Source does not have a selected move");
