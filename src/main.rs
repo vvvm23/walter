@@ -54,7 +54,7 @@ fn main() -> GameResult {
             Some(50), vec![test_move.clone()]
         )))
         .add_component(Component::StatsComponent(StatsComponent::new(
-            90, 50, 50, 50, 80, 0.0, 40, 0,
+            90, 50, 65535, 50, 80, 0.0, 40, 0,
         )));
     world.build_entity(e_target);
 

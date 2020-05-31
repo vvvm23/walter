@@ -6,6 +6,18 @@ use std::rc::Rc;
 
 use ecs::Entity;
 
+pub enum BattleResult {
+    Win,
+    Loss,
+    GameOver,
+    Retreat,
+}
+
+pub fn battle_loop() -> BattleResult {
+    
+    BattleResult::Win
+}
+
 pub enum MoveResult {
     Effective,
     NoEffect,
@@ -65,7 +77,7 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
         }
     }
     let variation: f32 = rng.gen::<f32>() / 5.0 + 0.9;
-    let hp_power: u16 = (hp_power * variation) as u16; // +- 10% damage variation
+    let hp_power: u16 = (hp_power * variation).ceil() as u16; // +- 10% damage variation
 
     let sp_power: u16 = match current_move.sp_power {
         None => 0,
