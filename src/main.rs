@@ -24,7 +24,7 @@ fn main() -> GameResult {
 
     // create a test move:
     let test_move: Rc<ecs::Move> = Rc::new(ecs::Move::new(
-        "Megidolaon".to_string(), "{source} let loose terrifying energy!".to_string(),
+        "Megidolaon".to_string(), "$source let loose terrifying energy!".to_string(),
         "Extreme Almighty damage to all foes.".to_string(),
         None, Some(50),
         true, Some(120), None,
