@@ -25,7 +25,7 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
         println!("No current move.");
         return MoveResult::NoEffect;
     }
-
+    // Could panic if None, but should be handled by above statement
     let current_move: Rc<ecs::Move> = source_fighter.current_move.clone().unwrap().clone();
 
     let hp_power: u16 = match current_move.hp_power {
