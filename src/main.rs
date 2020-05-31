@@ -46,7 +46,7 @@ fn main() -> GameResult {
             1000,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            Some(500), vec![test_move]
+            Some(500), vec![test_move.clone()]
         )));
     world.build_entity(e_source);
 
@@ -55,7 +55,7 @@ fn main() -> GameResult {
             500,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            Some(50), vec![test_move]
+            Some(50), vec![test_move.clone()]
         )));
     world.build_entity(e_target);
 

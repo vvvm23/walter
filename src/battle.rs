@@ -21,7 +21,12 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
     let source_health: &ecs::HealthComponent =  world.health_components.get(&target_id).unwrap();
     let source_fighter: &ecs::FighterComponent = world.fighter_components.get(&source_id).unwrap();
     
-    let current_move: ecs::Move = Rc::try_unwrap(source_fighter.current_move.unwrap());
+    if let None = source_fighter.current_move {
+        println!("No current move.");
+        return MoveResult::NoEffect;
+    }
+
+    let current_move: Rc<ecs::Move> = source_fighter.current_move.clone().unwrap().clone();
 
     let hp_power: u16 = match current_move.hp_power {
         None => 0,

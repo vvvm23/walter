@@ -17,6 +17,7 @@ pub struct FighterComponent {
     pub infinite_sp: bool,
     pub moves: Vec<Rc<Move>>,
     pub current_move: Option<Rc<Move>>,
+    //pub current_move: Rc<Move>,
     //ai: AI, AI enum
 }
 
@@ -26,6 +27,7 @@ impl FighterComponent {
                 sp: 9999,
                 max_sp: 9999,
                 infinite_sp: true,
+                //current_move: moves[0].clone(),
                 moves: moves,
                 current_move: None,
             },
@@ -33,6 +35,7 @@ impl FighterComponent {
                 sp: i,
                 max_sp: i,
                 infinite_sp: false,
+                //current_move: moves[0].clone(),
                 moves: moves,
                 current_move: None,
             },
