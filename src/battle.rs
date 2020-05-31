@@ -13,9 +13,72 @@ pub enum BattleResult {
     Retreat,
 }
 
-pub fn battle_loop() -> BattleResult {
+/*
+ *  Main Battle Loop
+ *  
+ *  Inputs  -> player team entity ids as a vector
+ *          -> enemy team entity ids as a vector
+ *          -> ecs::World struct
+ *
+ *  Outputs -> BattleResult enum. Can be handled by caller
+ *
+ *  Plan:
+ *      1.  Sort entity ids by speeds of their corresponding StatsComponent s
+ *      2.  Execute any special events such as dialogue, status effects, abilities
+ *      3.  Run AI procedure for each entity in turn
+ *      4.  Execute that Move
+ *      5.  Remove entity from turn cycle if they lose all health or run
+ *      6.  Loop until a side wins or runs
+ *
+*/
+
+// TODO: sorting by speed and not id (what are you doing) <31-05-20, vvvm23> //
+fn sort_entities(blufor: &mut Vec<u16>, opfor: &mut Vec<u16>) -> Vec<u16> {
+    blufor.sort(); // check if this sorts in place
+    opfor.sort();
+    let mut all: Vec<u16> = Vec::new();
+    all.append(blufor);
+    all.append(opfor);
+    all.sort();
+    all
+}
+
+//fn fighters_from_ids(world: &mut ecs::World, fighters: &mut Vec<&ecs::FighterComponent>, ids: &Vec<u16>) {
+    //// clears the fighter vector
+    //*fighters = Vec::new();
+    //for i in ids {
+       //fighters.push(world.fighter_components.get(&i).unwrap());
+    //}
+//}
+
+// TODO: entity sorting in another function <31-05-20, vvvm23> //
+// TODO: struct to contain id and fighter lists for teams <31-05-20, vvvm23> //
+pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<u16>) -> BattleResult {
+    let mut blufor_fighters: Vec<&ecs::FighterComponent> = Vec::new();
+    let mut opfor_fighters: Vec<&ecs::FighterComponent> = Vec::new();
+    let mut all_fighters: Vec<&ecs::FighterComponent> = Vec::new();
+
+    blufor.sort();
+    opfor.sort();
+    all.sort();
+
+    let mut all: Vec<u16> = Vec::new();
+    all.append(&mut blufor);
+    all.append(&mut opfor);
+
+    for e in blufor {
+        blufor_fighters.push(world.fighter_components.get(&e).unwrap());
+    }
+    for e in opfor {
+        opfor_fighters.push(world.fighter_components.get(&e).unwrap());
+    }
+    for e in all {
+        all_fighters.push(world.fighter_components.get(&e).unwrap());
+    }
+
     
-    BattleResult::Win
+
+    BattleResult::Win // default is to win.
 }
 
 pub enum MoveResult {
