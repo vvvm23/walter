@@ -1,3 +1,6 @@
+use rand;
+use rand::Rng;
+
 use crate::ecs as ecs;
 use std::rc::Rc;
 
@@ -8,9 +11,10 @@ pub enum MoveResult {
     NoEffect,
 }
 
-// TODO: wait a minute.. didn't I say I would have a source fighter and a target health? what the
-// hell is this? <30-05-20, vvvm23> //
+// TODO: use of entity struct <31-05-20, vvvm23> //
 pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> MoveResult {
+    let mut rng = rand::thread_rng(); // TODO: should this be here?
+
     if !world.health_components.contains_key(&target_id) {
         println!("Target cannot take damage!");
         return MoveResult::NoEffect;
@@ -21,6 +25,19 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
     let source_health: &ecs::HealthComponent =  world.health_components.get(&target_id).unwrap();
     let source_fighter: &ecs::FighterComponent = world.fighter_components.get(&source_id).unwrap();
     
+    // TODO: maybe combine fighter and stats <31-05-20, vvvm23> //
+    if !world.stats_components.contains_key(&source_id) {
+        println!("Source is missing StatsComponent");
+        return MoveResult::NoEffect;
+    }
+    if !world.stats_components.contains_key(&target_id) {
+        println!("Source is missing StatsComponent");
+        return MoveResult::NoEffect;
+    }
+
+    let source_stats: &ecs::StatsComponent = world.stats_components.get(&source_id).unwrap();
+    let target_stats: &ecs::StatsComponent = world.stats_components.get(&source_id).unwrap();
+
     if let None = source_fighter.current_move {
         println!("No current move.");
         return MoveResult::NoEffect;
@@ -32,10 +49,39 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
         None => 0,
         Some(i) => i,
     };
+    println!("{}", hp_power);
+    let mut hp_power: f32 = hp_power as f32;
+    hp_power *= match current_move.is_attack {
+        true => (source_stats.attack as f32 / target_stats.defence as f32),
+        false => (source_stats.support as f32 / 100.0),
+    };
+    println!("{}", hp_power);
+
+    if current_move.crit {
+        let roll: f32 = rng.gen::<f32>();
+        let threshold: f32 = current_move.crit_chance + source_stats.crit + 0.1;
+        if roll < threshold { // Crit
+            println!("Critical Hit");
+            hp_power *= 1.5;
+        }
+    }
+    println!("{}", hp_power);
+    let variation: f32 = rng.gen::<f32>() / 5.0 + 0.9;
+    let hp_power: u16 = (hp_power * variation) as u16; // +- 10% damage variation
+    println!("{}", hp_power);
+
     let sp_power: u16 = match current_move.sp_power {
         None => 0,
         Some(i) => i,
     };
+    let mut sp_power: f32 = sp_power as f32;
+    sp_power *= match current_move.is_attack {
+        true => (source_stats.attack as f32 / target_stats.defence as f32),
+        false => (source_stats.support as f32 / 100.0),
+    };
+    let sp_power: u16 = sp_power as u16;
+
+
     //let target_status: Vec<ecs::StatusEffect> = match &current_move.target_status {
         //None => Vec::new(),
         //Some(i) => i,
@@ -55,7 +101,13 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
 
     println!("{}", current_move.use_message);
 
-    // TODO: modify power and effects based on entity stats, equipment, status effects, etc. <29-05-20, vvvm23> //
+    let roll: f32 = rng.gen::<f32>();
+    let threshold: f32 = current_move.base_accuracy * (source_stats.accuracy as f32 / target_stats.agility as f32);
+    if roll > threshold { // Miss
+        println!("Missed the target");
+        return MoveResult::NoEffect;
+    }
+
     // TODO: calculate to hit chance using base chance, accuracy and evasion <29-05-20, vvvm23> //
     // TODO: calculate crit chance using base crit chance and other factors <29-05-20, vvvm23> //
     // TODO: negate certain effects <29-05-20, vvvm23> //

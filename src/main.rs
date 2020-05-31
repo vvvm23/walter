@@ -20,7 +20,7 @@ fn main() -> GameResult {
     let mut world: ecs::World = ecs::World::new();
 
     // initialise window
-    let ctx: &mut Context = &mut rendering::init_window(1600.0, 1200.0).unwrap();
+    //let ctx: &mut Context = &mut rendering::init_window(1600.0, 1200.0).unwrap();
 
     // create a test move:
     let test_move: Rc<ecs::Move> = Rc::new(ecs::Move::new(
@@ -30,7 +30,7 @@ fn main() -> GameResult {
         true, Some(120), None,
         None, None,
         true, Some(ecs::AreaTarget::Enemy),
-        false, 0.0,
+        true, 0.2,
         1.0,
     ));
 
@@ -40,6 +40,9 @@ fn main() -> GameResult {
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
             Some(500), vec![test_move.clone()]
+        )))
+        .add_component(Component::StatsComponent(StatsComponent::new(
+            100, 100, 80, 70, 80, 0.0, 40, 10,
         )));
     world.build_entity(e_source);
 
@@ -49,13 +52,14 @@ fn main() -> GameResult {
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
             Some(50), vec![test_move.clone()]
+        )))
+        .add_component(Component::StatsComponent(StatsComponent::new(
+            90, 50, 50, 50, 80, 0.0, 40, 0,
         )));
     world.build_entity(e_target);
 
-    println!("{}", world.health_components.get(&1).unwrap().hp);
     world.fighter_components.get_mut(&0).unwrap().current_move = Some(world.fighter_components.get(&0).unwrap().moves[0].clone());
     battle::execute_move(&mut world, 0, 1);
-    println!("{}", world.health_components.get(&1).unwrap().hp);
 
     Ok(())
 }
