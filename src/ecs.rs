@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::cmp::Ordering;
 
 use mint;
 
@@ -18,16 +19,60 @@ pub struct FighterComponent {
     pub moves: Vec<Rc<Move>>,
     pub current_move: Option<Rc<Move>>,
     //ai: AI, AI enum
+
+    pub level: u8,
+
+    pub attack: u16,
+    pub defence: u16,
+    pub agility: u16,
+    pub accuracy: u16,
+    pub crit: f32,
+
+    pub weight: u16,
+    pub support: u16,
 }
 
+impl Ord for FighterComponent {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.agility.cmp(&other.agility)
+    }
+}
+impl Eq for FighterComponent {
+    //fn eq(&self, other: &Self) -> bool {
+        //self.agility == other.agility
+    //}
+}
+impl PartialOrd for FighterComponent {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl PartialEq for FighterComponent {
+    fn eq(&self, other: &Self) -> bool {
+        self.agility == other.agility
+    }
+}
+    
 impl FighterComponent {
-    pub fn new(sp: Option<u16>, moves: Vec<Rc<Move>>) -> FighterComponent { match sp {
+    pub fn new(sp: Option<u16>, moves: Vec<Rc<Move>>,
+               level: u8,
+               attack: u16, defence: u16, agility: u16, accuracy: u16,
+               crit: f32, weight: u16, support: u16)
+        -> FighterComponent { match sp {
             None => FighterComponent {
                 sp: 9999,
                 max_sp: 9999,
                 infinite_sp: true,
                 moves: moves,
                 current_move: None,
+                level: level,
+                attack: attack,
+                defence: defence,
+                agility: agility,
+                accuracy: accuracy,
+                crit: crit, 
+                weight: weight,
+                support: support,
             },
             Some(i) => FighterComponent {
                 sp: i,
@@ -35,6 +80,14 @@ impl FighterComponent {
                 infinite_sp: false,
                 moves: moves,
                 current_move: None,
+                level: level,
+                attack: attack,
+                defence: defence,
+                agility: agility,
+                accuracy: accuracy,
+                crit: crit, 
+                weight: weight,
+                support: support,
             },
         }
     }
@@ -64,32 +117,33 @@ pub enum AI {
 }
 
 // Component for all entities that have stats
-pub struct StatsComponent {
-    pub level: u8,
+//pub struct StatsComponent {
+    //pub level: u8,
 
-    pub attack: u16,
-    pub defence: u16,
-    pub agility: u16,
-    pub accuracy: u16,
-    pub crit: f32,
+    //pub attack: u16,
+    //pub defence: u16,
+    //pub agility: u16,
+    //pub accuracy: u16,
+    //pub crit: f32,
 
-    pub weight: u16,
-    pub support: u16,
-}
+    //pub weight: u16,
+    //pub support: u16,
+//}
 
-impl StatsComponent {
-    pub fn new(
-        level: u8,
-        attack: u16, defence: u16, agility: u16, accuracy: u16,
-        crit: f32, weight: u16, support: u16,
-    ) -> StatsComponent {
-        StatsComponent {
-            level: level,
-            attack: attack, defence: defence, agility: agility, accuracy: accuracy,
-            crit: crit, weight: weight, support: support,
-        }
-    }
-}
+//impl StatsComponent {
+    //pub fn new(
+        //level: u8,
+        //attack: u16, defence: u16, agility: u16, accuracy: u16,
+        //crit: f32, weight: u16, support: u16,
+    //) -> StatsComponent {
+        //StatsComponent {
+            //level: level,
+            //attack: attack, defence: defence, agility: agility, accuracy: accuracy,
+            //crit: crit, weight: weight, support: support,
+        //}
+    //}
+//}
+
 
 pub struct Move {
     pub name: String,
@@ -419,7 +473,6 @@ pub enum Component {
     RenderableSpriteComponent(RenderableSpriteComponent),
     AudioComponent(AudioComponent),
     FighterComponent(FighterComponent),
-    StatsComponent(StatsComponent),
 }
 
 // Simple wrapper for entity ID
@@ -453,7 +506,6 @@ pub struct World {
     pub renderable_sprite_components:       HashMap<u16, RenderableSpriteComponent>,
     pub audio_components:                   HashMap<u16, AudioComponent>,
     pub fighter_components:                 HashMap<u16, FighterComponent>,
-    pub stats_components:                   HashMap<u16, StatsComponent>,
 }
 
 impl World {
@@ -472,7 +524,6 @@ impl World {
             renderable_sprite_components:       HashMap::new(),
             audio_components:                   HashMap::new(),
             fighter_components:                 HashMap::new(),
-            stats_components:                   HashMap::new(),
         }
     }
 
@@ -530,10 +581,6 @@ impl World {
                     self.max_id,
                     fc,
                 ); ()},
-                Component::StatsComponent(sc) => {self.stats_components.insert(
-                    self.max_id,
-                    sc,
-                ); ()}
             }
         }
 
@@ -552,6 +599,5 @@ impl World {
         self.renderable_sprite_components.remove(eid);
         self.audio_components.remove(eid);
         self.fighter_components.remove(eid);
-        self.stats_components.remove(eid);
     }
 }

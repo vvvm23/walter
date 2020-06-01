@@ -32,25 +32,6 @@ pub enum BattleResult {
  *
 */
 
-// TODO: sorting by speed and not id (what are you doing) <31-05-20, vvvm23> //
-fn sort_entities(blufor: &mut Vec<u16>, opfor: &mut Vec<u16>) -> Vec<u16> {
-    blufor.sort(); // check if this sorts in place
-    opfor.sort();
-    let mut all: Vec<u16> = Vec::new();
-    all.append(blufor);
-    all.append(opfor);
-    all.sort();
-    all
-}
-
-//fn fighters_from_ids(world: &mut ecs::World, fighters: &mut Vec<&ecs::FighterComponent>, ids: &Vec<u16>) {
-    //// clears the fighter vector
-    //*fighters = Vec::new();
-    //for i in ids {
-       //fighters.push(world.fighter_components.get(&i).unwrap());
-    //}
-//}
-
 // TODO: entity sorting in another function <31-05-20, vvvm23> //
 // TODO: struct to contain id and fighter lists for teams <31-05-20, vvvm23> //
 pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<u16>) -> BattleResult {
@@ -58,25 +39,14 @@ pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<
     let mut opfor_fighters: Vec<&ecs::FighterComponent> = Vec::new();
     let mut all_fighters: Vec<&ecs::FighterComponent> = Vec::new();
 
-    blufor.sort();
-    opfor.sort();
-    all.sort();
-
-    let mut all: Vec<u16> = Vec::new();
-    all.append(&mut blufor);
-    all.append(&mut opfor);
-
-    for e in blufor {
-        blufor_fighters.push(world.fighter_components.get(&e).unwrap());
+    for i in blufor {
+        blufor_fighters.push(world.fighter_components.get(&i).unwrap());
+        all_fighters.push(world.fighter_components.get(&i).unwrap());
     }
-    for e in opfor {
-        opfor_fighters.push(world.fighter_components.get(&e).unwrap());
+    for i in opfor {
+        opfor_fighters.push(world.fighter_components.get(&i).unwrap());
+        all_fighters.push(world.fighter_components.get(&i).unwrap());
     }
-    for e in all {
-        all_fighters.push(world.fighter_components.get(&e).unwrap());
-    }
-
-    
 
     BattleResult::Win // default is to win.
 }
@@ -97,22 +67,9 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
 
     let target_health: &ecs::HealthComponent = world.health_components.get(&target_id).unwrap();
     let target_fighter: &ecs::FighterComponent = world.fighter_components.get(&target_id).unwrap();
-    let source_health: &ecs::HealthComponent =  world.health_components.get(&target_id).unwrap();
+    let source_health: &ecs::HealthComponent =  world.health_components.get(&source_id).unwrap();
     let source_fighter: &ecs::FighterComponent = world.fighter_components.get(&source_id).unwrap();
     
-    // TODO: maybe combine fighter and stats <31-05-20, vvvm23> //
-    if !world.stats_components.contains_key(&source_id) {
-        println!("Source is missing StatsComponent");
-        return MoveResult::NoEffect;
-    }
-    if !world.stats_components.contains_key(&target_id) {
-        println!("Target is missing StatsComponent");
-        return MoveResult::NoEffect;
-    }
-
-    let source_stats: &ecs::StatsComponent = world.stats_components.get(&source_id).unwrap();
-    let target_stats: &ecs::StatsComponent = world.stats_components.get(&target_id).unwrap();
-
     if let None = source_fighter.current_move {
         println!("Source does not have a selected move");
         return MoveResult::NoEffect;
@@ -127,13 +84,13 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
     };
     let mut hp_power: f32 = hp_power as f32;
     hp_power *= match current_move.is_attack {
-        true => (source_stats.attack as f32 / target_stats.defence as f32),
-        false => (source_stats.support as f32 / 100.0),
+        true => (source_fighter.attack as f32 / target_fighter.defence as f32),
+        false => (source_fighter.support as f32 / 100.0),
     };
 
     if current_move.crit {
         let roll: f32 = rng.gen::<f32>();
-        let threshold: f32 = current_move.crit_chance + source_stats.crit + 0.1;
+        let threshold: f32 = current_move.crit_chance + source_fighter.crit + 0.1;
         if roll < threshold { // Crit
             println!("$source dealt a critical hit!");
             hp_power *= 1.5;
@@ -148,8 +105,8 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
     };
     let mut sp_power: f32 = sp_power as f32;
     sp_power *= match current_move.is_attack {
-        true => (source_stats.attack as f32 / target_stats.defence as f32),
-        false => (source_stats.support as f32 / 100.0),
+        true => (source_fighter.attack as f32 / target_fighter.defence as f32),
+        false => (source_fighter.support as f32 / 100.0),
     };
     let sp_power: u16 = sp_power as u16;
 
@@ -171,8 +128,12 @@ pub fn execute_move(world: &mut ecs::World, source_id: u16, target_id: u16) -> M
         source_fighter.decrease_sp(sp_cost);
     }
 
+    // reset to immutable
+    let source_fighter: &ecs::FighterComponent = world.fighter_components.get(&source_id).unwrap();
+    let target_fighter: &ecs::FighterComponent = world.fighter_components.get(&target_id).unwrap();
+
     let roll: f32 = rng.gen::<f32>();
-    let threshold: f32 = current_move.base_accuracy * (source_stats.accuracy as f32 / target_stats.agility as f32);
+    let threshold: f32 = current_move.base_accuracy * (source_fighter.accuracy as f32 / target_fighter.agility as f32);
     if roll > threshold { // Miss
         println!("$target dodged the attack!");
         return MoveResult::NoEffect;
