@@ -78,20 +78,29 @@ pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<
         });
     }
     fighters.sort();
+    let fighters: Vec<IdFighter> = fighters;
 
-    for id_f in fighters {
+    for id_f in &fighters {
         let id: u16 = id_f.id;
         let fighter = id_f.fighter;
+
+        let player_turn: bool = match fighter.faction {
+            ecs::Faction::Player => true,
+            _ => false,
+        };
+
+        if player_turn {
+
+        } else {
+            ai_handover(world, id_f, &fighters)
+        }
+
     }
 
     BattleResult::Win // default is to win.
 }
 
-fn ai_handover(fighter: &ecs::FighterComponent) {
-
-}
-
-fn ai_random(fighter: &ecs::FighterComponent) {
+fn ai_handover(world: &mut ecs::World, source: &IdFighter, fighters: &Vec<IdFighter>) {
 
 }
 
