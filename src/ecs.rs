@@ -13,12 +13,13 @@ use ggez::audio::SoundSource;
 
 // Component for any entity that can take part in battle.
 pub struct FighterComponent {
+    pub faction: Faction,
     pub sp: u16,
     pub max_sp: u16,
     pub infinite_sp: bool,
     pub moves: Vec<Rc<Move>>,
     pub current_move: Option<Rc<Move>>,
-    //ai: AI, AI enum
+    pub ai: AI,
 
     pub level: u8,
 
@@ -54,12 +55,14 @@ impl PartialEq for FighterComponent {
 }
     
 impl FighterComponent {
-    pub fn new(sp: Option<u16>, moves: Vec<Rc<Move>>,
+    pub fn new(faction: Faction, ai: AI, sp: Option<u16>, moves: Vec<Rc<Move>>,
                level: u8,
                attack: u16, defence: u16, agility: u16, accuracy: u16,
                crit: f32, weight: u16, support: u16)
         -> FighterComponent { match sp {
             None => FighterComponent {
+                faction: faction,
+                ai: ai,
                 sp: 9999,
                 max_sp: 9999,
                 infinite_sp: true,
@@ -75,6 +78,8 @@ impl FighterComponent {
                 support: support,
             },
             Some(i) => FighterComponent {
+                faction: faction,
+                ai: ai,
                 sp: i,
                 max_sp: i,
                 infinite_sp: false,
@@ -107,6 +112,13 @@ impl FighterComponent {
         }
         self.sp += dsp;
     }
+}
+
+pub enum Faction {
+    Player,
+    Ally,
+    Enemy,
+    Indie,
 }
 
 pub enum AI {

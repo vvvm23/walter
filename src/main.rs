@@ -39,7 +39,7 @@ fn main() -> GameResult {
             1000,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            Some(500), vec![test_move.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10,
+            ecs::Faction::Ally, ecs::AI::Random, Some(500), vec![test_move.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10,
         )));
     world.build_entity(e_source);
 
@@ -48,7 +48,7 @@ fn main() -> GameResult {
             500,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            Some(50), vec![test_move.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0,
+            ecs::Faction::Enemy, ecs::AI::Random, Some(50), vec![test_move.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0,
         )));
     world.build_entity(e_target);
 

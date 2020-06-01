@@ -3,6 +3,7 @@ use rand::Rng;
 
 use crate::ecs as ecs;
 use std::rc::Rc;
+use std::cmp::Ordering;
 
 use ecs::Entity;
 
@@ -32,23 +33,66 @@ pub enum BattleResult {
  *
 */
 
+struct IdFighter<'a> {
+    id: u16,
+    fighter: &'a ecs::FighterComponent,
+ }
+
+impl<'a> Ord for IdFighter<'a> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.fighter.cmp(&other.fighter)
+    }
+}
+impl<'a> Eq for IdFighter<'a> {
+    //fn eq(&self, other: &Self) -> bool {
+        //self.agility == other.agility
+    //}
+}
+impl<'a> PartialOrd for IdFighter<'a> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl<'a> PartialEq for IdFighter<'a> {
+    fn eq(&self, other: &Self) -> bool {
+        self.fighter == other.fighter
+    }
+}
+
 // TODO: entity sorting in another function <31-05-20, vvvm23> //
-// TODO: struct to contain id and fighter lists for teams <31-05-20, vvvm23> //
+// TODO: struct to contain id and fighter lists for teams <31-05-20, vvvm23> // 
 pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<u16>) -> BattleResult {
-    let mut blufor_fighters: Vec<&ecs::FighterComponent> = Vec::new();
-    let mut opfor_fighters: Vec<&ecs::FighterComponent> = Vec::new();
-    let mut all_fighters: Vec<&ecs::FighterComponent> = Vec::new();
+
+    let mut fighters: Vec<IdFighter> = Vec::new();
 
     for i in blufor {
-        blufor_fighters.push(world.fighter_components.get(&i).unwrap());
-        all_fighters.push(world.fighter_components.get(&i).unwrap());
+        fighters.push(IdFighter {
+            id: i,
+            fighter: world.fighter_components.get(&i).unwrap().clone(),
+        });
     }
     for i in opfor {
-        opfor_fighters.push(world.fighter_components.get(&i).unwrap());
-        all_fighters.push(world.fighter_components.get(&i).unwrap());
+        fighters.push(IdFighter {
+            id: i,
+            fighter: world.fighter_components.get(&i).unwrap().clone(),
+        });
+    }
+    fighters.sort();
+
+    for id_f in fighters {
+        let id: u16 = id_f.id;
+        let fighter = id_f.fighter;
     }
 
     BattleResult::Win // default is to win.
+}
+
+fn ai_handover(fighter: &ecs::FighterComponent) {
+
+}
+
+fn ai_random(fighter: &ecs::FighterComponent) {
+
 }
 
 pub enum MoveResult {
