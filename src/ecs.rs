@@ -362,6 +362,21 @@ impl HealthComponent {
         }
         self.hp = hp;
     }
+
+    // revive an entity to a percentage of its full health
+    pub fn revive(&mut self, percent: f32) {
+        if self.alive {
+            return;
+        }
+
+        if percent < 0.0 || percent > 1.0 {
+            return;
+        }
+
+        self.alive = true;
+        let new_health: u16 = (self.max_hp as f32 * percent) as u16;
+        self.hp = new_health;
+    }
 }
 
 // Component to define position of entity
