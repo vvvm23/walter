@@ -34,12 +34,23 @@ fn main() -> GameResult {
         1.0,
     ));
 
+    let test_move2: Rc<ecs::Move> = Rc::new(ecs::Move::new(
+        "Psycho Force".to_string(), "$source assaulted $target's mind!".to_string(),
+        "Colossal Psychokinesis Damage to a single foe".to_string(),
+        None, Some(30),
+        true, Some(200), Some(50),
+        None, None,
+        false, None,
+        false, 0.0,
+        1.0,
+    ));
+
     let e_source: PartialEntity = ecs::World::create_entity()
         .add_component(Component::HealthComponent(HealthComponent::new(
             1000,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            ecs::Faction::Ally, ecs::AI::Random, Some(500), vec![test_move.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10,
+            ecs::Faction::Ally, ecs::AI::Random, Some(500), vec![test_move.clone(), test_move2.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10,
         )));
     world.build_entity(e_source);
 
@@ -48,12 +59,14 @@ fn main() -> GameResult {
             500,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            ecs::Faction::Enemy, ecs::AI::Random, Some(50), vec![test_move.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0,
+            ecs::Faction::Enemy, ecs::AI::Random, Some(50), vec![test_move.clone(), test_move2.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0,
         )));
     world.build_entity(e_target);
 
-    world.fighter_components.get_mut(&0).unwrap().current_move = Some(world.fighter_components.get(&0).unwrap().moves[0].clone());
-    battle::execute_move(&mut world, 0, 1);
+    //world.fighter_components.get_mut(&0).unwrap().current_move = Some(world.fighter_components.get(&0).unwrap().moves[1].clone());
+    //battle::execute_move(&mut world, 0, 1);
+
+    battle::battle_loop(&mut world, vec![0], vec![1]);
 
     Ok(())
 }

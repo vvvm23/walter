@@ -128,34 +128,6 @@ pub enum AI {
     Leviathan,
 }
 
-// Component for all entities that have stats
-//pub struct StatsComponent {
-    //pub level: u8,
-
-    //pub attack: u16,
-    //pub defence: u16,
-    //pub agility: u16,
-    //pub accuracy: u16,
-    //pub crit: f32,
-
-    //pub weight: u16,
-    //pub support: u16,
-//}
-
-//impl StatsComponent {
-    //pub fn new(
-        //level: u8,
-        //attack: u16, defence: u16, agility: u16, accuracy: u16,
-        //crit: f32, weight: u16, support: u16,
-    //) -> StatsComponent {
-        //StatsComponent {
-            //level: level,
-            //attack: attack, defence: defence, agility: agility, accuracy: accuracy,
-            //crit: crit, weight: weight, support: support,
-        //}
-    //}
-//}
-
 
 pub struct Move {
     pub name: String,

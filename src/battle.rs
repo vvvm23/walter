@@ -3,6 +3,7 @@ use rand::Rng;
 
 use crate::ecs as ecs;
 use std::rc::Rc;
+use std::{thread, time};
 use std::cmp::Ordering;
 
 use ecs::Entity;
@@ -60,9 +61,9 @@ impl<'a> PartialEq for IdFighter<'a> {
 }
 
 // TODO: entity sorting in another function <31-05-20, vvvm23> //
-// TODO: struct to contain id and fighter lists for teams <31-05-20, vvvm23> // 
 pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<u16>) -> BattleResult {
 
+    loop {
     let mut fighters: Vec<IdFighter> = Vec::new();
 
     for i in blufor {
@@ -123,9 +124,29 @@ pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<
             };
             execute_aoe(world, *id, targets);
         }
-    }
+        if check_dead(world, &blufor) {
+            println!("You lose.");
+            return BattleResult::GameOver;
+        }
 
+        if check_dead(world, &opfor) {
+            println!("You win");
+            return BattleResult::Win;
+        }
+        println!("");
+        thread::sleep(time::Duration::from_millis(1000));
+    }
+    }
     BattleResult::Win // default is to win.
+}
+
+fn check_dead(world: &mut ecs::World, team: &Vec<u16>) -> bool {
+    for i in team {
+        if world.health_components.get(&i).unwrap().alive {
+            return false;
+        }
+    }
+    true
 }
 
 #[derive(Copy, Clone)]
