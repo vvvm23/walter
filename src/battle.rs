@@ -98,16 +98,32 @@ pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<
             _ => false,
         };
 
-        if is_control {
-            // Prompt user to select choice
-        } else {
-            // Let AI function choose function
-            ai_handover(world, id, &blufor, &opfor);
+        let (selected_move, selected_target) = match is_control {
+            true => player_choice(world, id, &blufor, &opfor),
+            false => ai_handover(world, id, &blufor, &opfor),
+        };
+
+        let fighter: &mut ecs::FighterComponent = world.fighter_components.get_mut(&id).unwrap();
+        fighter.current_move = Some(selected_move);
+        let fighter: &ecs::FighterComponent = world.fighter_components.get(&id).unwrap();
+
+        if let TargetOrAOE::Target(tid) = selected_target {
+            execute_move(world, *id, tid);
+        } else if let TargetOrAOE::AOE(at) = selected_target {
+            let targets: &Vec<u16> = match at {
+                ecs::AreaTarget::Ally => match is_control {
+                    true => &blufor,
+                    false => &opfor,
+                },
+                ecs::AreaTarget::Enemy => match is_control {
+                    true => &opfor,
+                    false => &blufor,
+                },
+                ecs::AreaTarget::All => &all,
+            };
+            execute_aoe(world, *id, targets);
         }
-
     }
-
-    
 
     BattleResult::Win // default is to win.
 }
@@ -116,6 +132,11 @@ pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<
 enum TargetOrAOE {
     Target(u16),
     AOE(ecs::AreaTarget),
+}
+
+fn player_choice(world: &mut ecs::World, source_id: &u16, blufor: &Vec<u16>, opfor: &Vec<u16>) -> (Rc<ecs::Move>, TargetOrAOE) {
+    // TODO: replace this with user prompts <02-06-20, vvvm23> //
+    ai_handover(world, source_id, blufor, opfor)
 }
 
 fn ai_handover(world: &mut ecs::World, source_id: &u16, blufor: &Vec<u16>, opfor: &Vec<u16>) -> (Rc<ecs::Move>, TargetOrAOE) {
@@ -155,6 +176,12 @@ fn ai_random(world: &mut ecs::World, source_id: &u16, blufor: &Vec<u16>, opfor: 
 pub enum MoveResult {
     Effective,
     NoEffect,
+}
+
+pub fn execute_aoe(world: &mut ecs::World, source_id: u16, targets: &Vec<u16>) {
+    for t in targets {
+        execute_move(world, source_id, *t);
+    }
 }
 
 // TODO: use of entity struct <31-05-20, vvvm23> //
