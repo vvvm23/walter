@@ -78,29 +78,77 @@ pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<
         });
     }
     fighters.sort();
-    let fighters: Vec<IdFighter> = fighters;
+    blufor = Vec::new();
+    opfor = Vec::new();
+    let mut all: Vec<u16> = Vec::new();
 
-    for id_f in &fighters {
-        let id: u16 = id_f.id;
-        let fighter = id_f.fighter;
+    for f in fighters {
+        match f.fighter.faction {
+            ecs::Faction::Ally => blufor.push(f.id),
+            ecs::Faction::Player => blufor.push(f.id),
+            _ => opfor.push(f.id),
+        };
+        all.push(f.id);
+    }
 
-        let player_turn: bool = match fighter.faction {
+    for id in &all {
+        let fighter: &ecs::FighterComponent = world.fighter_components.get(&id).unwrap();
+        let is_control: bool = match fighter.faction {
             ecs::Faction::Player => true,
             _ => false,
         };
 
-        if player_turn {
-
+        if is_control {
+            // Prompt user to select choice
         } else {
-            ai_handover(world, id_f, &fighters)
+            // Let AI function choose function
+            ai_handover(world, id, &blufor, &opfor);
         }
 
     }
 
+    
+
     BattleResult::Win // default is to win.
 }
 
-fn ai_handover(world: &mut ecs::World, source: &IdFighter, fighters: &Vec<IdFighter>) {
+#[derive(Copy, Clone)]
+enum TargetOrAOE {
+    Target(u16),
+    AOE(ecs::AreaTarget),
+}
+
+fn ai_handover(world: &mut ecs::World, source_id: &u16, blufor: &Vec<u16>, opfor: &Vec<u16>) -> (Rc<ecs::Move>, TargetOrAOE) {
+    match world.fighter_components.get(source_id).unwrap().ai {
+        ecs::AI::Random => ai_random(world, source_id, blufor, opfor),
+        _ => ai_random(world, source_id, blufor, opfor),
+    }
+}
+
+fn ai_random(world: &mut ecs::World, source_id: &u16, blufor: &Vec<u16>, opfor: &Vec<u16>) -> (Rc<ecs::Move>, TargetOrAOE) {
+    let mut rng = rand::thread_rng();
+    let nb_moves: u8 = world.fighter_components.get(source_id).unwrap().moves.len() as u8;
+    let random_pick: usize = rng.gen_range(0, nb_moves) as usize;
+    let random_move: Rc<ecs::Move> = world.fighter_components.get(source_id).unwrap().moves[random_pick].clone();
+
+    if random_move.aoe {
+        let aoe_target: ecs::AreaTarget = random_move.aoe_target.unwrap();
+        return (random_move, TargetOrAOE::AOE(aoe_target));
+    }
+
+    let random_target: u16 = match random_move.is_attack {
+        true => {
+            let nb_targets: u8 = opfor.len() as u8;
+            let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
+            opfor[random_pick]
+        },
+        false => {
+            let nb_targets: u8 = blufor.len() as u8;
+            let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
+            blufor[random_pick]
+        },
+    };
+    (random_move, TargetOrAOE::Target(random_target))
 
 }
 

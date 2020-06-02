@@ -209,6 +209,7 @@ impl Move {
     }
 }
 
+#[derive(Copy, Clone)]
 pub enum AreaTarget {
     Ally,
     Enemy,
@@ -505,6 +506,7 @@ impl PartialEntity {
 }
 
 // Defines current world state, contains all components currently in world.
+// TODO: maybe move entities to their own struct. So we can pass ids without being raw <02-06-20, vvvm23> //
 pub struct World {
     pub max_id: u16,
     pub entities: HashMap<u16, Entity>,
