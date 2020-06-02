@@ -63,10 +63,11 @@ fn main() -> GameResult {
         )));
     world.build_entity(e_target);
 
-    //world.fighter_components.get_mut(&0).unwrap().current_move = Some(world.fighter_components.get(&0).unwrap().moves[1].clone());
-    //battle::execute_move(&mut world, 0, 1);
-
-    battle::battle_loop(&mut world, vec![0], vec![1]);
+    let result = battle::battle_loop(&mut world, vec![0], vec![1]);
+    match result {
+        battle::BattleResult::Win => println!("You win!"),
+        _ => println!("You lose!"),
+    };
 
     Ok(())
 }
