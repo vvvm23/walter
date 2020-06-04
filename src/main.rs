@@ -15,12 +15,14 @@ use ecs::{FighterComponent};
 use ggez::graphics;
 use ggez::{Context, GameResult};
 
+use ggez::nalgebra as na;
+
 fn main() -> GameResult {
     // create empty world
     let mut world: ecs::World = ecs::World::new();
 
     // initialise window
-    //let ctx: &mut Context = &mut rendering::init_window(1600.0, 1200.0).unwrap();
+    let ctx: &mut Context = &mut rendering::init_window(1600.0, 1200.0).unwrap();
 
     // create a test move:
     let test_move: Rc<ecs::Move> = Rc::new(ecs::Move::new(
@@ -63,11 +65,21 @@ fn main() -> GameResult {
         )));
     world.build_entity(e_target);
 
-    let result = battle::battle_loop(&mut world, vec![0], vec![1]);
-    match result {
-        battle::BattleResult::Win => println!("You win!"),
-        _ => println!("You lose!"),
-    };
+    //let result = battle::battle_loop(&mut world, vec![0], vec![1]);
+    //match result {
+        //battle::BattleResult::Win => println!("You win!"),
+        //_ => println!("You lose!"),
+    //};
+
+    for i in 1..1000 {
+        graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
+
+        rendering::draw_container(ctx, na::Point2::new(100.0, 100.0), mint::Vector2{x:300.0, y:150.0});
+        rendering::draw_fighter_stats(&mut world, ctx);
+
+        graphics::present(ctx);
+        ggez::timer::yield_now();
+    }
 
     Ok(())
 }
