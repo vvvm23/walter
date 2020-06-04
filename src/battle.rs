@@ -91,6 +91,7 @@ pub fn battle_loop(world: &mut ecs::World, ctx: &mut Context, mut blufor: Vec<u1
             });
         }
         fighters.sort();
+        fighters.reverse();
         blufor = Vec::new();
         opfor = Vec::new();
         let mut all: Vec<u16> = Vec::new();
@@ -167,7 +168,6 @@ pub fn battle_loop(world: &mut ecs::World, ctx: &mut Context, mut blufor: Vec<u1
             thread::sleep(time::Duration::from_millis(1000));
         }
     }
-    thread::sleep(time::Duration::from_millis(1000));
     BattleResult::Win // default is to win.
 }
 
