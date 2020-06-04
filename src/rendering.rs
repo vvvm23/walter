@@ -189,3 +189,15 @@ pub fn draw_friendly_stats(world: &mut ecs::World, ctx: &mut Context, ids: &Vec<
 
 }
 
+pub fn draw_battle_sprites(world: &mut ecs::World, ctx: &mut Context, ids: &Vec<u16>) {
+    for id in ids {
+        let sprite: &ecs::RenderableSpriteComponent = world.renderable_sprite_components.get(&id).unwrap();
+        let position: &ecs::PositionComponent = world.position_components.get(&id).unwrap();
+
+        let sprite_param: graphics::DrawParam = graphics::DrawParam::default()
+            .dest(position.to_point());
+        graphics::draw(ctx, &sprite.texture, sprite_param);
+
+    }
+}
+

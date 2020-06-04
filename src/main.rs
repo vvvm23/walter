@@ -54,6 +54,12 @@ fn main() -> GameResult {
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
             "Cheems".to_string(), ecs::Faction::Ally, ecs::AI::Random, Some(500), vec![test_move.clone(), test_move2.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10, Some("/cheem_profile.png".to_string()), ctx,
+        )))
+        .add_component(Component::PositionComponent(PositionComponent::new(
+            300.0, 800.0,
+        )))
+        .add_component(Component::RenderableSpriteComponent(RenderableSpriteComponent::new(
+            ctx, "/cheems_sit.png", 1.0, 1.0,
         )));
     world.build_entity(e_source);
 
@@ -63,6 +69,12 @@ fn main() -> GameResult {
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
             "Walter".to_string(), ecs::Faction::Enemy, ecs::AI::Random, Some(9999), vec![test_move.clone(), test_move2.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0, Some("/walter_profile.png".to_string()), ctx,
+        )))
+        .add_component(Component::PositionComponent(PositionComponent::new(
+            900.0, 600.0,
+        )))
+        .add_component(Component::RenderableSpriteComponent(RenderableSpriteComponent::new(
+            ctx, "/walter_sit.png", 1.0, 1.0,
         )));
     world.build_entity(e_target);
 

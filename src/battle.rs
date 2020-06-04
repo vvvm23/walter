@@ -106,11 +106,13 @@ pub fn battle_loop(world: &mut ecs::World, ctx: &mut Context, mut blufor: Vec<u1
         }
 
         for id in &all {
-
             graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
             graphics::draw(ctx, &background, draw_param);
+
+            rendering::draw_battle_sprites(world, ctx, &vec![0,1]);
             rendering::draw_friendly_stats(world, ctx, &vec![0,1]);
             graphics::present(ctx);
+
 
             // Check if either team has been defeated
             if check_dead(world, &blufor) {
@@ -126,8 +128,8 @@ pub fn battle_loop(world: &mut ecs::World, ctx: &mut Context, mut blufor: Vec<u1
                 continue;
             }
 
-            let fighter: &ecs::FighterComponent = world.fighter_components.get(&id).unwrap();   
             // Check whether the current turn is controllable by the player
+            let fighter: &ecs::FighterComponent = world.fighter_components.get(&id).unwrap();
             let is_control: bool = match fighter.faction {
                 ecs::Faction::Player => true,
                 _ => false,
