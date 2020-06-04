@@ -157,3 +157,35 @@ pub fn draw_fighter_stats(world: &mut ecs::World, ctx: &mut Context) -> GameResu
     Ok(())
 }
 
+pub fn draw_friendly_stats(world: &mut ecs::World, ctx: &mut Context, ids: &Vec<u16>) {
+    let text_pad: f32 = 10.0;
+    for (i, id) in ids.iter().enumerate() {
+        let health: &ecs::HealthComponent = world.health_components.get(&id).unwrap();
+        let fighter: &ecs::FighterComponent = world.fighter_components.get(&id).unwrap();
+        
+        draw_container(ctx, na::Point2::new(1200.0 - text_pad, 100.0 - text_pad + (i*200) as f32), mint::Vector2{x:300.0, y:150.0});
+
+        let name_text: graphics::Text = graphics::Text::new(format!("{}", fighter.name));
+        graphics::draw(ctx, &name_text, (na::Point2::new(1200.0, 100.0+(i*200) as f32), graphics::WHITE));
+        
+        let health_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "HP:", health.hp, health.max_hp));
+        graphics::draw(ctx, &health_text, (na::Point2::new(1200.0, 100.0+20.0+(i*200) as f32), graphics::WHITE));
+
+        let sp_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "SP:", fighter.sp, fighter.max_sp));
+        graphics::draw(ctx, &sp_text, (na::Point2::new(1200.0, 100.0+40.0+(i*200) as f32), graphics::WHITE));
+
+        if !health.alive {
+            let dead_text: graphics::Text = graphics::Text::new("DOWN");
+            graphics::draw(ctx, &dead_text, (na::Point2::new(1200.0, 100.0+60.0+(i*200) as f32), [1.0, 0.0, 0.0, 1.0].into()));
+        }
+
+        if let Some(texture) = &fighter.stats_image {
+            let mut draw_param = graphics::DrawParam::default()
+                .dest(na::Point2::new(1350.0, 100.0 + (i*200) as f32));
+            graphics::draw(ctx, texture, draw_param);
+        }
+
+    }
+
+}
+

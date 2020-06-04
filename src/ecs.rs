@@ -33,6 +33,8 @@ pub struct FighterComponent {
 
     pub weight: u16, // used to calculate certain moves
     pub support: u16, // bonus to support moves
+
+    pub stats_image: Option<graphics::Image>,
 }
 
 impl Ord for FighterComponent {
@@ -61,8 +63,15 @@ impl FighterComponent {
     pub fn new(name: String, faction: Faction, ai: AI, sp: Option<u16>, moves: Vec<Rc<Move>>,
                level: u8,
                attack: u16, defence: u16, agility: u16, accuracy: u16,
-               crit: f32, weight: u16, support: u16)
-        -> FighterComponent { match sp {
+               crit: f32, weight: u16, support: u16,
+               stats_image_path: Option<String>, ctx: &mut ggez::Context)
+        -> FighterComponent { 
+            let stats_image: Option<graphics::Image> = match stats_image_path {
+                Some(path) => Some(graphics::Image::new(ctx, path).unwrap()),
+                None => None,
+            };
+
+            match sp {
             None => FighterComponent {
                 name: name,
                 faction: faction,
@@ -80,6 +89,7 @@ impl FighterComponent {
                 crit: crit, 
                 weight: weight,
                 support: support,
+                stats_image: stats_image, 
             },
             Some(i) => FighterComponent {
                 name: name,
@@ -98,6 +108,7 @@ impl FighterComponent {
                 crit: crit, 
                 weight: weight,
                 support: support,
+                stats_image: stats_image,
             },
         }
     }

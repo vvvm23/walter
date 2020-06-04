@@ -2,11 +2,16 @@ use rand;
 use rand::Rng;
 
 use crate::ecs as ecs;
+use crate::rendering as rendering;
+
 use std::rc::Rc;
 use std::{thread, time};
 use std::cmp::Ordering;
 
 use ecs::Entity;
+
+use ggez::graphics as graphics;
+use ggez::Context as Context;
 
 // enum to represent the result of a battle
 pub enum BattleResult {
@@ -64,9 +69,11 @@ impl<'a> PartialEq for IdFighter<'a> {
 
 // TODO: entity sorting in another function <31-05-20, vvvm23> //
 // TODO: split this up into more functions in general <02-06-20, vvvm23> //
+// TODO: load background on start, perhaps a battle struct? <04-06-20, vvvm23> //
 // Main battle loop.
-pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<u16>) -> BattleResult {
-
+pub fn battle_loop(world: &mut ecs::World, ctx: &mut Context, mut blufor: Vec<u16>, mut opfor: Vec<u16>) -> BattleResult {
+    let background: graphics::Image = graphics::Image::new(ctx, "/forest.png").unwrap();
+    let mut draw_param = graphics::DrawParam::default();
     loop {
         // Sort the fighters by speed
         let mut fighters: Vec<IdFighter> = Vec::new();
@@ -98,6 +105,12 @@ pub fn battle_loop(world: &mut ecs::World, mut blufor: Vec<u16>, mut opfor: Vec<
         }
 
         for id in &all {
+
+            graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
+            graphics::draw(ctx, &background, draw_param);
+            rendering::draw_friendly_stats(world, ctx, &vec![0,1]);
+            graphics::present(ctx);
+
             // If the current entity is dead, just skip
             // TODO: make sure it cant be a target as well <02-06-20, vvvm23> //
             if !world.health_components.get(&id).unwrap().alive {

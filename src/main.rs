@@ -52,7 +52,7 @@ fn main() -> GameResult {
             1000,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            "Cheems".to_string(), ecs::Faction::Ally, ecs::AI::Random, Some(500), vec![test_move.clone(), test_move2.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10,
+            "Cheems".to_string(), ecs::Faction::Ally, ecs::AI::Random, Some(500), vec![test_move.clone(), test_move2.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10, Some("/cheem_profile.png".to_string()), ctx,
         )));
     world.build_entity(e_source);
 
@@ -61,31 +61,29 @@ fn main() -> GameResult {
             2000,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            "Walter".to_string(), ecs::Faction::Enemy, ecs::AI::Random, Some(9999), vec![test_move.clone(), test_move2.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0,
+            "Walter".to_string(), ecs::Faction::Enemy, ecs::AI::Random, Some(9999), vec![test_move.clone(), test_move2.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0, Some("/walter_profile.png".to_string()), ctx,
         )));
     world.build_entity(e_target);
 
-    let result = battle::battle_loop(&mut world, vec![0], vec![1]);
+    let result = battle::battle_loop(&mut world, ctx, vec![0], vec![1]);
     match result {
         battle::BattleResult::Win => println!("You win!"),
         _ => println!("You lose!"),
     };
 
-    for i in 1..1000 {
-        graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
+    //let background: graphics::Image = graphics::Image::new(ctx, "/forest.png").unwrap();
+    //let mut draw_param = graphics::DrawParam::default();
+    //for i in 1..1000 {
+        //println!("{}", i);
+        //graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
 
-        // TODO: way to change background and store it <04-06-20, vvvm23> //
-        let background: graphics::Image = graphics::Image::new(ctx, "/forest.png").unwrap();
-        let mut draw_param = graphics::DrawParam::default();
-        graphics::draw(ctx, &background, draw_param);
+        //// TODO: way to change background and store it <04-06-20, vvvm23> //
+        //graphics::draw(ctx, &background, draw_param);
 
+        //rendering::draw_friendly_stats(&mut world, ctx, &vec![0,1]);
 
-        rendering::draw_container(ctx, na::Point2::new(100.0, 100.0), mint::Vector2{x:300.0, y:150.0});
-        rendering::draw_fighter_stats(&mut world, ctx);
-
-        graphics::present(ctx);
-        ggez::timer::yield_now();
-    }
+        //graphics::present(ctx);
+    //}
 
     Ok(())
 }
