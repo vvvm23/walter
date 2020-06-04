@@ -52,7 +52,7 @@ fn main() -> GameResult {
             1000,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            ecs::Faction::Ally, ecs::AI::Random, Some(500), vec![test_move.clone(), test_move2.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10,
+            "Cheem".to_string(), ecs::Faction::Ally, ecs::AI::Random, Some(500), vec![test_move.clone(), test_move2.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10,
         )));
     world.build_entity(e_source);
 
@@ -61,7 +61,7 @@ fn main() -> GameResult {
             500,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            ecs::Faction::Enemy, ecs::AI::Random, Some(50), vec![test_move.clone(), test_move2.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0,
+            "Shadow Cheem".to_string(), ecs::Faction::Enemy, ecs::AI::Random, Some(50), vec![test_move.clone(), test_move2.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0,
         )));
     world.build_entity(e_target);
 

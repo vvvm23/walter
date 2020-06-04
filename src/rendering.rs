@@ -109,6 +109,8 @@ pub fn draw_container(ctx: &mut Context, position: na::Point2<f32>, scale: mint:
     Ok(())
 }
 
+// TODO: either hide enemy, or move to other side of screen <04-06-20, vvvm23> //
+// TODO: face sprites for fighters. <04-06-20, vvvm23> //
 pub fn draw_fighter_stats(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
     let mut i_fighters: u8 = 0;
     let text_pad: f32 = 10.0;
@@ -118,12 +120,15 @@ pub fn draw_fighter_stats(world: &mut ecs::World, ctx: &mut Context) -> GameResu
         let health: &ecs::HealthComponent = world.health_components.get(&id).unwrap();
         
         draw_container(ctx, na::Point2::new(1200.0 - text_pad, 100.0 - text_pad + (i_fighters*200) as f32), mint::Vector2{x:300.0, y:150.0});
+
+        let name_text: graphics::Text = graphics::Text::new(format!("{}", c.name));
+        graphics::draw(ctx, &name_text, (na::Point2::new(1200.0, 100.0+(i_fighters*200) as f32), graphics::WHITE));
         
         let health_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "HP:", health.hp, health.max_hp));
-        graphics::draw(ctx, &health_text, (na::Point2::new(1200.0, 100.0+(i_fighters*200) as f32), graphics::WHITE));
+        graphics::draw(ctx, &health_text, (na::Point2::new(1200.0, 100.0+20.0+(i_fighters*200) as f32), graphics::WHITE));
 
         let sp_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "SP:", c.sp, c.max_sp));
-        graphics::draw(ctx, &sp_text, (na::Point2::new(1200.0, 100.0+20.0+(i_fighters*200) as f32), graphics::WHITE));
+        graphics::draw(ctx, &sp_text, (na::Point2::new(1200.0, 100.0+40.0+(i_fighters*200) as f32), graphics::WHITE));
 
         i_fighters += 1;
     }

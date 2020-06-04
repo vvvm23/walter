@@ -14,6 +14,7 @@ use ggez::audio::SoundSource;
 // Component for any entity that can take part in battle.
 // TODO: crit immunity? <02-06-20, vvvm23> //
 pub struct FighterComponent {
+    pub name: String,
     pub faction: Faction,
     pub sp: u16, // action points
     pub max_sp: u16,
@@ -57,12 +58,13 @@ impl PartialEq for FighterComponent {
     
 // TODO: easier to use new function. perhaps multiple different functions <02-06-20, vvvm23> //
 impl FighterComponent {
-    pub fn new(faction: Faction, ai: AI, sp: Option<u16>, moves: Vec<Rc<Move>>,
+    pub fn new(name: String, faction: Faction, ai: AI, sp: Option<u16>, moves: Vec<Rc<Move>>,
                level: u8,
                attack: u16, defence: u16, agility: u16, accuracy: u16,
                crit: f32, weight: u16, support: u16)
         -> FighterComponent { match sp {
             None => FighterComponent {
+                name: name,
                 faction: faction,
                 ai: ai,
                 sp: 9999,
@@ -80,6 +82,7 @@ impl FighterComponent {
                 support: support,
             },
             Some(i) => FighterComponent {
+                name: name,
                 faction: faction,
                 ai: ai,
                 sp: i,
