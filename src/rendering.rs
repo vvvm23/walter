@@ -130,6 +130,12 @@ pub fn draw_fighter_stats(world: &mut ecs::World, ctx: &mut Context) -> GameResu
         let sp_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "SP:", c.sp, c.max_sp));
         graphics::draw(ctx, &sp_text, (na::Point2::new(1200.0, 100.0+40.0+(i_fighters*200) as f32), graphics::WHITE));
 
+        let profile: graphics::Image = graphics::Image::new(ctx, "/cheem_profile.png").unwrap();
+        let mut draw_param = graphics::DrawParam::default()
+            .dest(na::Point2::new(1350.0, 100.0 + (i_fighters*200) as f32))
+            .scale(mint::Vector2{x:1.0, y:1.0});
+
+        graphics::draw(ctx, &profile, draw_param);
         i_fighters += 1;
     }
     Ok(())
