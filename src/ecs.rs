@@ -477,6 +477,25 @@ impl VelocityComponent {
     }
 }
 
+// Component to make an entity with position bob
+pub struct BobComponent {
+    pub up: bool,
+    pub step: f32,
+}
+
+impl BobComponent {
+    pub fn new(step: f32) -> BobComponent {
+        BobComponent {
+            up: false,
+            step: step,
+        }
+    }
+
+    pub fn update(&mut self) {
+        self.up = !self.up;
+    }
+}
+
 // Component Enum to allow for match later
 // TODO: rework with traits perhaps <25-05-20, vvvm23> //
 pub enum Component {
@@ -489,6 +508,7 @@ pub enum Component {
     RenderableSpriteComponent(RenderableSpriteComponent),
     AudioComponent(AudioComponent),
     FighterComponent(FighterComponent),
+    BobComponent(BobComponent),
 }
 
 // Simple wrapper for entity ID
@@ -523,6 +543,7 @@ pub struct World {
     pub renderable_sprite_components:       HashMap<u16, RenderableSpriteComponent>,
     pub audio_components:                   HashMap<u16, AudioComponent>,
     pub fighter_components:                 HashMap<u16, FighterComponent>,
+    pub bob_components:                     HashMap<u16, BobComponent>,
 }
 
 impl World {
@@ -541,6 +562,7 @@ impl World {
             renderable_sprite_components:       HashMap::new(),
             audio_components:                   HashMap::new(),
             fighter_components:                 HashMap::new(),
+            bob_components:                     HashMap::new(),
         }
     }
 
@@ -598,6 +620,10 @@ impl World {
                     self.max_id,
                     fc,
                 ); ()},
+                Component::BobComponent(bc) => {self.bob_components.insert(
+                    self.max_id,
+                    bc,
+                ); ()},
             }
         }
 
@@ -616,5 +642,6 @@ impl World {
         self.renderable_sprite_components.remove(eid);
         self.audio_components.remove(eid);
         self.fighter_components.remove(eid);
+        self.bob_components.remove(eid);
     }
 }

@@ -12,6 +12,7 @@ use ecs::PartialEntity;
 use ecs::{HealthComponent, VelocityComponent, PositionComponent, RenderablePrimitiveComponent, RenderableSpriteComponent, AudioComponent};
 use ecs::{RotationComponent, RotationalVelocityComponent};
 use ecs::{FighterComponent};
+use ecs::{BobComponent};
 
 use ggez::graphics;
 use ggez::{Context, GameResult};
@@ -50,22 +51,25 @@ fn main() -> GameResult {
 
     let e_source: PartialEntity = ecs::World::create_entity()
         .add_component(Component::HealthComponent(HealthComponent::new(
-            1000,
+            3000,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
-            "Cheems".to_string(), ecs::Faction::Ally, ecs::AI::Random, Some(500), vec![test_move.clone(), test_move2.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10, Some("/cheem_profile.png".to_string()), ctx,
+            "Cheems".to_string(), ecs::Faction::Ally, ecs::AI::Random, Some(9999), vec![test_move.clone(), test_move2.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10, Some("/cheem_profile.png".to_string()), ctx,
+        )))
+        .add_component(Component::BobComponent(BobComponent::new(
+            20.0,
         )))
         .add_component(Component::PositionComponent(PositionComponent::new(
-            300.0, 800.0,
+            400.0, 800.0,
         )))
         .add_component(Component::RenderableSpriteComponent(RenderableSpriteComponent::new(
-            ctx, "/cheems_sit.png", 1.0, 1.0,
+            ctx, "/cheems_sit.png", -1.0, 1.0,
         )));
     world.build_entity(e_source);
 
     let e_target: PartialEntity = ecs::World::create_entity()
         .add_component(Component::HealthComponent(HealthComponent::new(
-            2000,
+            8000,
         )))
         .add_component(Component::FighterComponent(FighterComponent::new(
             "Walter".to_string(), ecs::Faction::Enemy, ecs::AI::Random, Some(9999), vec![test_move.clone(), test_move2.clone()], 90, 50, 100, 50, 80, 0.0, 40, 0, Some("/walter_profile.png".to_string()), ctx,
@@ -74,7 +78,7 @@ fn main() -> GameResult {
             900.0, 600.0,
         )))
         .add_component(Component::RenderableSpriteComponent(RenderableSpriteComponent::new(
-            ctx, "/walter_sit.png", 1.0, 1.0,
+            ctx, "/walter_buff.png", 1.8, 1.8,
         )));
     world.build_entity(e_target);
 

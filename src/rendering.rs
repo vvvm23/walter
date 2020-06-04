@@ -184,9 +184,7 @@ pub fn draw_friendly_stats(world: &mut ecs::World, ctx: &mut Context, ids: &Vec<
                 .dest(na::Point2::new(1350.0, 100.0 + (i*200) as f32));
             graphics::draw(ctx, texture, draw_param);
         }
-
     }
-
 }
 
 pub fn draw_battle_sprites(world: &mut ecs::World, ctx: &mut Context, ids: &Vec<u16>) {
@@ -194,10 +192,19 @@ pub fn draw_battle_sprites(world: &mut ecs::World, ctx: &mut Context, ids: &Vec<
         let sprite: &ecs::RenderableSpriteComponent = world.renderable_sprite_components.get(&id).unwrap();
         let position: &ecs::PositionComponent = world.position_components.get(&id).unwrap();
 
-        let sprite_param: graphics::DrawParam = graphics::DrawParam::default()
-            .dest(position.to_point());
-        graphics::draw(ctx, &sprite.texture, sprite_param);
+        let mut point: na::Point2<f32> = position.to_point();
+        if world.bob_components.contains_key(&id) {
+            let bob: &mut ecs::BobComponent = world.bob_components.get_mut(&id).unwrap();
+            if bob.up {
+                point = na::Point2::new(point.x, point.y + bob.step);
+            }
+            bob.update();
+        }
 
+        let sprite_param: graphics::DrawParam = graphics::DrawParam::default()
+            .scale(sprite.scale)
+            .dest(point);
+        graphics::draw(ctx, &sprite.texture, sprite_param);
     }
 }
 
