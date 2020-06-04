@@ -111,6 +111,14 @@ pub fn battle_loop(world: &mut ecs::World, ctx: &mut Context, mut blufor: Vec<u1
             rendering::draw_friendly_stats(world, ctx, &vec![0,1]);
             graphics::present(ctx);
 
+            // Check if either team has been defeated
+            if check_dead(world, &blufor) {
+                return BattleResult::GameOver; // Lose if blufor is dead, even if opfor dead
+            }
+            if check_dead(world, &opfor) {
+                return BattleResult::Win;
+            }
+
             // If the current entity is dead, just skip
             // TODO: make sure it cant be a target as well <02-06-20, vvvm23> //
             if !world.health_components.get(&id).unwrap().alive {
@@ -140,30 +148,26 @@ pub fn battle_loop(world: &mut ecs::World, ctx: &mut Context, mut blufor: Vec<u1
                 execute_move(world, *id, tid);
             } else if let TargetOrAOE::AOE(at) = selected_target {
                 let targets: &Vec<u16> = match at {
-                    ecs::AreaTarget::Ally => match is_control {
-                        true => &blufor,
-                        false => &opfor,
+                    ecs::AreaTarget::Ally => match fighter.faction {
+                        ecs::Faction::Player => &blufor,
+                        ecs::Faction::Ally => &blufor,
+                        _ => &opfor,
                     },
-                    ecs::AreaTarget::Enemy => match is_control {
-                        true => &opfor,
-                        false => &blufor,
+                    ecs::AreaTarget::Enemy => match fighter.faction {
+                        ecs::Faction::Player => &opfor,
+                        ecs::Faction::Ally => &opfor,
+                        _ => &blufor,
                     },
                     ecs::AreaTarget::All => &all,
                 };
-                execute_aoe(world, *id, targets);
+                execute_aoe(world, *id, targets) ;
             }
 
-            // Check if either team has been defeated
-            if check_dead(world, &blufor) {
-                return BattleResult::GameOver; // Lose if blufor is dead, even if opfor dead
-            }
-            if check_dead(world, &opfor) {
-                return BattleResult::Win;
-            }
             println!("");
             thread::sleep(time::Duration::from_millis(1000));
         }
     }
+    thread::sleep(time::Duration::from_millis(1000));
     BattleResult::Win // default is to win.
 }
 
@@ -210,18 +214,46 @@ fn ai_random(world: &mut ecs::World, source_id: &u16, blufor: &Vec<u16>, opfor: 
         return (random_move, TargetOrAOE::AOE(aoe_target));
     }
 
-    let random_target: u16 = match random_move.is_attack {
-        true => {
-            let nb_targets: u8 = opfor.len() as u8;
-            let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
-            opfor[random_pick]
+    let fighter: &ecs::FighterComponent = world.fighter_components.get(source_id).unwrap();
+    let random_target: u16 = match fighter.faction {
+        ecs::Faction::Player => match random_move.is_attack {
+            true => {
+                let nb_targets: u8 = opfor.len() as u8;
+                let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
+                opfor[random_pick]
+            },
+            false => {
+                let nb_targets: u8 = blufor.len() as u8;
+                let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
+                blufor[random_pick]
+            },
         },
-        false => {
-            let nb_targets: u8 = blufor.len() as u8;
-            let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
-            blufor[random_pick]
+        ecs::Faction::Ally => match random_move.is_attack {
+            true => {
+                let nb_targets: u8 = opfor.len() as u8;
+                let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
+                opfor[random_pick]
+            },
+            false => {
+                let nb_targets: u8 = blufor.len() as u8;
+                let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
+                blufor[random_pick]
+            },
+        },
+        _ => match random_move.is_attack {
+            true => {
+                let nb_targets: u8 = blufor.len() as u8;
+                let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
+                blufor[random_pick]
+            },
+            false => {
+                let nb_targets: u8 = opfor.len() as u8;
+                let random_pick: usize = rng.gen_range(0, nb_targets) as usize;
+                opfor[random_pick]
+            },
         },
     };
+
     (random_move, TargetOrAOE::Target(random_target))
 
 }

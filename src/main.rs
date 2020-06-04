@@ -4,6 +4,7 @@ mod physics;
 mod battle;
 
 use std::rc::Rc;
+use std::{thread, time};
 
 use ecs::Component;
 use ecs::PartialEntity;
@@ -66,6 +67,7 @@ fn main() -> GameResult {
     world.build_entity(e_target);
 
     let result = battle::battle_loop(&mut world, ctx, vec![0], vec![1]);
+    thread::sleep(time::Duration::from_millis(1000));
     match result {
         battle::BattleResult::Win => println!("You win!"),
         _ => println!("You lose!"),
