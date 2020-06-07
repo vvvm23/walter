@@ -554,11 +554,18 @@ impl PartialEntity {
     }
 }
 
+pub enum GameMode {
+    Menu,
+    Battle,
+}
+
 // Defines current world state, contains all components currently in world.
 // TODO: maybe move entities to their own struct. So we can pass ids without being raw <02-06-20, vvvm23> //
 pub struct World {
     pub max_id: u16,
     pub entities: HashMap<u16, Entity>,
+
+    pub current_mode: GameMode,
 
     pub health_components:                  HashMap<u16, HealthComponent>,
     pub position_components:                HashMap<u16, PositionComponent>,
@@ -579,6 +586,7 @@ impl World {
         World {
             max_id: 0,
             entities: HashMap::new(),
+            current_mode: GameMode::Menu,
 
             health_components:                  HashMap::new(),
             position_components:                HashMap::new(),

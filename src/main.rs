@@ -137,6 +137,7 @@ fn test_entity_create(world: &mut ecs::World, ctx: &mut Context) {
 fn main() -> GameResult {
     // create empty world
     let mut world: ecs::World = ecs::World::new();
+    world.current_mode = ecs::GameMode::Battle;
 
     // initialise window
     let (ctx, events_loop) = &mut rendering::init_window(1600.0, 1200.0).build()?;
