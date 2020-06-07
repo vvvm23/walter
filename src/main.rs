@@ -16,8 +16,35 @@ use ecs::{BobComponent};
 
 use ggez::graphics;
 use ggez::{Context, GameResult};
+use ggez::event::{self, EventHandler, KeyCode, KeyMods};
 
 use ggez::nalgebra as na;
+
+impl EventHandler for ecs::World {
+    fn update(&mut self, ctx: &mut Context) -> GameResult {
+
+        Ok(())
+    }
+
+    fn draw(&mut self, ctx: &mut Context) -> GameResult {
+        
+        Ok(())
+    }
+
+    fn key_down_event(
+        &mut self,
+        ctx: &mut Context,
+        keycode: KeyCode,
+        _keymod: KeyMods,
+        _repeat: bool,
+    ) {
+        // TODO: key down handler <07-06-20, vvvm23> //
+    }
+
+    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
+        // TODO: key up handler <07-06-20, vvvm23> //
+    }
+}
 
 fn main() -> GameResult {
     // create empty world
