@@ -4,7 +4,7 @@ mod physics;
 mod battle;
 
 use std::rc::Rc;
-use std::{thread, time};
+use std::{thread, time, path};
 
 use ecs::Component;
 use ecs::PartialEntity;
@@ -15,7 +15,7 @@ use ecs::{FighterComponent};
 use ecs::{BobComponent};
 
 use ggez::graphics;
-use ggez::{Context, GameResult};
+use ggez::{Context, ContextBuilder, GameResult};
 use ggez::event::{self, EventHandler, KeyCode, KeyMods};
 
 use ggez::nalgebra as na;
@@ -41,7 +41,12 @@ impl EventHandler for ecs::World {
         // TODO: key down handler <07-06-20, vvvm23> //
     }
 
-    fn key_up_event(&mut self, _ctx: &mut Context, keycode: KeyCode, _keymod: KeyMods) {
+    fn key_up_event(
+        &mut self,
+        _ctx: &mut Context,
+        keycode: KeyCode,
+        _keymod: KeyMods
+    ) {
         // TODO: key up handler <07-06-20, vvvm23> //
     }
 }
@@ -51,7 +56,7 @@ fn main() -> GameResult {
     let mut world: ecs::World = ecs::World::new();
 
     // initialise window
-    let ctx: &mut Context = &mut rendering::init_window(1600.0, 1200.0).unwrap();
+    let (ctx, events_loop) = &mut rendering::init_window(1600.0, 1200.0).build()?;
 
     // create a test move:
     let test_move: Rc<ecs::Move> = Rc::new(ecs::Move::new(

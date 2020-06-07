@@ -6,21 +6,23 @@ use ecs::{RenderableSpriteComponent, RenderablePrimitiveComponent};
 use ggez::graphics;
 use ggez::{Context, GameResult};
 
+use ggez::event::{self, EventHandler};
+
 use ggez::nalgebra as na;
 
 // Initialises the window given the width and height
 // TODO: pass more window parameters, eg. screen mode <28-05-20, vvvm23> //
-pub fn init_window(width: f32, height: f32) -> GameResult<Context> {
+pub fn init_window(width: f32, height: f32) -> ggez::ContextBuilder {
     let wm: ggez::conf::WindowMode = ggez::conf::WindowMode {
         width: width,
         height: height,
         ..Default::default()
     };
 
-    let cb = ggez::ContextBuilder::new("walter 0.0", "vvvm23").add_resource_path(std::path::PathBuf::from("")).window_mode(wm);
-    
-    let (ctx, event_loop) = cb.build()?;
-    Ok(ctx)
+    let cb = ggez::ContextBuilder::new("walter 0.0", "vvvm23")
+        .add_resource_path(std::path::PathBuf::from("./resources"))
+        .window_mode(wm);
+    cb
 }
 
 // System to handle all renderable components. calls other rendering subsystems
