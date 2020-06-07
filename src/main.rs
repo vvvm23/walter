@@ -54,6 +54,9 @@ impl EventHandler for ecs::World {
         _repeat: bool,
     ) {
         // TODO: key down handler <07-06-20, vvvm23> //
+        if keycode == KeyCode::Escape {
+            ggez::event::quit(ctx);
+        }
     }
 
     fn key_up_event(
