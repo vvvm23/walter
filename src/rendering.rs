@@ -27,14 +27,11 @@ pub fn init_window(width: f32, height: f32) -> ggez::ContextBuilder {
 
 // System to handle all renderable components. calls other rendering subsystems
 pub fn rendering_system(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
-    graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
-
     background_renderer(world, ctx);
     primitive_rendering(world, ctx);
     sprite_rendering(world, ctx);
     draw_friendly_stats(world, ctx, &vec![0,1]);
 
-    graphics::present(ctx)?;
     Ok(())
 }
 
@@ -65,11 +62,16 @@ pub fn background_renderer(world: &mut ecs::World, ctx: &mut Context) -> GameRes
 // System to render all primitive components. Simply iterates through these components and draws.
 pub fn primitive_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
     for (id, c) in world.renderable_primitive_components.iter() {
-        let point: na::Point2<f32>;
+        let mut point: na::Point2<f32>;
         if (!world.position_components.contains_key(id)) {
             point = na::Point2::new(0.0, 0.0);
         } else {
             point = world.position_components.get(id).unwrap().to_point();
+        }
+
+        if world.bob_components.contains_key(id) {
+            let bob: &ecs::BobComponent = world.bob_components.get(&id).unwrap();
+            point.y += bob.y;
         }
 
         let mesh = c.build_mesh(ctx);
@@ -90,11 +92,16 @@ pub fn primitive_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameRes
 // TODO: Sprite batching <28-05-20, vvvm23> //
 pub fn sprite_rendering(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
     for (id, c) in world.renderable_sprite_components.iter() {
-        let point: na::Point2<f32>;
+        let mut point: na::Point2<f32>;
         if (!world.position_components.contains_key(id)) {
             point = na::Point2::new(0.0, 0.0);
         } else {
             point = world.position_components.get(id).unwrap().to_point();
+        }
+
+        if world.bob_components.contains_key(id) {
+            let bob: &ecs::BobComponent = world.bob_components.get(&id).unwrap();
+            point.y += bob.y;
         }
 
         let mut draw_param = graphics::DrawParam::default()
@@ -221,13 +228,6 @@ pub fn draw_battle_sprites(world: &mut ecs::World, ctx: &mut Context, ids: &Vec<
         let position: &ecs::PositionComponent = world.position_components.get(&id).unwrap();
 
         let mut point: na::Point2<f32> = position.to_point();
-        if world.bob_components.contains_key(&id) {
-            let bob: &mut ecs::BobComponent = world.bob_components.get_mut(&id).unwrap();
-            if bob.up {
-                point = na::Point2::new(point.x, point.y + bob.step);
-            }
-            bob.update();
-        }
 
         let sprite_param: graphics::DrawParam = graphics::DrawParam::default()
             .scale(sprite.scale)

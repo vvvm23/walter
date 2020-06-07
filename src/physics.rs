@@ -24,3 +24,8 @@ pub fn rot_velocity_system(world: &mut ecs::World) {
     }
 }
 
+pub fn bob_system(world: &mut ecs::World, elapsed_time: &f32) {
+    for (id, c) in world.bob_components.iter_mut() {
+        c.update(elapsed_time);
+    } 
+}

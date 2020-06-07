@@ -25,13 +25,24 @@ impl EventHandler for ecs::World {
         const TARGET_FPS: u32 = 60;
 
         while timer::check_update_time(ctx, TARGET_FPS) {
-            rendering::rendering_system(self, ctx);
+            let time_elapsed: f32 = 1.0 / (TARGET_FPS as f32);
+
+            // TODO: handle any inputs <07-06-20, vvvm23> //
+            // TODO: redirect inputs to correct system <07-06-20, vvv23> //
+            // TODO: update current systems <07-06-20, vvvm23> //
+            physics::velocity_system(self);
+            physics::rot_velocity_system(self);
+            physics::bob_system(self, &time_elapsed);
         }
         Ok(())
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        
+        graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
+        rendering::rendering_system(self, ctx);
+        graphics::present(ctx)?;
+
+        timer::yield_now();
         Ok(())
     }
 
@@ -83,11 +94,11 @@ fn test_entity_create(world: &mut ecs::World, ctx: &mut Context) {
         .add_component(Component::HealthComponent(HealthComponent::new(
             3000,
         )))
+        .add_component(Component::BobComponent(BobComponent::new(
+            15.0, 1.0,
+        )))
         .add_component(Component::FighterComponent(FighterComponent::new(
             "Cheems".to_string(), ecs::Faction::Ally, ecs::AI::Random, Some(9999), vec![test_move.clone(), test_move2.clone()], 100, 80, 50, 70, 80, 0.0, 40, 10, Some("/cheem_profile.png".to_string()), ctx,
-        )))
-        .add_component(Component::BobComponent(BobComponent::new(
-            20.0,
         )))
         .add_component(Component::PositionComponent(PositionComponent::new(
             400.0, 800.0,

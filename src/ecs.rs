@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::cmp::Ordering;
+use std::f64::consts::PI;
 
 use mint;
 
@@ -448,6 +449,7 @@ impl PositionComponent {
     }
 }
 
+// TODO: rotate around center <07-06-20, vvvm23> //
 pub struct RotationComponent {
     pub rot: f32,
 }
@@ -496,20 +498,26 @@ impl VelocityComponent {
 
 // Component to make an entity with position bob
 pub struct BobComponent {
-    pub up: bool,
-    pub step: f32,
+    pub period: f32,
+    pub amplitude: f32,
+    pub current_time: f32,
+    pub y: f32,
 }
 
 impl BobComponent {
-    pub fn new(step: f32) -> BobComponent {
+    pub fn new(amplitude: f32, period: f32) -> BobComponent {
         BobComponent {
-            up: false,
-            step: step,
+            period: period,
+            amplitude: amplitude,
+            current_time: 0.0,
+            y: 0.0,
         }
     }
 
-    pub fn update(&mut self) {
-        self.up = !self.up;
+    pub fn update(&mut self, elapsed_time: &f32) {
+        self.current_time += elapsed_time;
+        self.current_time %= self.period;
+        self.y = self.amplitude - (self.current_time * PI as f32 / self.period).sin() * self.amplitude;
     }
 }
 
