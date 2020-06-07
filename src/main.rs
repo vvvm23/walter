@@ -119,12 +119,12 @@ fn main() -> GameResult {
 
     test_entity_create(&mut world, ctx);
 
-    let result = battle::battle_loop(&mut world, ctx, vec![0], vec![1]);
-    thread::sleep(time::Duration::from_millis(1000));
-    match result {
-        battle::BattleResult::Win => println!("You win!"),
-        _ => println!("You lose!"),
-    };
+    event::run(ctx, events_loop, &mut world)
 
-    Ok(())
+    //let result = battle::battle_loop(&mut world, ctx, vec![0], vec![1]);
+    //thread::sleep(time::Duration::from_millis(1000));
+    //match result {
+        //battle::BattleResult::Win => println!("You win!"),
+        //_ => println!("You lose!"),
+    //};
 }
