@@ -51,13 +51,7 @@ impl EventHandler for ecs::World {
     }
 }
 
-fn main() -> GameResult {
-    // create empty world
-    let mut world: ecs::World = ecs::World::new();
-
-    // initialise window
-    let (ctx, events_loop) = &mut rendering::init_window(1600.0, 1200.0).build()?;
-
+fn test_entity_create(world: &mut ecs::World, ctx: &mut Context) {
     // create a test move:
     let test_move: Rc<ecs::Move> = Rc::new(ecs::Move::new(
         "Megidolaon".to_string(), "$source let loose terrifying energy!".to_string(),
@@ -114,26 +108,23 @@ fn main() -> GameResult {
         )));
     world.build_entity(e_target);
 
+}
+
+fn main() -> GameResult {
+    // create empty world
+    let mut world: ecs::World = ecs::World::new();
+
+    // initialise window
+    let (ctx, events_loop) = &mut rendering::init_window(1600.0, 1200.0).build()?;
+
+    test_entity_create(&mut world, ctx);
+
     let result = battle::battle_loop(&mut world, ctx, vec![0], vec![1]);
     thread::sleep(time::Duration::from_millis(1000));
     match result {
         battle::BattleResult::Win => println!("You win!"),
         _ => println!("You lose!"),
     };
-
-    //let background: graphics::Image = graphics::Image::new(ctx, "/forest.png").unwrap();
-    //let mut draw_param = graphics::DrawParam::default();
-    //for i in 1..1000 {
-        //println!("{}", i);
-        //graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
-
-        //// TODO: way to change background and store it <04-06-20, vvvm23> //
-        //graphics::draw(ctx, &background, draw_param);
-
-        //rendering::draw_friendly_stats(&mut world, ctx, &vec![0,1]);
-
-        //graphics::present(ctx);
-    //}
 
     Ok(())
 }
