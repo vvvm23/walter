@@ -29,10 +29,36 @@ pub fn init_window(width: f32, height: f32) -> ggez::ContextBuilder {
 pub fn rendering_system(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
     graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
 
+    background_renderer(world, ctx);
     primitive_rendering(world, ctx);
     sprite_rendering(world, ctx);
+    draw_friendly_stats(world, ctx, &vec![0,1]);
 
     graphics::present(ctx)?;
+    Ok(())
+}
+
+pub fn background_renderer(world: &mut ecs::World, ctx: &mut Context) -> GameResult {
+    for (id, c) in world.background_components.iter() {
+        let point: na::Point2<f32>;
+        if (!world.position_components.contains_key(id)) {
+            point = na::Point2::new(0.0, 0.0);
+        } else {
+            point = world.position_components.get(id).unwrap().to_point();
+        }
+
+        let mut draw_param = graphics::DrawParam::default()
+            .dest(point)
+            .scale(c.scale);
+
+        if world.rotation_components.contains_key(id) {
+            let rc: &ecs::RotationComponent = world.rotation_components.get(id).unwrap();
+            draw_param = draw_param.rotation(rc.rot);
+        }
+    
+        graphics::draw(ctx, &c.texture, draw_param)?;
+        
+    }
     Ok(())
 }
 

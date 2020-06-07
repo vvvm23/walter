@@ -9,20 +9,24 @@ use std::{thread, time, path};
 use ecs::Component;
 use ecs::PartialEntity;
 
-use ecs::{HealthComponent, VelocityComponent, PositionComponent, RenderablePrimitiveComponent, RenderableSpriteComponent, AudioComponent};
+use ecs::{HealthComponent, VelocityComponent, PositionComponent, RenderablePrimitiveComponent, RenderableSpriteComponent, AudioComponent, BackgroundComponent};
 use ecs::{RotationComponent, RotationalVelocityComponent};
 use ecs::{FighterComponent};
 use ecs::{BobComponent};
 
 use ggez::graphics;
-use ggez::{Context, ContextBuilder, GameResult};
+use ggez::{Context, ContextBuilder, GameResult, timer};
 use ggez::event::{self, EventHandler, KeyCode, KeyMods};
 
 use ggez::nalgebra as na;
 
 impl EventHandler for ecs::World {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
+        const TARGET_FPS: u32 = 60;
 
+        while timer::check_update_time(ctx, TARGET_FPS) {
+            rendering::rendering_system(self, ctx);
+        }
         Ok(())
     }
 
@@ -108,6 +112,15 @@ fn test_entity_create(world: &mut ecs::World, ctx: &mut Context) {
         )));
     world.build_entity(e_target);
 
+    let e_background: PartialEntity = ecs::World::create_entity()
+        .add_component(Component::BackgroundComponent(BackgroundComponent::new(
+            ctx, "/forest.png", 1.0, 1.0,
+        )))
+        .add_component(Component::PositionComponent(PositionComponent::new(
+            0.0, 0.0,
+        )));
+    world.build_entity(e_background);
+
 }
 
 fn main() -> GameResult {
@@ -117,14 +130,10 @@ fn main() -> GameResult {
     // initialise window
     let (ctx, events_loop) = &mut rendering::init_window(1600.0, 1200.0).build()?;
 
+    // populate world with entities
     test_entity_create(&mut world, ctx);
 
+    // start the game loop
     event::run(ctx, events_loop, &mut world)
 
-    //let result = battle::battle_loop(&mut world, ctx, vec![0], vec![1]);
-    //thread::sleep(time::Duration::from_millis(1000));
-    //match result {
-        //battle::BattleResult::Win => println!("You win!"),
-        //_ => println!("You lose!"),
-    //};
 }

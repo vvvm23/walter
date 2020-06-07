@@ -334,6 +334,23 @@ impl RenderableSpriteComponent {
     }
 }
 
+// Component to store backgrounds
+pub struct BackgroundComponent {
+    pub path: String,
+    pub texture: graphics::Image,
+    pub scale: mint::Vector2<f32>,
+}
+
+impl BackgroundComponent {
+    pub fn new(ctx: &mut Context, path: &str, scale_x: f32, scale_y: f32) -> BackgroundComponent {
+        BackgroundComponent {
+            path: path.to_string(),
+            texture: graphics::Image::new(ctx, path).unwrap(),
+            scale: mint::Vector2{x: scale_x, y: scale_y},
+        }
+    }
+}
+
 // Component to define entity health points.
 // All entities with HealthComponent can have health and can be killed.
 // TODO: death callback <28-05-20, vvvm23> //
@@ -506,6 +523,7 @@ pub enum Component {
     RotationComponent(RotationComponent),
     RenderablePrimitiveComponent(RenderablePrimitiveComponent),
     RenderableSpriteComponent(RenderableSpriteComponent),
+    BackgroundComponent(BackgroundComponent),
     AudioComponent(AudioComponent),
     FighterComponent(FighterComponent),
     BobComponent(BobComponent),
@@ -540,6 +558,7 @@ pub struct World {
     pub rotation_components:                HashMap<u16, RotationComponent>,
     pub rotational_velocity_components:     HashMap<u16, RotationalVelocityComponent>,
     pub renderable_primitive_components:    HashMap<u16, RenderablePrimitiveComponent>,
+    pub background_components:              HashMap<u16, BackgroundComponent>,
     pub renderable_sprite_components:       HashMap<u16, RenderableSpriteComponent>,
     pub audio_components:                   HashMap<u16, AudioComponent>,
     pub fighter_components:                 HashMap<u16, FighterComponent>,
@@ -560,6 +579,7 @@ impl World {
             rotational_velocity_components:     HashMap::new(),
             renderable_primitive_components:    HashMap::new(),
             renderable_sprite_components:       HashMap::new(),
+            background_components:              HashMap::new(),
             audio_components:                   HashMap::new(),
             fighter_components:                 HashMap::new(),
             bob_components:                     HashMap::new(),
@@ -612,6 +632,10 @@ impl World {
                     self.max_id,
                     rc,
                 ); ()},
+                Component::BackgroundComponent(bc) => {self.background_components.insert(
+                    self.max_id,
+                    bc,
+                ); ()},
                 Component::AudioComponent(ac) => {self.audio_components.insert(
                     self.max_id,
                     ac,
@@ -640,6 +664,7 @@ impl World {
         self.velocity_components.remove(eid);
         self.renderable_primitive_components.remove(eid);
         self.renderable_sprite_components.remove(eid);
+        self.background_components.remove(eid);
         self.audio_components.remove(eid);
         self.fighter_components.remove(eid);
         self.bob_components.remove(eid);
