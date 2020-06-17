@@ -135,7 +135,7 @@ pub enum Faction {
     Player,
     Ally,
     Enemy,
-    Indie,
+    Indie, // kinda pointless now
 }
 
 pub enum AI {
@@ -559,11 +559,24 @@ pub enum GameMode {
     Battle,
 }
 
+pub enum BattleState {
+    Ended,
+    AITurn,
+    WaitingInput,
+}
+
+pub struct BattleData {
+    pub id_order: Vec<u16>,
+    //pub event_queue: ,
+    pub state: BattleState,
+}
+
 // Defines current world state, contains all components currently in world.
 // TODO: maybe move entities to their own struct. So we can pass ids without being raw <02-06-20, vvvm23> //
 pub struct World {
     pub max_id: u16,
     pub entities: HashMap<u16, Entity>,
+    pub battle_data: Option<BattleData>,
 
     pub current_mode: GameMode,
 
@@ -587,6 +600,7 @@ impl World {
             max_id: 0,
             entities: HashMap::new(),
             current_mode: GameMode::Menu,
+            battle_data: None,
 
             health_components:                  HashMap::new(),
             position_components:                HashMap::new(),
