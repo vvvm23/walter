@@ -67,29 +67,40 @@ impl<'a> PartialEq for IdFighter<'a> {
     }
 }
 
+// probably for AI
 pub fn take_next_turn(world: &mut ecs::World) {
     // Check if we have data for the battle
     assert!(world.battle_data.is_some());
 
     // Get a mutable reference so we can rotate the vector
     let mut battle_data = world.battle_data.as_mut().unwrap();
+
+    assert!(match battle_data.state {
+        ecs::BattleState::AITurn => true,
+        _ => false,
+    });
+
     let c_id = battle_data.id_order[0];
     battle_data.id_order.rotate_left(1);
 
     // Now create list of blufor and opfor targets relative to current
-    let mut blufor: Vec<&u16> = Vec::new();
-    let mut opfor: Vec<&u16> = Vec::new();
+    let mut blufor: Vec<u16> = Vec::new();
+    let mut opfor: Vec<u16> = Vec::new();
     let source_faction = &world.fighter_components.get(&c_id).unwrap().faction;
 
     for id in &battle_data.id_order {
         assert!(world.fighter_components.contains_key(id));
         let target_faction = &world.fighter_components.get(id).unwrap().faction;
         match id {
-            c_id => blufor.push(id),
-            _ => opfor.push(id),
+            c_id => blufor.push(*id),
+            _ => opfor.push(*id),
         };
-
     }
+    
+    // pass over to AI handler and get selected move and target
+    let (selected_move, selected_target) = ai_handover(world, &c_id, &blufor, &opfor);
+    let fighter: &mut ecs::FighterComponent = world.fighter_components.get_mut(&c_id).unwrap();
+
 }
 
 // TODO: entity sorting in another function <31-05-20, vvvm23> //

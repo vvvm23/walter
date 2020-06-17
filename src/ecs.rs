@@ -12,6 +12,8 @@ use ggez::nalgebra as na;
 use ggez::audio;
 use ggez::audio::SoundSource;
 
+use crate::battle as battle;
+
 // Component for any entity that can take part in battle.
 // TODO: crit immunity? <02-06-20, vvvm23> //
 pub struct FighterComponent {
@@ -560,15 +562,48 @@ pub enum GameMode {
 }
 
 pub enum BattleState {
+    Started,
     Ended,
     AITurn,
     WaitingInput,
+    WaitingForAction,
+}
+
+pub enum BattleEvent {
+    Action(u16, Rc<Move>, u16), // Source id uses move on target
+    Death(u16), // id has died
+    Continue, // Continue to processing next move , needed? empty indicates we can continue
 }
 
 pub struct BattleData {
     pub id_order: Vec<u16>,
+    pub event_queue: Vec<BattleEvent>,
+    pub event_ongoing: bool,
     //pub event_queue: ,
     pub state: BattleState,
+}
+
+impl BattleData {
+    pub fn new() -> BattleData {
+        BattleData {
+            id_order: Vec::new(),
+            event_queue: Vec::new(),
+            event_ongoing: false,
+            state: BattleState::Started,
+        }
+    }
+
+    pub fn new_event(&mut self, event: BattleEvent) {
+        self.event_queue.push(event);
+    } 
+
+    pub fn next_event(&self) -> &BattleEvent {
+        &self.event_queue[0]
+    }
+
+    pub fn remove_event(&mut self) {
+        self.event_queue.drain(0..1);
+    }
 }
 
 // Defines current world state, contains all components currently in world.
@@ -576,6 +611,7 @@ pub struct BattleData {
 pub struct World {
     pub max_id: u16,
     pub entities: HashMap<u16, Entity>,
+
     pub battle_data: Option<BattleData>,
 
     pub current_mode: GameMode,
