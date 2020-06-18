@@ -1,5 +1,6 @@
 use ggez;
 
+/// Initialises window with specified width and height
 fn init_window(width: f32, height: f32) -> ggez::ContextBuilder {
     let wm: ggez::conf::WindowMode = ggez::conf::WindowMode {
         width: width,
@@ -13,8 +14,11 @@ fn init_window(width: f32, height: f32) -> ggez::ContextBuilder {
     cb
 }
 
+/// Contains main game loop
 fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> ggez::GameResult {
     use ggez::event::winit_event::{Event, KeyboardInput, WindowEvent};
+
+    // TODO: Initialise world here
 
     while ctx.continuing {
         ctx.timer_context.tick(); // Tell internal timer a frame has happened
@@ -41,12 +45,19 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                 _ => (),
             }
         });
+        // Actual game loop
+        let d_time = ggez::timer::delta(ctx);
+        let d_time: f64 = ggez::timer::duration_to_f64(d_time);
+        println!("{}", d_time);
+
+        // Update
+
+        // TODO: Check if any new threads need to be spawned
+
+        // Draw
+        ggez::graphics::present(ctx)?;
+        ggez::timer::yield_now();
     }
-
-    // Actual game loop
-    // Update
-
-    // Draw
 
     Ok(())
 }
