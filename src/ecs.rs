@@ -8,6 +8,23 @@ pub struct Entity {
     id: u16,
 }
 
+pub struct PartialEntity {
+    components: Vec<component::Component>,
+}
+
+impl PartialEntity {
+    pub fn new() -> PartialEntity {
+        PartialEntity {
+            components: Vec::new(),
+        }
+    }
+
+    pub fn add_component(mut self, c: component::Component) -> PartialEntity {
+        self.components.push(c);
+        self
+    }
+}
+
 pub struct EntitySet {
     next_id: u16,
     entities: HashSet<Arc<Entity>>,
@@ -46,6 +63,22 @@ impl World {
 
             position_components: HashMap::new(),
             velocity_components: HashMap::new(),
+        }
+    }
+
+    pub fn build_entity(&mut self, pe: PartialEntity) {
+        use component::Component as Component;
+
+        let e = self.entity_set.new_entity();
+        for c in pe.components {
+            match c {
+                Component::PositionComponent(r) => {
+                    self.position_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
+                },
+                Component::VelocityComponent(r) => {
+                    self.velocity_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
+                }
+            }
         }
     }
 }

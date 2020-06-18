@@ -1,15 +1,20 @@
 use std::sync::{Arc, Mutex, RwLock};
+use crate::component::Component;
+
+#[derive(Debug)]
 pub struct PositionComponent {
     pub x: f32,
     pub y: f32,
 }
 
 impl PositionComponent {
-    pub fn new(x: f32, y: f32) -> PositionComponent {
-        PositionComponent {
-            x: x,
-            y: y,
-        }
+    pub fn new(x: f32, y: f32) -> Component {
+        Component::PositionComponent(
+            PositionComponent {
+                x: x,
+                y: y,
+            }
+        )
     }
 }
 
@@ -19,11 +24,13 @@ pub struct VelocityComponent {
 }
 
 impl VelocityComponent {
-    pub fn new(dx: f32, dy: f32) -> VelocityComponent {
-        VelocityComponent {
-            dx: dx,
-            dy: dy,
-        }
+    pub fn new(dx: f32, dy: f32) -> Component {
+        Component::VelocityComponent(
+            VelocityComponent {
+                dx: dx,
+                dy: dy,
+            }
+        )
     }
 }
 

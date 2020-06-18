@@ -24,6 +24,10 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
     // TODO: Initialise world here
     let mut world: ecs::World = ecs::World::new();
+    let entity_1 = ecs::PartialEntity::new()
+        .add_component(component::physics::PositionComponent::new(0.0, 0.0))
+        .add_component(component::physics::VelocityComponent::new(1.0, 1.0));
+    world.build_entity(entity_1);
 
     while ctx.continuing {
         ctx.timer_context.tick(); // Tell internal timer a frame has happened
@@ -55,9 +59,9 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         let d_time: f64 = ggez::timer::duration_to_f64(d_time);
 
         // Update
-
         // TODO: Check if any new threads need to be spawned
-
+        system::physics::velocity_system(&mut world);
+        
         // Draw
         ggez::graphics::present(ctx)?;
         ggez::timer::yield_now();
