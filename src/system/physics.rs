@@ -12,6 +12,6 @@ pub fn velocity_system(world: Arc<RwLock<World>>) {
         let vel = vel.read().unwrap();
         pos.x += vel.dx;
         pos.y += vel.dy;
-        println!("{}: {} {}", e.id, pos.x, pos.y);
+        //println!("{}: {} {}", e.id, pos.x, pos.y);
     }
 }

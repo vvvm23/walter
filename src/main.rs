@@ -69,9 +69,10 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                     let entity_child = ecs::PartialEntity::new()
                         .add_component(component::physics::PositionComponent::new(100.0, 100.0))
                         .add_component(component::physics::VelocityComponent::new(1.0, 1.0))
-                        .add_component(component::rendering::PrimitiveRenderableComponent::new(component::rendering::Shape::Circle{r:10.0}, ggez::graphics::DrawMode::fill(), ggez::graphics::WHITE));
+                        //.add_component(component::rendering::PrimitiveRenderableComponent::new(component::rendering::Shape::Circle{r:10.0}, ggez::graphics::DrawMode::fill(), ggez::graphics::WHITE));
+                        .add_component(component::rendering::SpriteRenderableComponent::new(ctx, "/resources/cheems.png", 1.0, 1.0));
                     world_child.write().unwrap().build_entity(entity_child);
-                    std::thread::sleep_ms(1000);
+                    std::thread::sleep_ms(100);
                 }
             });
         }
@@ -90,6 +91,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         ggez::graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
         system::rendering::primitive_rendering_system(Arc::clone(&world), ctx)?;
         ggez::timer::yield_now();
+        println!("{}", ggez::timer::fps(ctx));
     }
 
     Ok(())

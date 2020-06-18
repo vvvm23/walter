@@ -25,3 +25,26 @@ pub fn primitive_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) 
 
     Ok(())
 }
+
+pub fn sprite_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> GameResult {
+    let world = world.read().unwrap();
+    for (e, sprite) in world.sprite_components.iter() {
+        let sprite = sprite.read().unwrap();
+        let point = match world.position_components.contains_key(e) {
+            true => {
+                let p = world.position_components.get(e).unwrap();
+                let p = p.read().unwrap();
+                na::Point2::new(p.x, p.y)
+            },
+            false => na::Point2::new(0.0, 0.0),
+        };
+
+        let draw_param = graphics::DrawParam::default()
+            .dest(point)
+            .scale(sprite.scale);
+
+        graphics::draw(ctx, &sprite.texture, draw_param)?;
+    }
+
+    Ok(())
+}

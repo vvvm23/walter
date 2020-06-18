@@ -2,6 +2,7 @@ use crate::component::Component;
 use ggez::Context;
 use ggez::graphics;
 use ggez::nalgebra as na;
+use mint;
 
 pub enum Shape {
     Circle{ r: f32 }, // Radius
@@ -44,3 +45,22 @@ impl PrimitiveRenderableComponent {
         }.unwrap()
     }
 }
+
+pub struct SpriteRenderableComponent {
+    pub texture_path: String,
+    pub texture: graphics::Image,
+    pub scale: mint::Vector2<f32>,
+}
+
+impl SpriteRenderableComponent {
+    pub fn new(ctx: &mut Context, path: &str, scale_x: f32, scale_y: f32) -> Component {
+        Component::SpriteRenderableComponent (
+            SpriteRenderableComponent {
+                texture_path: path.to_string(),
+                texture: graphics::Image::new(ctx, path).unwrap(),
+                scale: mint::Vector2 {x: scale_x, y: scale_y},
+            }
+        )
+    }
+}
+
