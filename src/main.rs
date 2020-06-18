@@ -2,6 +2,8 @@ mod ecs;
 mod component;
 mod system;
 
+use std::sync::{Arc, RwLock};
+use std::thread;
 use ggez;
 
 /// Initialises window with specified width and height
@@ -23,11 +25,13 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     use ggez::event::winit_event::{Event, KeyboardInput, WindowEvent};
 
     // TODO: Initialise world here
-    let mut world: ecs::World = ecs::World::new();
+    let world = Arc::new(RwLock::new(ecs::World::new()));
     let entity_1 = ecs::PartialEntity::new()
         .add_component(component::physics::PositionComponent::new(0.0, 0.0))
         .add_component(component::physics::VelocityComponent::new(1.0, 1.0));
-    world.build_entity(entity_1);
+    world.write().unwrap().build_entity(entity_1);
+
+    let mut make_child: bool = true;
 
     while ctx.continuing {
         ctx.timer_context.tick(); // Tell internal timer a frame has happened
@@ -54,13 +58,31 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                 _ => (),
             }
         });
+        println!("{}", make_child);
+        if make_child {
+            make_child = false;
+            let world_child = Arc::clone(&world);
+            thread::spawn(move || {
+                println!("Spawning Child thread");
+                for _ in 1..10000000 {
+                    println!("Child Thread creates new entity");
+                    let entity_child = ecs::PartialEntity::new()
+                        .add_component(component::physics::PositionComponent::new(0.0, 0.0))
+                        .add_component(component::physics::VelocityComponent::new(1.0, 1.0));
+                    world_child.write().unwrap().build_entity(entity_child);
+                    std::thread::sleep_ms(1000);
+                }
+            });
+        }
+
         // Actual game loop
         let d_time = ggez::timer::delta(ctx);
         let d_time: f64 = ggez::timer::duration_to_f64(d_time);
 
         // Update
         // TODO: Check if any new threads need to be spawned
-        system::physics::velocity_system(&mut world);
+        println!("Parent thread");
+        system::physics::velocity_system(Arc::clone(&world));
         
         // Draw
         ggez::graphics::present(ctx)?;

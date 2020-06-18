@@ -5,7 +5,7 @@ use crate::component as component;
 
 #[derive(PartialEq, Eq, Hash)]
 pub struct Entity {
-    id: u16,
+    pub id: u16,
 }
 
 pub struct PartialEntity {
