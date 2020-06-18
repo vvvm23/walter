@@ -1,6 +1,7 @@
+use std::sync::{Arc, Mutex, RwLock};
 pub struct PositionComponent {
-    x: f32,
-    y: f32,
+    pub x: f32,
+    pub y: f32,
 }
 
 impl PositionComponent {
@@ -13,8 +14,8 @@ impl PositionComponent {
 }
 
 pub struct VelocityComponent {
-    dx: f32,
-    dy: f32,
+    pub dx: f32,
+    pub dy: f32,
 }
 
 impl VelocityComponent {

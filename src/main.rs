@@ -1,5 +1,7 @@
 mod ecs;
 mod component;
+mod system;
+
 use ggez;
 
 /// Initialises window with specified width and height

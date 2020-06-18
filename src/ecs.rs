@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 use std::collections::{HashSet, HashMap};
 
 use crate::component as component;
@@ -32,11 +32,11 @@ impl EntitySet {
 }
 
 pub struct World {
-    entity_set: EntitySet,
+    pub entity_set: EntitySet,
 
     // TODO: Compress all components into one point
-    position_components: HashMap<Arc<Entity>, Arc<Mutex<component::physics::PositionComponent>>>,
-    velocity_components: HashMap<Arc<Entity>, Arc<Mutex<component::physics::VelocityComponent>>>,
+    pub position_components: HashMap<Arc<Entity>, Arc<RwLock<component::physics::PositionComponent>>>,
+    pub velocity_components: HashMap<Arc<Entity>, Arc<RwLock<component::physics::VelocityComponent>>>,
 }
 
 impl World {
