@@ -1,12 +1,13 @@
 use std::sync::{Arc, Mutex};
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+use crate::component as component;
+
+#[derive(PartialEq, Eq, Hash)]
 pub struct Entity {
     id: u16,
 }
 
-#[derive(Debug)]
 pub struct EntitySet {
     next_id: u16,
     entities: HashSet<Arc<Entity>>,
@@ -30,11 +31,21 @@ impl EntitySet {
     }
 }
 
-#[derive(Debug)]
 pub struct World {
+    entity_set: EntitySet,
 
+    // TODO: Compress all components into one point
+    position_components: HashMap<Arc<Entity>, Arc<Mutex<component::physics::PositionComponent>>>,
+    velocity_components: HashMap<Arc<Entity>, Arc<Mutex<component::physics::VelocityComponent>>>,
 }
 
 impl World {
+    pub fn new() -> World {
+        World {
+            entity_set: EntitySet::new(),
 
+            position_components: HashMap::new(),
+            velocity_components: HashMap::new(),
+        }
+    }
 }

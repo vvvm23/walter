@@ -1,4 +1,5 @@
 mod ecs;
+mod component;
 use ggez;
 
 /// Initialises window with specified width and height
@@ -20,8 +21,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     use ggez::event::winit_event::{Event, KeyboardInput, WindowEvent};
 
     // TODO: Initialise world here
-    let mut world: ecs::World = ecs::World {};
-    println!("{:?}", world);
+    let mut world: ecs::World = ecs::World::new();
 
     while ctx.continuing {
         ctx.timer_context.tick(); // Tell internal timer a frame has happened
