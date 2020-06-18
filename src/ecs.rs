@@ -54,6 +54,7 @@ pub struct World {
     // TODO: Compress all components into one point
     pub position_components: HashMap<Arc<Entity>, Arc<RwLock<component::physics::PositionComponent>>>,
     pub velocity_components: HashMap<Arc<Entity>, Arc<RwLock<component::physics::VelocityComponent>>>,
+    pub primitive_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::PrimitiveRenderableComponent>>>,
 }
 
 impl World {
@@ -63,6 +64,7 @@ impl World {
 
             position_components: HashMap::new(),
             velocity_components: HashMap::new(),
+            primitive_components: HashMap::new(),
         }
     }
 
@@ -77,7 +79,11 @@ impl World {
                 },
                 Component::VelocityComponent(r) => {
                     self.velocity_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
+                },
+                Component::PrimitiveRenderableComponent(r) => {
+                    self.primitive_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
                 }
+
             }
         }
     }

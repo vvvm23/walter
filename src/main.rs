@@ -26,10 +26,10 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
     // TODO: Initialise world here
     let world = Arc::new(RwLock::new(ecs::World::new()));
-    let entity_1 = ecs::PartialEntity::new()
-        .add_component(component::physics::PositionComponent::new(0.0, 0.0))
-        .add_component(component::physics::VelocityComponent::new(1.0, 1.0));
-    world.write().unwrap().build_entity(entity_1);
+    //let entity_1 = ecs::PartialEntity::new()
+        //.add_component(component::physics::PositionComponent::new(0.0, 0.0))
+        //.add_component(component::physics::VelocityComponent::new(1.0, 1.0));
+    //world.write().unwrap().build_entity(entity_1);
 
     let mut make_child: bool = true;
 
@@ -67,8 +67,9 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                 for _ in 1..10000000 {
                     println!("Child Thread creates new entity");
                     let entity_child = ecs::PartialEntity::new()
-                        .add_component(component::physics::PositionComponent::new(0.0, 0.0))
-                        .add_component(component::physics::VelocityComponent::new(1.0, 1.0));
+                        .add_component(component::physics::PositionComponent::new(100.0, 100.0))
+                        .add_component(component::physics::VelocityComponent::new(1.0, 1.0))
+                        .add_component(component::rendering::PrimitiveRenderableComponent::new(component::rendering::Shape::Circle{r:10.0}, ggez::graphics::DrawMode::fill(), ggez::graphics::WHITE));
                     world_child.write().unwrap().build_entity(entity_child);
                     std::thread::sleep_ms(1000);
                 }
@@ -86,6 +87,8 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         
         // Draw
         ggez::graphics::present(ctx)?;
+        ggez::graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
+        system::rendering::primitive_rendering_system(Arc::clone(&world), ctx)?;
         ggez::timer::yield_now();
     }
 
