@@ -24,7 +24,7 @@ impl PrimitiveRenderableComponent {
                 draw_mode: draw_mode,
                 colour: colour,
             }
-        )
+            )
     }
 
     pub fn build_mesh(&self, ctx: &mut Context) -> graphics::Mesh {
@@ -36,13 +36,13 @@ impl PrimitiveRenderableComponent {
                 r,
                 1.0,
                 self.colour,
-            ),
+                ),
             Shape::Rectangle{w,h} => graphics::Mesh::new_rectangle(
                 ctx,
                 self.draw_mode,
                 graphics::Rect {x: 0.0, y: 0.0, w: w, h: h},
                 self.colour
-            )
+                )
         }.unwrap()
     }
 }
@@ -58,6 +58,22 @@ impl SpriteRenderableComponent {
             SpriteRenderableComponent {
                 texture: Arc::clone(&texture),
                 scale: mint::Vector2 {x: scale_x, y: scale_y},
+            }
+        )
+    }
+}
+
+pub struct BackgroundComponent {
+    pub texture: Arc<graphics::Image>,
+    pub scale: mint::Vector2<f32>,
+}
+
+impl BackgroundComponent {
+    pub fn new(texture: Arc<graphics::Image>) -> Component {
+        Component::BackgroundComponent (
+            BackgroundComponent {
+                texture: Arc::clone(&texture),
+                scale: mint::Vector2 {x: 1600.0 / texture.width() as f32, y: 1200.0 / texture.height() as f32 },
             }
         )
     }

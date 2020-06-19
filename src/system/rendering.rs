@@ -74,3 +74,16 @@ pub fn sprite_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> 
 
     Ok(())
 }
+
+pub fn background_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> GameResult {
+    let world = world.read().unwrap();
+    for (e, back) in world.background_components.iter() {
+        let back = back.read().unwrap();
+        let draw_param = graphics::DrawParam::default()
+            .scale(back.scale);
+    
+        graphics::draw(ctx, &*back.texture, draw_param)?;
+    }
+
+    Ok(())
+}

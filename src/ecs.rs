@@ -56,6 +56,7 @@ pub struct World {
     pub velocity_components: HashMap<Arc<Entity>, Arc<RwLock<component::physics::VelocityComponent>>>,
     pub primitive_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::PrimitiveRenderableComponent>>>,
     pub sprite_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::SpriteRenderableComponent>>>,
+    pub background_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::BackgroundComponent>>>,
 }
 
 impl World {
@@ -67,6 +68,7 @@ impl World {
             velocity_components: HashMap::new(),
             primitive_components: HashMap::new(),
             sprite_components: HashMap::new(),
+            background_components: HashMap::new(),
         }
     }
 
@@ -87,7 +89,10 @@ impl World {
                 }
                 Component::SpriteRenderableComponent(r) => {
                     self.sprite_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
-                }
+                },
+                Component::BackgroundComponent(r) => {
+                    self.background_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
+                },
             }
         }
     }

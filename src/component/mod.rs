@@ -6,4 +6,5 @@ pub enum Component {
     VelocityComponent(physics::VelocityComponent),
     PrimitiveRenderableComponent(rendering::PrimitiveRenderableComponent),
     SpriteRenderableComponent(rendering::SpriteRenderableComponent),
+    BackgroundComponent(rendering::BackgroundComponent),
 }
