@@ -1,32 +1,44 @@
 use crate::component::Component;
 use std::sync::{Arc, RwLock};
 
+/// All possible battle factions
+#[derive(Debug)]
 pub enum Faction {
     Ally,
     Enemy,
 }
 
+/// All possible AI systems
+#[derive(Debug)]
 pub enum AI {
     Random,
 }
 
+/// All possible Area-of-Effect targets
+#[derive(Debug)]
 pub enum AOETarget {
     All,
     Ally,
     Enemy,
 }
 
+/// All possible targets against a single
+#[derive(Debug)]
 pub enum SingleTarget {
     Ally,
     Enemy,
     User,
 }
 
+/// Defines how a move targets
+#[derive(Debug)]
 pub enum MoveTarget {
     Single(SingleTarget),
     AOE(AOETarget),
 }
 
+/// Structure to store Move data
+#[derive(Debug)]
 pub struct Move {
     name: String,
     description: String,
@@ -39,7 +51,8 @@ pub struct Move {
 }
 
 impl Move {
-    fn new(
+    /// Define a new move 
+    pub fn new(
         name: &str, description: &str, use_message: &str,
         hp_cost: u16, sp_cost: u16,
         power: u16, accuracy: f32,
@@ -57,11 +70,13 @@ impl Move {
     }
 }
 
+/// Component that gives an entity the ability to take part in battles
+#[derive(Debug)]
 pub struct FighterComponent {
     display_name: String,
     level: u8,
     faction: Faction,
-    moves: Vec<Arc<Move>>,
+    pub moves: Vec<Arc<Move>>,
 
     max_hp: u16,    hp: u16,
     max_sp: u16,    sp: u16,
@@ -71,11 +86,13 @@ pub struct FighterComponent {
 }
 
 impl FighterComponent {
-    fn new(
+    /// Generate a new FighterComponent with empty move set
+    pub fn new(
         display_name: &str,
         level: u8,
         faction: Faction,
         hp: u16, sp: u16,
+        moves: Vec<Arc<Move>>,
         attack: u16, defence: u16,
         agility: u16, luck: u16,
     ) -> Component {
@@ -84,7 +101,7 @@ impl FighterComponent {
                 display_name: display_name.to_string(),
                 level: level,
                 faction: faction,
-                moves: Vec::new(),
+                moves: moves,
 
                 max_hp: hp, hp: hp,
                 max_sp: sp, sp: sp,
@@ -92,11 +109,5 @@ impl FighterComponent {
                 agility: agility, luck: luck,
             }
         )
-    }
-
-    /// Builder pattern to add move to Fighter
-    fn add_move(mut self, m: Arc<Move>) -> FighterComponent {
-        self.moves.push(m);
-        self
     }
 }

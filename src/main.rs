@@ -23,6 +23,7 @@ fn init_window(width: f32, height: f32) -> ggez::ContextBuilder {
 /// Contains main game loop
 fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> ggez::GameResult {
     use ggez::event::winit_event::{Event, KeyboardInput, WindowEvent};
+    use component::battle::{Faction, MoveTarget, AOETarget, SingleTarget};
 
     let world = Arc::new(RwLock::new(ecs::World::new()));
 
@@ -30,6 +31,17 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     atlas.load(ctx, "/cheems.png");
     atlas.load(ctx, "/night_desert.png");
     let atlas = Arc::new(atlas);
+
+    // TODO: Load audio in similar audio atlas
+
+    let move_1 = component::battle::Move::new(
+        "Cross Slash", "Slash the target twice", "$source slashed at $target!",
+        0, 10, 80, 1.0, MoveTarget::Single(SingleTarget::Enemy),
+    );
+    let move_2 = component::battle::Move::new(
+        "God's Hand", "Colossal Physical Damage", "$source crushed the $target!",
+        0, 30, 120, 0.9, MoveTarget::Single(SingleTarget::Enemy),
+    );
 
     let entity_back = ecs::PartialEntity::new()
         .add_component(component::rendering::BackgroundComponent::new(atlas.get("/night_desert.png")));
@@ -62,23 +74,36 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                 _ => (),
             }
         });
-        println!("{}", make_child);
+        //println!("{}", make_child);
         if make_child {
             make_child = false;
             let world_child = Arc::clone(&world);
             let atlas_child = Arc::clone(&atlas);
+            let move_1_child = Arc::clone(&move_1);
+            let move_2_child = Arc::clone(&move_2);
             thread::spawn(move || {
                 println!("Spawning Child thread");
                 for _ in 1..10000000 {
-                    println!("Child Thread creates new entity");
+                    //println!("Child Thread creates new entity");
                     let entity_child = ecs::PartialEntity::new()
+                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child)], 100, 100, 100, 100))
                         .add_component(component::physics::PositionComponent::new(-200.0, -200.0))
                         .add_component(component::physics::VelocityComponent::new(1.0, 1.0))
                         //.add_component(component::rendering::PrimitiveRenderableComponent::new(component::rendering::Shape::Circle{r:10.0}, ggez::graphics::DrawMode::fill(), ggez::graphics::WHITE));
                         .add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 0.5, 0.5));
-                    world_child.write().unwrap().build_entity(entity_child);
+
+                    let new_cheem = world_child.write().unwrap().build_entity(entity_child);
+                    println!("created new cheems");
+                    println!("cheems {} details:", new_cheem.id);
+                    println!("{:?}", world_child.read().unwrap().fighter_components.get(&new_cheem).unwrap());
+                    println!("cheems");
+
+                    //for (e, f) in world_child.read().unwrap().fighter_components.iter() {
+                        //println!("{:?}", f.read().unwrap());
+                    //}
                     std::thread::sleep_ms(1500);
                 }
+
             });
         }
 
@@ -88,7 +113,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
         // Update
         // TODO: Check if any new threads need to be spawned
-        println!("Parent thread");
+        //println!("Parent thread");
         system::physics::velocity_system(Arc::clone(&world));
         
         // Draw
@@ -98,7 +123,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         system::rendering::primitive_rendering_system(Arc::clone(&world), ctx)?;
         system::rendering::sprite_rendering_system(Arc::clone(&world), ctx)?;
         ggez::timer::yield_now();
-        println!("{}", ggez::timer::fps(ctx));
+        //println!("{}", ggez::timer::fps(ctx));
     }
 
     Ok(())

@@ -74,7 +74,7 @@ impl World {
         }
     }
 
-    pub fn build_entity(&mut self, pe: PartialEntity) {
+    pub fn build_entity(&mut self, pe: PartialEntity) -> Arc<Entity> {
         use component::Component as Component;
 
         let e = self.entity_set.new_entity();
@@ -100,5 +100,6 @@ impl World {
                 }
             }
         }
+        Arc::clone(&e)
     }
 }
