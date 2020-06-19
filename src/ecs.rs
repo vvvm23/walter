@@ -57,6 +57,7 @@ pub struct World {
     pub primitive_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::PrimitiveRenderableComponent>>>,
     pub sprite_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::SpriteRenderableComponent>>>,
     pub background_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::BackgroundComponent>>>,
+    pub fighter_components: HashMap<Arc<Entity>, Arc<RwLock<component::battle::FighterComponent>>>,
 }
 
 impl World {
@@ -64,11 +65,12 @@ impl World {
         World {
             entity_set: EntitySet::new(),
 
-            position_components: HashMap::new(),
-            velocity_components: HashMap::new(),
-            primitive_components: HashMap::new(),
-            sprite_components: HashMap::new(),
-            background_components: HashMap::new(),
+            position_components:        HashMap::new(),
+            velocity_components:        HashMap::new(),
+            primitive_components:       HashMap::new(),
+            sprite_components:          HashMap::new(),
+            background_components:      HashMap::new(),
+            fighter_components:         HashMap::new(),
         }
     }
 
@@ -93,6 +95,9 @@ impl World {
                 Component::BackgroundComponent(r) => {
                     self.background_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
                 },
+                Component::FighterComponent(r) => {
+                    self.fighter_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
+                }
             }
         }
     }
