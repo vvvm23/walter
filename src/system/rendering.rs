@@ -4,6 +4,32 @@ use ggez::graphics;
 use ggez::nalgebra as na;
 use ggez::{Context, GameResult};
 use std::sync::{Arc, RwLock};
+use std::collections::HashMap;
+
+pub struct TextureAtlas {
+    lookup_texture: HashMap<String, Arc<ggez::graphics::Image>>,
+}
+
+impl TextureAtlas {
+    pub fn new() -> TextureAtlas {
+        TextureAtlas {
+            lookup_texture: HashMap::new(),
+        }
+    } 
+
+    pub fn load(&mut self, ctx: &mut ggez::Context, path: &str) {
+        self.lookup_texture.insert(
+            path.to_string(),
+            Arc::new(ggez::graphics::Image::new(ctx, path).unwrap())
+        );
+    }
+
+    pub fn get(&self, path: &str) -> Arc<ggez::graphics::Image> {
+        let path = path.to_string();
+        assert!(self.lookup_texture.contains_key(&path));
+        Arc::clone(self.lookup_texture.get(&path).unwrap())
+    }
+}
 
 pub fn primitive_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> GameResult {
     let world = world.read().unwrap();
@@ -43,7 +69,7 @@ pub fn sprite_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> 
             .dest(point)
             .scale(sprite.scale);
 
-        graphics::draw(ctx, &sprite.texture, draw_param)?;
+        graphics::draw(ctx, &*sprite.texture, draw_param)?;
     }
 
     Ok(())

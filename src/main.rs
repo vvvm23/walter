@@ -24,12 +24,10 @@ fn init_window(width: f32, height: f32) -> ggez::ContextBuilder {
 fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> ggez::GameResult {
     use ggez::event::winit_event::{Event, KeyboardInput, WindowEvent};
 
-    // TODO: Initialise world here
     let world = Arc::new(RwLock::new(ecs::World::new()));
-    //let entity_1 = ecs::PartialEntity::new()
-        //.add_component(component::physics::PositionComponent::new(0.0, 0.0))
-        //.add_component(component::physics::VelocityComponent::new(1.0, 1.0));
-    //world.write().unwrap().build_entity(entity_1);
+    let mut atlas = system::rendering::TextureAtlas::new();
+    atlas.load(ctx, "/cheems.png");
+    let atlas = Arc::new(atlas);
 
     let mut make_child: bool = true;
 
@@ -62,6 +60,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         if make_child {
             make_child = false;
             let world_child = Arc::clone(&world);
+            let atlas_child = Arc::clone(&atlas);
             thread::spawn(move || {
                 println!("Spawning Child thread");
                 for _ in 1..10000000 {
@@ -70,7 +69,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                         .add_component(component::physics::PositionComponent::new(100.0, 100.0))
                         .add_component(component::physics::VelocityComponent::new(1.0, 1.0))
                         //.add_component(component::rendering::PrimitiveRenderableComponent::new(component::rendering::Shape::Circle{r:10.0}, ggez::graphics::DrawMode::fill(), ggez::graphics::WHITE));
-                        .add_component(component::rendering::SpriteRenderableComponent::new(ctx, "/resources/cheems.png", 1.0, 1.0));
+                        .add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 1.0, 1.0));
                     world_child.write().unwrap().build_entity(entity_child);
                     std::thread::sleep_ms(100);
                 }
@@ -90,6 +89,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         ggez::graphics::present(ctx)?;
         ggez::graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
         system::rendering::primitive_rendering_system(Arc::clone(&world), ctx)?;
+        system::rendering::sprite_rendering_system(Arc::clone(&world), ctx)?;
         ggez::timer::yield_now();
         println!("{}", ggez::timer::fps(ctx));
     }
