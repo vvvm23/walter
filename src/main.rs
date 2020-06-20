@@ -42,6 +42,9 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         "God's Hand", "Colossal Physical Damage", "$source crushed the $target!",
         0, 30, 120, 0.9, MoveTarget::Single(SingleTarget::Enemy),
     );
+    let move_3 = component::battle::Move::new(
+        "Flying Press", "Channel the reckless spirit of Hawk.", "$source slams down hard from a great height!", 50, 0, 120, 0.95, MoveTarget::Single(SingleTarget::Enemy),
+    );
 
     let entity_back = ecs::PartialEntity::new()
         .add_component(component::rendering::BackgroundComponent::new(atlas.get("/night_desert.png")));
@@ -81,12 +84,13 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
             let atlas_child = Arc::clone(&atlas);
             let move_1_child = Arc::clone(&move_1);
             let move_2_child = Arc::clone(&move_2);
+            let move_3_child = Arc::clone(&move_3);
             thread::spawn(move || {
                 println!("Spawning Child thread");
                 for _ in 1..10000000 {
                     //println!("Child Thread creates new entity");
                     let entity_child = ecs::PartialEntity::new()
-                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child)], 100, 100, 100, 100))
+                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100))
                         .add_component(component::physics::PositionComponent::new(-200.0, -200.0))
                         .add_component(component::physics::VelocityComponent::new(1.0, 1.0))
                         //.add_component(component::rendering::PrimitiveRenderableComponent::new(component::rendering::Shape::Circle{r:10.0}, ggez::graphics::DrawMode::fill(), ggez::graphics::WHITE));

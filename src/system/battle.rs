@@ -21,6 +21,8 @@ use std::sync::{Arc, RwLock};
 // We send requests for audio to be played to main thread and it will execute.
 // Not sure how to synchronise between threads, just waiting is unstable
 
+// TODO: AOE?
+// TODO: maybe we actually want to precompute some things, such as crits for animation purposes
 pub enum Action {
     Move(Arc<Entity>, Arc<battle::Move>, Arc<Entity>),
     Down(Arc<Entity>),
