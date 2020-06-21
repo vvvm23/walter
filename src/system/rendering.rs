@@ -1,4 +1,5 @@
 use crate::component::rendering;
+use crate::component::battle;
 use crate::system;
 use crate::ecs::World;
 use ggez::graphics;
@@ -100,6 +101,11 @@ pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
     for (i, e) in ins.entities.iter().enumerate() {
         let fighter = Arc::clone(world.fighter_components.get(e).unwrap());
         let fighter = fighter.read().unwrap();
+
+        if let battle::Faction::Enemy = fighter.faction {
+            continue;
+        }
+
         draw_container(1200.0 - TEXT_PAD,
                        100.0 - TEXT_PAD + (i*INTERVAL) as f32,
                        300.0, 150.0,
