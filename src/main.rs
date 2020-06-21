@@ -5,6 +5,7 @@ mod system;
 use std::sync::{Arc, RwLock};
 use std::thread;
 use ggez;
+use ggez::audio::SoundSource;
 
 /// Initialises window with specified width and height
 fn init_window(width: f32, height: f32) -> ggez::ContextBuilder {
@@ -27,11 +28,17 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
     let world = Arc::new(RwLock::new(ecs::World::new()));
 
-    let mut atlas = system::rendering::TextureAtlas::new();
-    atlas.load(ctx, "/cheems_profile.png");
-    atlas.load(ctx, "/cheems.png");
-    atlas.load(ctx, "/night_desert.png");
-    let atlas = Arc::new(atlas);
+    let mut texture_atlas = system::rendering::TextureAtlas::new();
+    texture_atlas.load(ctx, "/cheems_profile.png");
+    texture_atlas.load(ctx, "/cheems.png");
+    texture_atlas.load(ctx, "/night_desert.png");
+    let texture_atlas = Arc::new(texture_atlas);
+
+    let mut sound_atlas = system::audio::AudioAtlas::new();
+    sound_atlas.load(ctx, "/music.flac");
+    let sound_atlas = Arc::new(sound_atlas);
+    let bgm = sound_atlas.get("/music.flac");
+    bgm.write().unwrap().play()?;
 
     // TODO: Load audio in similar audio atlas
 
@@ -48,7 +55,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     );
 
     let entity_back = ecs::PartialEntity::new()
-        .add_component(component::rendering::BackgroundComponent::new(atlas.get("/night_desert.png")));
+        .add_component(component::rendering::BackgroundComponent::new(texture_atlas.get("/night_desert.png")));
     world.write().unwrap().build_entity(entity_back);
     let bi = system::battle::BattleInstance::new("cheems");
     world.write().unwrap().battle_instance = Some(Arc::new(RwLock::new(
@@ -96,7 +103,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         if make_child {
             make_child = false;
             let world_child = Arc::clone(&world);
-            let atlas_child = Arc::clone(&atlas);
+            let atlas_child = Arc::clone(&texture_atlas);
             let move_1_child = Arc::clone(&move_1);
             let move_2_child = Arc::clone(&move_2);
             let move_3_child = Arc::clone(&move_3);
