@@ -105,7 +105,7 @@ pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
                        300.0, 150.0,
                        ctx)?;
         
-        let name_text: graphics::Text = graphics::Text::new(format!("{}", fighter.display_name));
+        let name_text: graphics::Text = graphics::Text::new(format!("{0: <10} LVL: {1}", fighter.display_name, fighter.level));
         graphics::draw(ctx, &name_text, (na::Point2::new(1200.0, 100.0+(i*INTERVAL) as f32), graphics::WHITE))?;
         
         let health_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "HP:", fighter.hp, fighter.max_hp));

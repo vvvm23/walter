@@ -74,8 +74,8 @@ impl Move {
 #[derive(Debug)]
 pub struct FighterComponent {
     pub display_name: String,
-    level: u8,
-    faction: Faction,
+    pub level: u8,
+    pub faction: Faction,
     pub moves: Vec<Arc<Move>>,
 
     pub max_hp: u16,    pub hp: u16,
