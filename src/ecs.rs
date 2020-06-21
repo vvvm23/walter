@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex, RwLock};
 use std::collections::{HashSet, HashMap};
 
 use crate::component as component;
+use crate::system as system;
 
 #[derive(PartialEq, Eq, Hash)]
 pub struct Entity {
@@ -50,6 +51,7 @@ impl EntitySet {
 
 pub struct World {
     pub entity_set: EntitySet,
+    pub battle_instance: Option<system::battle::BattleInstance>,
 
     // TODO: Compress all components into one point
     pub position_components: HashMap<Arc<Entity>, Arc<RwLock<component::physics::PositionComponent>>>,
@@ -64,6 +66,7 @@ impl World {
     pub fn new() -> World {
         World {
             entity_set: EntitySet::new(),
+            battle_instance: None,
 
             position_components:        HashMap::new(),
             velocity_components:        HashMap::new(),

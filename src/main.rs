@@ -90,7 +90,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                 for _ in 1..10000000 {
                     //println!("Child Thread creates new entity");
                     let entity_child = ecs::PartialEntity::new()
-                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100))
+                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, None))
                         .add_component(component::physics::PositionComponent::new(-200.0, -200.0))
                         .add_component(component::physics::VelocityComponent::new(1.0, 1.0))
                         //.add_component(component::rendering::PrimitiveRenderableComponent::new(component::rendering::Shape::Circle{r:10.0}, ggez::graphics::DrawMode::fill(), ggez::graphics::WHITE));

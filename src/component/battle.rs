@@ -83,6 +83,8 @@ pub struct FighterComponent {
 
     attack: u16,    defence: u16,
     agility: u16,   luck: u16,
+
+    profile_sprite: Option<ggez::graphics::Image>,
 }
 
 impl FighterComponent {
@@ -95,6 +97,7 @@ impl FighterComponent {
         moves: Vec<Arc<Move>>,
         attack: u16, defence: u16,
         agility: u16, luck: u16,
+        profile_sprite: Option<ggez::graphics::Image>,
     ) -> Component {
         Component::FighterComponent (
             FighterComponent {
@@ -107,6 +110,8 @@ impl FighterComponent {
                 max_sp: sp, sp: sp,
                 attack: attack, defence: defence,
                 agility: agility, luck: luck,
+
+                profile_sprite: profile_sprite,
             }
         )
     }
