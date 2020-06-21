@@ -1,6 +1,7 @@
 pub mod physics;
 pub mod rendering;
 pub mod battle;
+pub mod audio;
 
 pub enum Component {
     PositionComponent(physics::PositionComponent),
