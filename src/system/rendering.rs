@@ -1,4 +1,5 @@
 use crate::component::rendering;
+use crate::system;
 use crate::ecs::World;
 use ggez::graphics;
 use ggez::nalgebra as na;
@@ -26,7 +27,7 @@ impl TextureAtlas {
 
     pub fn get(&self, path: &str) -> Arc<ggez::graphics::Image> {
         let path = path.to_string();
-        assert!(self.lookup_texture.contains_key(&path));
+        assert!(self.lookup_texture.contains_key(&path), format!("Requested image file has not beem loaded! {}", path));
         Arc::clone(self.lookup_texture.get(&path).unwrap())
     }
 }
@@ -86,4 +87,66 @@ pub fn background_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
     }
 
     Ok(())
+}
+
+pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> GameResult {
+    const TEXT_PAD: f32 = 10.0;
+    const INTERVAL: usize = 20;
+    let world = world.read().unwrap();
+    let ins = world.battle_instance.as_ref().unwrap();
+    let ins = Arc::clone(ins);
+    let ins = ins.read().unwrap();
+
+    for (i, e) in ins.entities.iter().enumerate() {
+        let fighter = Arc::clone(world.fighter_components.get(e).unwrap());
+        let fighter = fighter.read().unwrap();
+        draw_container(1200.0 - TEXT_PAD,
+                       100.0 - TEXT_PAD + (i*INTERVAL) as f32,
+                       300.0, 150.0,
+                       ctx)?;
+        
+        let name_text: graphics::Text = graphics::Text::new(format!("{}", fighter.display_name));
+        graphics::draw(ctx, &name_text, (na::Point2::new(1200.0, 100.0+(i*INTERVAL) as f32), graphics::WHITE))?;
+        
+        let health_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "HP:", fighter.hp, fighter.max_hp));
+        graphics::draw(ctx, &health_text, (na::Point2::new(1200.0, 100.0+20.0+(i*INTERVAL) as f32), graphics::WHITE))?;
+
+        let sp_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "SP:", fighter.sp, fighter.max_sp));
+        graphics::draw(ctx, &sp_text, (na::Point2::new(1200.0, 100.0+40.0+(i*INTERVAL) as f32), graphics::WHITE))?;
+
+        if let Some(sprite) = fighter.profile_sprite.as_ref() {
+            let draw_param = graphics::DrawParam::default()
+                .dest(na::Point2::new(1350.0, 100.0 + (i*INTERVAL) as f32));
+
+            graphics::draw(ctx, &**sprite, draw_param)?;
+        }
+    }
+
+    Ok(())
+}
+
+pub fn draw_container(x: f32, y: f32, xs: f32, ys: f32, ctx: &mut Context) -> GameResult {
+    const BORDER_SIZE: f32 = 3.0;
+    let mesh: graphics::Mesh = graphics::Mesh::new_rectangle(
+        ctx,
+        graphics::DrawMode::fill(),
+        graphics::Rect {x: 0.0, y: 0.0, w: xs, h: ys},
+        graphics::WHITE,
+    ).unwrap();
+    let draw_param = graphics::DrawParam::default()
+        .dest(na::Point2::new(x, y));
+    graphics::draw(ctx, &mesh, draw_param)?;
+
+    let mesh: graphics::Mesh = graphics::Mesh::new_rectangle(
+        ctx,
+        graphics::DrawMode::fill(),
+        graphics::Rect {x: BORDER_SIZE, y: BORDER_SIZE, w: xs - 2.0*BORDER_SIZE, h: ys - 2.0*BORDER_SIZE},
+        [0.3, 0.3, 0.3, 1.0].into(),
+    ).unwrap();
+
+    let draw_param = graphics::DrawParam::default()
+        .dest(na::Point2::new(x, y));
+    graphics::draw(ctx, &mesh, draw_param)?;
+    Ok(())
+
 }

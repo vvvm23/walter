@@ -28,6 +28,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     let world = Arc::new(RwLock::new(ecs::World::new()));
 
     let mut atlas = system::rendering::TextureAtlas::new();
+    atlas.load(ctx, "/cheems_profile.png");
     atlas.load(ctx, "/cheems.png");
     atlas.load(ctx, "/night_desert.png");
     let atlas = Arc::new(atlas);
@@ -49,6 +50,10 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     let entity_back = ecs::PartialEntity::new()
         .add_component(component::rendering::BackgroundComponent::new(atlas.get("/night_desert.png")));
     world.write().unwrap().build_entity(entity_back);
+    let bi = system::battle::BattleInstance::new("cheems");
+    world.write().unwrap().battle_instance = Some(Arc::new(RwLock::new(
+        bi
+    )));
 
     let mut make_child: bool = true;
 
@@ -90,13 +95,15 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                 for _ in 1..10000000 {
                     //println!("Child Thread creates new entity");
                     let entity_child = ecs::PartialEntity::new()
-                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, None))
+                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, Some(atlas_child.get("/cheems_profile.png"))))
                         .add_component(component::physics::PositionComponent::new(-200.0, -200.0))
                         .add_component(component::physics::VelocityComponent::new(1.0, 1.0))
                         //.add_component(component::rendering::PrimitiveRenderableComponent::new(component::rendering::Shape::Circle{r:10.0}, ggez::graphics::DrawMode::fill(), ggez::graphics::WHITE));
                         .add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 0.5, 0.5));
 
                     let new_cheem = world_child.write().unwrap().build_entity(entity_child);
+                    world_child.write().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut vec![Arc::clone(&new_cheem)]);
+
                     println!("created new cheems");
                     println!("cheems {} details:", new_cheem.id);
                     println!("{:?}", world_child.read().unwrap().fighter_components.get(&new_cheem).unwrap());
@@ -126,6 +133,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         system::rendering::background_rendering_system(Arc::clone(&world), ctx)?;
         system::rendering::primitive_rendering_system(Arc::clone(&world), ctx)?;
         system::rendering::sprite_rendering_system(Arc::clone(&world), ctx)?;
+        system::rendering::ally_stats_rendering_system(Arc::clone(&world), ctx)?;
         ggez::timer::yield_now();
         //println!("{}", ggez::timer::fps(ctx));
     }

@@ -73,18 +73,18 @@ impl Move {
 /// Component that gives an entity the ability to take part in battles
 #[derive(Debug)]
 pub struct FighterComponent {
-    display_name: String,
+    pub display_name: String,
     level: u8,
     faction: Faction,
     pub moves: Vec<Arc<Move>>,
 
-    max_hp: u16,    hp: u16,
-    max_sp: u16,    sp: u16,
+    pub max_hp: u16,    pub hp: u16,
+    pub max_sp: u16,    pub sp: u16,
 
-    attack: u16,    defence: u16,
-    agility: u16,   luck: u16,
+    pub attack: u16,    pub defence: u16,
+    pub agility: u16,   pub luck: u16,
 
-    profile_sprite: Option<ggez::graphics::Image>,
+    pub profile_sprite: Option<Arc<ggez::graphics::Image>>,
 }
 
 impl FighterComponent {
@@ -97,7 +97,7 @@ impl FighterComponent {
         moves: Vec<Arc<Move>>,
         attack: u16, defence: u16,
         agility: u16, luck: u16,
-        profile_sprite: Option<ggez::graphics::Image>,
+        profile_sprite: Option<Arc<ggez::graphics::Image>>,
     ) -> Component {
         Component::FighterComponent (
             FighterComponent {

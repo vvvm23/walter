@@ -51,7 +51,7 @@ impl EntitySet {
 
 pub struct World {
     pub entity_set: EntitySet,
-    pub battle_instance: Option<system::battle::BattleInstance>,
+    pub battle_instance: Option<Arc<RwLock<system::battle::BattleInstance>>>,
 
     // TODO: Compress all components into one point
     pub position_components: HashMap<Arc<Entity>, Arc<RwLock<component::physics::PositionComponent>>>,
