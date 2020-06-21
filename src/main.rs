@@ -98,7 +98,6 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                         .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, Some(atlas_child.get("/cheems_profile.png"))))
                         .add_component(component::physics::PositionComponent::new(-200.0, -200.0))
                         .add_component(component::physics::VelocityComponent::new(1.0, 1.0))
-                        //.add_component(component::rendering::PrimitiveRenderableComponent::new(component::rendering::Shape::Circle{r:10.0}, ggez::graphics::DrawMode::fill(), ggez::graphics::WHITE));
                         .add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 0.5, 0.5));
 
                     let new_cheem = world_child.write().unwrap().build_entity(entity_child);
@@ -134,6 +133,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         system::rendering::primitive_rendering_system(Arc::clone(&world), ctx)?;
         system::rendering::sprite_rendering_system(Arc::clone(&world), ctx)?;
         system::rendering::ally_stats_rendering_system(Arc::clone(&world), ctx)?;
+        system::rendering::draw_fps(ctx)?;
         ggez::timer::yield_now();
         //println!("{}", ggez::timer::fps(ctx));
     }

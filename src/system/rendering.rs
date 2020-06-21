@@ -109,6 +109,7 @@ pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
         draw_container(1200.0 - TEXT_PAD,
                        100.0 - TEXT_PAD + (i*INTERVAL) as f32,
                        300.0, 150.0,
+                       [0.3, 0.3, 0.3, 1.0].into(),
                        ctx)?;
         
         let name_text: graphics::Text = graphics::Text::new(format!("{0: <10} LVL: {1}", fighter.display_name, fighter.level));
@@ -131,7 +132,7 @@ pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
     Ok(())
 }
 
-pub fn draw_container(x: f32, y: f32, xs: f32, ys: f32, ctx: &mut Context) -> GameResult {
+pub fn draw_container(x: f32, y: f32, xs: f32, ys: f32, colour: graphics::Color, ctx: &mut Context) -> GameResult {
     const BORDER_SIZE: f32 = 3.0;
     let mesh: graphics::Mesh = graphics::Mesh::new_rectangle(
         ctx,
@@ -147,7 +148,7 @@ pub fn draw_container(x: f32, y: f32, xs: f32, ys: f32, ctx: &mut Context) -> Ga
         ctx,
         graphics::DrawMode::fill(),
         graphics::Rect {x: BORDER_SIZE, y: BORDER_SIZE, w: xs - 2.0*BORDER_SIZE, h: ys - 2.0*BORDER_SIZE},
-        [0.3, 0.3, 0.3, 1.0].into(),
+        colour,
     ).unwrap();
 
     let draw_param = graphics::DrawParam::default()
@@ -155,4 +156,14 @@ pub fn draw_container(x: f32, y: f32, xs: f32, ys: f32, ctx: &mut Context) -> Ga
     graphics::draw(ctx, &mesh, draw_param)?;
     Ok(())
 
+}
+
+pub fn draw_fps(ctx: &mut Context) -> GameResult {
+    let fps_text = graphics::Text::new(format!("FPS: {}", ggez::timer::fps(ctx) as u32));
+    let draw_param = graphics::DrawParam::default()
+        .dest(na::Point2::new(20.0, 20.0));
+    draw_container(15.0, 15.0, 70.0, 30.0, [0.0, 0.0, 0.0, 1.0].into(), ctx)?;
+    graphics::draw(ctx, &fps_text, draw_param)?;
+
+    Ok(())
 }
