@@ -10,4 +10,5 @@ pub enum Component {
     SpriteRenderableComponent(rendering::SpriteRenderableComponent),
     BackgroundComponent(rendering::BackgroundComponent),
     FighterComponent(battle::FighterComponent),
+    TextBoxComponent(rendering::TextBoxComponent),
 }

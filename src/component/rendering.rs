@@ -1,9 +1,10 @@
 use crate::component::Component;
-use ggez::Context;
 use ggez::graphics;
 use ggez::nalgebra as na;
+use ggez::{Context, GameResult};
 use mint;
 use std::sync::Arc;
+use std::collections::VecDeque;
 
 pub enum Shape {
     Circle{ r: f32 }, // Radius
@@ -79,3 +80,77 @@ impl BackgroundComponent {
     }
 }
 
+pub struct TextBoxComponent {
+    xs: f32,    ys: f32,
+    p_colour: graphics::Color,
+    s_colour: graphics::Color,
+
+    lines: VecDeque<String>,
+    nb_lines: u8,
+    capacity: u8,
+}
+
+impl TextBoxComponent {
+    pub fn new(capacity: u8, xs: f32, ys: f32, pc: graphics::Color, sc: graphics::Color) -> Component {
+        Component::TextBoxComponent(
+            TextBoxComponent {
+                xs: xs,
+                ys: ys,
+                p_colour: pc,
+                s_colour: sc,
+
+                lines: VecDeque::new(),
+                nb_lines: 0,
+                capacity: capacity,
+            }
+        )
+    }
+
+    pub fn draw(&self, x: f32, y: f32, ctx: &mut Context) -> GameResult {
+        const BORDER_SIZE: f32 = 3.0;
+        const LINE_SPACE: f32 = 20.0;
+        let mesh: graphics::Mesh = graphics::Mesh::new_rectangle(
+            ctx,
+            graphics::DrawMode::fill(),
+            graphics::Rect {x: 0.0, y: 0.0, w: self.xs, h: self.ys},
+            self.s_colour,
+        ).unwrap();
+        let draw_param = graphics::DrawParam::default()
+            .dest(na::Point2::new(x, y));
+        graphics::draw(ctx, &mesh, draw_param)?;
+
+        let mesh: graphics::Mesh = graphics::Mesh::new_rectangle(
+            ctx,
+            graphics::DrawMode::fill(),
+            graphics::Rect {x: BORDER_SIZE, y: BORDER_SIZE, w: self.xs - 2.0*BORDER_SIZE, h: self.ys - 2.0*BORDER_SIZE},
+            self.p_colour,
+        ).unwrap();
+
+        let draw_param = graphics::DrawParam::default()
+            .dest(na::Point2::new(x, y));
+        graphics::draw(ctx, &mesh, draw_param)?;
+
+        for (i, l) in self.lines.iter().enumerate() {
+            let line_text = graphics::Text::new(format!("{}", l));
+            let point = na::Point2::new(
+                x + BORDER_SIZE,
+                y + BORDER_SIZE + LINE_SPACE * i as f32
+            );
+            let draw_param = graphics::DrawParam::default()
+                .dest(point);
+            graphics::draw(ctx, &line_text, draw_param)?;
+        }
+        
+        Ok(())
+    }
+
+    pub fn add_line(&mut self, line: &str) {
+        self.lines.push_back(line.to_string());
+        self.nb_lines += 1;
+        if self.nb_lines + 1 > self.capacity {
+            self.lines.pop_front();
+            self.nb_lines -= 1;
+        }
+    }
+
+}

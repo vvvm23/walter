@@ -92,7 +92,7 @@ pub fn background_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
 
 pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> GameResult {
     const TEXT_PAD: f32 = 10.0;
-    const INTERVAL: usize = 20;
+    const INTERVAL: usize = 200;
     let world = world.read().unwrap();
     let ins = world.battle_instance.as_ref().unwrap();
     let ins = Arc::clone(ins);
@@ -109,7 +109,7 @@ pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
         draw_container(1200.0 - TEXT_PAD,
                        100.0 - TEXT_PAD + (i*INTERVAL) as f32,
                        300.0, 150.0,
-                       [0.3, 0.3, 0.3, 1.0].into(),
+                       [0.2, 0.2, 0.2, 1.0].into(),
                        ctx)?;
         
         let name_text: graphics::Text = graphics::Text::new(format!("{0: <10} LVL: {1}", fighter.display_name, fighter.level));
@@ -164,6 +164,19 @@ pub fn draw_fps(ctx: &mut Context) -> GameResult {
         .dest(na::Point2::new(20.0, 20.0));
     draw_container(15.0, 15.0, 70.0, 30.0, [0.0, 0.0, 0.0, 1.0].into(), ctx)?;
     graphics::draw(ctx, &fps_text, draw_param)?;
+
+    Ok(())
+}
+
+pub fn textbox_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> GameResult {
+    let world = world.read().unwrap();
+    for (e, textbox) in world.text_box_components.iter() {
+        let textbox = textbox.read().unwrap();
+        assert!(world.position_components.contains_key(e), "Entity with TextBoxComponent does not have PositionComponent!");
+        let position = Arc::clone(world.position_components.get(e).unwrap());
+        let position = position.read().unwrap();
+        textbox.draw(position.x, position.y, ctx)?;
+    }
 
     Ok(())
 }

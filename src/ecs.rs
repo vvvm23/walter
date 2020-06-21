@@ -60,6 +60,7 @@ pub struct World {
     pub sprite_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::SpriteRenderableComponent>>>,
     pub background_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::BackgroundComponent>>>,
     pub fighter_components: HashMap<Arc<Entity>, Arc<RwLock<component::battle::FighterComponent>>>,
+    pub text_box_components: HashMap<Arc<Entity>, Arc<RwLock<component::rendering::TextBoxComponent>>>,
 }
 
 impl World {
@@ -74,6 +75,7 @@ impl World {
             sprite_components:          HashMap::new(),
             background_components:      HashMap::new(),
             fighter_components:         HashMap::new(),
+            text_box_components:        HashMap::new(),
         }
     }
 
@@ -100,7 +102,10 @@ impl World {
                 },
                 Component::FighterComponent(r) => {
                     self.fighter_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
-                }
+                },
+                Component::TextBoxComponent(r) => {
+                    self.text_box_components.insert(Arc::clone(&e), Arc::new(RwLock::new(r))); ()
+                },
             }
         }
         Arc::clone(&e)
