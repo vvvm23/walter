@@ -31,6 +31,7 @@ pub enum Action {
     Down(Arc<Entity>),
 }
 
+#[derive(Debug)]
 pub enum AOEOrSingle {
     Single(Arc<Entity>),
     AOE(battle::AOETarget),
@@ -95,25 +96,31 @@ impl BattleInstance {
     }
 } 
 
-pub fn ai_handover(source: Arc<Entity>, instance: Arc<RwLock<BattleInstance>>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
+pub fn ai_handover(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
+    assert!(world.read().unwrap().fighter_components.contains_key(&source), "Entity does not have FigherComponent!");
     match world.read().unwrap().fighter_components.get(&source).unwrap().read().unwrap().ai {
-        battle::AI::Random => ai_random(source, instance, Arc::clone(&world)),
+        battle::AI::Random => ai_random(source, Arc::clone(&world)),
     }
 }
 
-pub fn ai_random(source: Arc<Entity>, instance: Arc<RwLock<BattleInstance>>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
+pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
     let mut rng = rand::thread_rng();
     let source_fighter = world.read().unwrap();
     let source_fighter = source_fighter.fighter_components.get(&source).unwrap().write().unwrap();
+
+    let instance = world.read().unwrap();
+    let instance = instance.battle_instance.as_ref().unwrap();
     let instance = instance.read().unwrap();
+
     let nb_moves = source_fighter.moves.len() as u8;
     let random_pick = rng.gen_range(0, nb_moves) as usize;
-    let random_move = Arc::clone(&source_fighter.moves[random_pick]);
+    let random_move = Arc::clone(&source_fighter.moves[random_pick]); 
     
     match &Arc::clone(&random_move).target {
         battle::MoveTarget::AOE(t) => (random_move, AOEOrSingle::AOE(*t)),
         battle::MoveTarget::Single(battle::SingleTarget::User) => (random_move, AOEOrSingle::Single(Arc::clone(&source))),
         battle::MoveTarget::Single(t) => {
+            println!("Single target selected");
             let (blufor, opfor) = instance.partition_entities(Arc::clone(&source), Arc::clone(&world));
             let candidate_targets = match t {
                 battle::SingleTarget::Enemy => opfor,

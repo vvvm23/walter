@@ -4,7 +4,7 @@ use std::collections::{HashSet, HashMap};
 use crate::component as component;
 use crate::system as system;
 
-#[derive(PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Entity {
     pub id: u16,
 }

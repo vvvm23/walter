@@ -118,7 +118,8 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                         .add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 0.5, 0.5));
 
                     let new_cheem = world_child.write().unwrap().build_entity(entity_child);
-                    world_child.write().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut vec![Arc::clone(&new_cheem)]);
+                    world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut vec![Arc::clone(&new_cheem)]);
+                    println!("{:?}", system::battle::ai_handover(Arc::clone(&new_cheem), Arc::clone(&world_child)));
 
                     //println!("created new cheems");
                     //println!("cheems {} details:", new_cheem.id);
