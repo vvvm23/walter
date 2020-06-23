@@ -1,5 +1,8 @@
+use rand;
+use rand::Rng;
+
 use crate::component::battle;
-use crate::ecs::{Entity};
+use crate::ecs::{Entity, World};
 use std::sync::{Arc, RwLock};
 
 // Battle system plan
@@ -26,6 +29,11 @@ use std::sync::{Arc, RwLock};
 pub enum Action {
     Move(Arc<Entity>, Arc<battle::Move>, Arc<Entity>),
     Down(Arc<Entity>),
+}
+
+enum AOEOrSingle {
+    Single(Arc<Entity>),
+    AOE(battle::AOETarget),
 }
 
 // not sure if needed yet, may just be able to infer 
@@ -68,5 +76,33 @@ impl BattleInstance {
     pub fn add_action(&mut self, action: Action) {
         self.actions.push(action);
     }
+
+    pub fn partition_entities(&self) {
+
+    }
 } 
+
+pub fn ai_handover(source: Arc<Entity>, instance: Arc<RwLock<BattleInstance>>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
+    match world.read().unwrap().fighter_components.get(&source).unwrap().read().unwrap().ai {
+        battle::AI::Random => ai_random(source, instance, world),
+    }
+}
+
+pub fn ai_random(source: Arc<Entity>, instance: Arc<RwLock<BattleInstance>>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
+    let mut rng = rand::thread_rng();
+    let source_fighter = world.read().unwrap().fighter_components.get(&source).unwrap().write().unwrap();
+    let nb_moves = source_fighter.moves.len() as u8;
+    let random_pick = rng.gen_range(0, nb_moves) as usize;
+    let random_move = Arc::clone(&source_fighter.moves[random_pick]);
+    
+    match random_move.target {
+        battle::MoveTarget::AOE(t) => (random_move, AOEOrSingle::AOE(t)),
+        battle::MoveTarget::Single(t) => {
+            match t {
+                battle::SingleTarget::Enemy => ,
+                _ => ,
+            }
+        }
+    }
+}
 

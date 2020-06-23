@@ -40,14 +40,14 @@ pub enum MoveTarget {
 /// Structure to store Move data
 #[derive(Debug)]
 pub struct Move {
-    name: String,
-    description: String,
-    use_message: String,
+    pub name: String,
+    pub description: String,
+    pub use_message: String,
 
-    hp_cost: u16, sp_cost: u16,
-    power: Option<u16>, accuracy: f32,
+    pub hp_cost: u16, pub sp_cost: u16,
+    pub power: Option<u16>, pub accuracy: f32,
 
-    target: MoveTarget,
+    pub target: MoveTarget,
 }
 
 impl Move {
@@ -76,6 +76,7 @@ pub struct FighterComponent {
     pub display_name: String,
     pub level: u8,
     pub faction: Faction,
+    pub ai: AI,
     pub moves: Vec<Arc<Move>>,
 
     pub max_hp: u16,    pub hp: u16,
@@ -93,6 +94,7 @@ impl FighterComponent {
         display_name: &str,
         level: u8,
         faction: Faction,
+        ai: AI,
         hp: u16, sp: u16,
         moves: Vec<Arc<Move>>,
         attack: u16, defence: u16,
@@ -104,6 +106,7 @@ impl FighterComponent {
                 display_name: display_name.to_string(),
                 level: level,
                 faction: faction,
+                ai: ai,
                 moves: moves,
 
                 max_hp: hp, hp: hp,

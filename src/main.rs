@@ -37,8 +37,8 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     let mut sound_atlas = system::audio::AudioAtlas::new();
     sound_atlas.load(ctx, "/music.flac");
     let sound_atlas = Arc::new(sound_atlas);
-    let bgm = sound_atlas.get("/music.flac");
-    bgm.write().unwrap().play()?;
+    //let bgm = sound_atlas.get("/music.flac");
+    //bgm.write().unwrap().play()?;
 
     // TODO: Load audio in similar audio atlas
 
@@ -110,7 +110,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
             let logger_child = Arc::clone(&logger);
             thread::spawn(move || {
                 println!("Spawning Child thread");
-                for _ in 1..1000 {
+                for _ in 1..10000 {
                     let entity_child = ecs::PartialEntity::new()
                         .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, Some(atlas_child.get("/cheems_profile.png"))))
                         .add_component(component::physics::PositionComponent::new(-200.0, -200.0))
@@ -126,7 +126,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                     //println!("cheems");
                     logger_child.write().unwrap().add_line(&format!("New cheems spawned with id {}", new_cheem.id));
 
-                    std::thread::sleep_ms(1500);
+                    std::thread::sleep_ms(100);
                 }
             });
         }

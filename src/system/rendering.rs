@@ -92,7 +92,7 @@ pub fn background_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
 
 pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> GameResult {
     const TEXT_PAD: f32 = 10.0;
-    const INTERVAL: usize = 200;
+    const INTERVAL: usize = 20;
     let world = world.read().unwrap();
     let ins = world.battle_instance.as_ref().unwrap();
     let ins = Arc::clone(ins);
