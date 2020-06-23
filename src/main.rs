@@ -127,7 +127,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                     //println!("cheems");
                     logger_child.write().unwrap().add_line(&format!("New cheems spawned with id {}", new_cheem.id));
 
-                    std::thread::sleep_ms(100);
+                    std::thread::sleep_ms(1000);
                 }
             });
         }

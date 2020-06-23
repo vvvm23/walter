@@ -106,7 +106,7 @@ pub fn ai_handover(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battl
 pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
     let mut rng = rand::thread_rng();
     let source_fighter = world.read().unwrap();
-    let source_fighter = source_fighter.fighter_components.get(&source).unwrap().write().unwrap();
+    let source_fighter = source_fighter.fighter_components.get(&source).unwrap().read().unwrap();
 
     let instance = world.read().unwrap();
     let instance = instance.battle_instance.as_ref().unwrap();
@@ -127,7 +127,12 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
                 _ => blufor,
             };
             let nb_targets = candidate_targets.len() as u8;
-            let random_pick = rng.gen_range(0, nb_targets) as usize;
+            println!("nb. targets: {}", {nb_targets});
+            if nb_targets == 0 {
+                return (random_move, AOEOrSingle::Single(Arc::clone(&source))); // TODO: Handle this properly
+            }
+
+            let random_pick = rng.gen_range(0, nb_targets) as usize; // panic occurs here!
             let random_target = Arc::clone(&candidate_targets[random_pick]);
             (random_move, AOEOrSingle::Single(random_target))
         }
