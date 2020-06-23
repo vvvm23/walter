@@ -77,8 +77,21 @@ impl BattleInstance {
         self.actions.push(action);
     }
 
-    pub fn partition_entities(&self) {
+    pub fn partition_entities(&self, source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Vec<Arc<Entity>>, Vec<Arc<Entity>>) {
+        let world = world.read().unwrap();
+        let source_faction = world.fighter_components.get(&source).unwrap().read().unwrap().faction;
+        let blufor: Vec<Arc<Entity>> = Vec::new();
+        let opfor: Vec<Arc<Entity>> = Vec::new();
+    
+        for e in &self.entities {
+            let target_faction = world.fighter_components.get(&source).unwrap().read().unwrap().faction;
+            match source_faction {
+                target_faction => blufor.push(Arc::clone(&e)),
+                _ => opfor.push(Arc::clone(&e)),
+            }
+        }
 
+        (blufor, opfor)
     }
 } 
 
@@ -97,6 +110,7 @@ pub fn ai_random(source: Arc<Entity>, instance: Arc<RwLock<BattleInstance>>, wor
     
     match random_move.target {
         battle::MoveTarget::AOE(t) => (random_move, AOEOrSingle::AOE(t)),
+        battle::MoveTarget::Single(battle::SingleTarget::User) => (random_move, AOEOrSingle::Single(Arc::clone(&source))),
         battle::MoveTarget::Single(t) => {
             match t {
                 battle::SingleTarget::Enemy => ,
@@ -105,4 +119,4 @@ pub fn ai_random(source: Arc<Entity>, instance: Arc<RwLock<BattleInstance>>, wor
         }
     }
 }
-
+    
