@@ -2,7 +2,7 @@ use crate::component::Component;
 use std::sync::{Arc, RwLock};
 
 /// All possible battle factions
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Faction {
     Ally,
     Enemy,
@@ -15,7 +15,7 @@ pub enum AI {
 }
 
 /// All possible Area-of-Effect targets
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum AOETarget {
     All,
     Ally,
@@ -23,7 +23,7 @@ pub enum AOETarget {
 }
 
 /// All possible targets against a single
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum SingleTarget {
     Ally,
     Enemy,

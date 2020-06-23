@@ -31,7 +31,7 @@ pub enum Action {
     Down(Arc<Entity>),
 }
 
-enum AOEOrSingle {
+pub enum AOEOrSingle {
     Single(Arc<Entity>),
     AOE(battle::AOETarget),
 }
@@ -79,15 +79,15 @@ impl BattleInstance {
 
     pub fn partition_entities(&self, source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Vec<Arc<Entity>>, Vec<Arc<Entity>>) {
         let world = world.read().unwrap();
-        let source_faction = world.fighter_components.get(&source).unwrap().read().unwrap().faction;
-        let blufor: Vec<Arc<Entity>> = Vec::new();
-        let opfor: Vec<Arc<Entity>> = Vec::new();
+        let source_faction = &world.fighter_components.get(&source).unwrap().read().unwrap().faction;
+        let mut blufor: Vec<Arc<Entity>> = Vec::new();
+        let mut opfor: Vec<Arc<Entity>> = Vec::new();
     
         for e in &self.entities {
-            let target_faction = world.fighter_components.get(&source).unwrap().read().unwrap().faction;
-            match source_faction {
-                target_faction => blufor.push(Arc::clone(&e)),
-                _ => opfor.push(Arc::clone(&e)),
+            let target_faction = &world.fighter_components.get(&source).unwrap().read().unwrap().faction;
+            match source_faction == target_faction {
+                true => blufor.push(Arc::clone(&e)),
+                false => opfor.push(Arc::clone(&e)),
             }
         }
 
@@ -97,25 +97,32 @@ impl BattleInstance {
 
 pub fn ai_handover(source: Arc<Entity>, instance: Arc<RwLock<BattleInstance>>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
     match world.read().unwrap().fighter_components.get(&source).unwrap().read().unwrap().ai {
-        battle::AI::Random => ai_random(source, instance, world),
+        battle::AI::Random => ai_random(source, instance, Arc::clone(&world)),
     }
 }
 
 pub fn ai_random(source: Arc<Entity>, instance: Arc<RwLock<BattleInstance>>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
     let mut rng = rand::thread_rng();
-    let source_fighter = world.read().unwrap().fighter_components.get(&source).unwrap().write().unwrap();
+    let source_fighter = world.read().unwrap();
+    let source_fighter = source_fighter.fighter_components.get(&source).unwrap().write().unwrap();
+    let instance = instance.read().unwrap();
     let nb_moves = source_fighter.moves.len() as u8;
     let random_pick = rng.gen_range(0, nb_moves) as usize;
     let random_move = Arc::clone(&source_fighter.moves[random_pick]);
     
-    match random_move.target {
-        battle::MoveTarget::AOE(t) => (random_move, AOEOrSingle::AOE(t)),
+    match &Arc::clone(&random_move).target {
+        battle::MoveTarget::AOE(t) => (random_move, AOEOrSingle::AOE(*t)),
         battle::MoveTarget::Single(battle::SingleTarget::User) => (random_move, AOEOrSingle::Single(Arc::clone(&source))),
         battle::MoveTarget::Single(t) => {
-            match t {
-                battle::SingleTarget::Enemy => ,
-                _ => ,
-            }
+            let (blufor, opfor) = instance.partition_entities(Arc::clone(&source), Arc::clone(&world));
+            let candidate_targets = match t {
+                battle::SingleTarget::Enemy => opfor,
+                _ => blufor,
+            };
+            let nb_targets = candidate_targets.len() as u8;
+            let random_pick = rng.gen_range(0, nb_targets) as usize;
+            let random_target = Arc::clone(&candidate_targets[random_pick]);
+            (random_move, AOEOrSingle::Single(random_target))
         }
     }
 }

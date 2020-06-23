@@ -112,7 +112,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                 println!("Spawning Child thread");
                 for _ in 1..10000 {
                     let entity_child = ecs::PartialEntity::new()
-                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, Some(atlas_child.get("/cheems_profile.png"))))
+                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, Some(atlas_child.get("/cheems_profile.png"))))
                         .add_component(component::physics::PositionComponent::new(-200.0, -200.0))
                         .add_component(component::physics::VelocityComponent::new(100.0, 100.0))
                         .add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 0.5, 0.5));
