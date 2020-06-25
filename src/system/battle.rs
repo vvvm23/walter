@@ -98,6 +98,8 @@ impl BattleInstance {
     }
 } 
 
+// This function will generate battle events
+// Another will handle the execution of the responses
 pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
     let world = world_lock.read().unwrap();
     let instance_lock = world.battle_instance.as_ref().unwrap();
@@ -112,14 +114,13 @@ pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
         BattleState::WaitingEvent => true,
         BattleState::WaitingPlayer => true,
     };
-    if waiting { return; }
+    if waiting { println!("Waiting for event handler.."); return; }
 
+    println!("Get next battle event!");
     let source = Arc::clone(&instance.entities[instance.entity_index as usize]);
     let (random_move, random_target) = ai_handover(source, Arc::clone(&world_lock));
     {
-        instance_lock.write().unwrap().entity_index += 1;
-        instance_lock.write().unwrap().entity_index %= instance_lock.read().unwrap().entities.len() as u8;
-        println!("{}", instance_lock.read().unwrap().entity_index);
+        instance_lock.write().unwrap().state = BattleState::WaitingEvent;
     }
 }
 

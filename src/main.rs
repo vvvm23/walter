@@ -120,14 +120,15 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                     let new_cheem = world_child.write().unwrap().build_entity(entity_child);
                     world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut vec![Arc::clone(&new_cheem)]);
 
-                    let (random_move, random_target) = system::battle::ai_handover(Arc::clone(&new_cheem), Arc::clone(&world_child));
-                    let random_target = match random_target {
-                        system::battle::AOEOrSingle::Single(e) => format!("{}", e.id),
-                        system::battle::AOEOrSingle::AOE(s) => "many cheems".to_string(),
-                    };
-                    logger_child.write().unwrap().add_line(&random_move.use_message
-                                                           .replace("$source", &format!("Cheems {}", new_cheem.id))
-                                                           .replace("$target", &format!("Cheems {}", random_target)));
+                    system::battle::battle_loop(Arc::clone(&world_child));
+                    //let (random_move, random_target) = system::battle::ai_handover(Arc::clone(&new_cheem), Arc::clone(&world_child));
+                    //let random_target = match random_target {
+                        //system::battle::AOEOrSingle::Single(e) => format!("{}", e.id),
+                        //system::battle::AOEOrSingle::AOE(s) => "many cheems".to_string(),
+                    //};
+                    //logger_child.write().unwrap().add_line(&random_move.use_message
+                                                           //.replace("$source", &format!("Cheems {}", new_cheem.id))
+                                                           //.replace("$target", &format!("Cheems {}", random_target)));
 
                     std::thread::sleep_ms(1000);
                 }
