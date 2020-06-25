@@ -120,14 +120,12 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
         battle::MoveTarget::AOE(t) => (random_move, AOEOrSingle::AOE(*t)),
         battle::MoveTarget::Single(battle::SingleTarget::User) => (random_move, AOEOrSingle::Single(Arc::clone(&source))),
         battle::MoveTarget::Single(t) => {
-            println!("Single target selected");
             let (blufor, opfor) = instance.partition_entities(Arc::clone(&source), Arc::clone(&world));
             let candidate_targets = match t {
                 battle::SingleTarget::Enemy => opfor,
                 _ => blufor,
-            };
+            }; // will never find any, all cheems are on the same side!
             let nb_targets = candidate_targets.len() as u8;
-            println!("nb. targets: {}", {nb_targets});
             if nb_targets == 0 {
                 return (random_move, AOEOrSingle::Single(Arc::clone(&source))); // TODO: Handle this properly
             }

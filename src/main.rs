@@ -44,14 +44,14 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
     let move_1 = component::battle::Move::new(
         "Cross Slash", "Slash the target twice", "$source slashed at $target!",
-        0, 10, 80, 1.0, MoveTarget::Single(SingleTarget::Enemy),
+        0, 10, 80, 1.0, MoveTarget::Single(SingleTarget::Ally),
     );
     let move_2 = component::battle::Move::new(
         "God's Hand", "Colossal Physical Damage", "$source crushed the $target!",
-        0, 30, 120, 0.9, MoveTarget::Single(SingleTarget::Enemy),
+        0, 30, 120, 0.9, MoveTarget::Single(SingleTarget::Ally),
     );
     let move_3 = component::battle::Move::new(
-        "Flying Press", "Channel the reckless spirit of Hawk.", "$source slams down hard from a great height!", 50, 0, 120, 0.95, MoveTarget::Single(SingleTarget::Enemy),
+        "Flying Press", "Channel the reckless spirit of Hawk.", "$source slams down hard from a great height!", 50, 0, 120, 0.95, MoveTarget::Single(SingleTarget::Ally),
     );
 
     let entity_back = ecs::PartialEntity::new()
@@ -119,13 +119,21 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
                     let new_cheem = world_child.write().unwrap().build_entity(entity_child);
                     world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut vec![Arc::clone(&new_cheem)]);
-                    println!("{:?}", system::battle::ai_handover(Arc::clone(&new_cheem), Arc::clone(&world_child)));
+                    //println!("{:?}", system::battle::ai_handover(Arc::clone(&new_cheem), Arc::clone(&world_child)));
+                    let (random_move, random_target) = system::battle::ai_handover(Arc::clone(&new_cheem), Arc::clone(&world_child));
+                    let random_target = match random_target {
+                        system::battle::AOEOrSingle::Single(e) => format!("{}", e.id),
+                        system::battle::AOEOrSingle::AOE(s) => "many cheems".to_string(),
+                    };
+                    logger_child.write().unwrap().add_line(&random_move.use_message
+                                                           .replace("$source", &format!("Cheems {}", new_cheem.id))
+                                                           .replace("$target", &format!("Cheems {}", random_target)));
 
                     //println!("created new cheems");
                     //println!("cheems {} details:", new_cheem.id);
                     //println!("{:?}", world_child.read().unwrap().fighter_components.get(&new_cheem).unwrap());
                     //println!("cheems");
-                    logger_child.write().unwrap().add_line(&format!("New cheems spawned with id {}", new_cheem.id));
+                    //logger_child.write().unwrap().add_line(&format!("New cheems spawned with id {}", new_cheem.id));
 
                     std::thread::sleep_ms(1000);
                 }
