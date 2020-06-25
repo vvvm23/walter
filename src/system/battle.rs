@@ -101,9 +101,10 @@ impl BattleInstance {
 // This function will generate battle events
 // Another will handle the execution of the responses
 pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
-    let world = world_lock.read().unwrap();
-    let instance_lock = world.battle_instance.as_ref().unwrap();
-    let instance = instance_lock.read().unwrap();
+    let instance = world_lock.read().unwrap();
+    let instance = instance.battle_instance.as_ref().unwrap();
+    let instance = instance.read().unwrap();
+
     let waiting = match instance.state {
         BattleState::Started => {
             // TODO: Sort by agility
@@ -116,12 +117,16 @@ pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
     };
     if waiting { println!("Waiting for event handler.."); return; }
 
-    println!("Get next battle event!");
     let source = Arc::clone(&instance.entities[instance.entity_index as usize]);
     let (random_move, random_target) = ai_handover(source, Arc::clone(&world_lock));
-    {
-        instance_lock.write().unwrap().state = BattleState::WaitingEvent;
-    }
+
+    drop(instance); // clear read lock (??? this feels wrong)
+
+    let instance = world_lock.read().unwrap();
+    let instance = instance.battle_instance.as_ref().unwrap();
+    let mut instance = instance.write().unwrap();
+    instance.state = BattleState::WaitingEvent;
+    println!("AAAAAAAAAA");
 }
 
 pub fn ai_handover(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
@@ -152,7 +157,7 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
             let candidate_targets = match t {
                 battle::SingleTarget::Enemy => opfor,
                 _ => blufor,
-            }; // will never find any, all cheems are on the same side!
+            }; 
             let nb_targets = candidate_targets.len() as u8;
             if nb_targets == 0 {
                 return (random_move, AOEOrSingle::Single(Arc::clone(&source))); // TODO: Handle this properly

@@ -120,7 +120,6 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                     let new_cheem = world_child.write().unwrap().build_entity(entity_child);
                     world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut vec![Arc::clone(&new_cheem)]);
 
-                    system::battle::battle_loop(Arc::clone(&world_child));
                     //let (random_move, random_target) = system::battle::ai_handover(Arc::clone(&new_cheem), Arc::clone(&world_child));
                     //let random_target = match random_target {
                         //system::battle::AOEOrSingle::Single(e) => format!("{}", e.id),
@@ -141,7 +140,8 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
         // Update
         system::physics::velocity_system(Arc::clone(&world), &d_time);
-        
+        system::battle::battle_loop(Arc::clone(&world));
+
         // Draw
         ggez::graphics::present(ctx)?;
         ggez::graphics::clear(ctx, [0.0, 0.0, 0.0, 1.0].into());
