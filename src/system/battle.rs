@@ -54,6 +54,7 @@ pub struct BattleInstance {
     // music: Arc<ggez::sound::SoundData>
 
     pub entities: Vec<Arc<Entity>>,
+    pub entity_index: u8,
     pub actions: Vec<Action>,
     pub state: BattleState,
 }
@@ -65,6 +66,7 @@ impl BattleInstance {
             win_message: None,
             loss_message: None,
             entities: Vec::new(),
+            entity_index: 0,
             actions: Vec::new(),
             state: BattleState::Started,
         }
@@ -95,6 +97,31 @@ impl BattleInstance {
         (blufor, opfor)
     }
 } 
+
+pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
+    let world = world_lock.read().unwrap();
+    let instance_lock = world.battle_instance.as_ref().unwrap();
+    let instance = instance_lock.read().unwrap();
+    let waiting = match instance.state {
+        BattleState::Started => {
+            // TODO: Sort by agility
+            // TODO: Load certain instance attribute
+            false
+        },
+        BattleState::Available => false,
+        BattleState::WaitingEvent => true,
+        BattleState::WaitingPlayer => true,
+    };
+    if waiting { return; }
+
+    let source = Arc::clone(&instance.entities[instance.entity_index as usize]);
+    let (random_move, random_target) = ai_handover(source, Arc::clone(&world_lock));
+    {
+        instance_lock.write().unwrap().entity_index += 1;
+        instance_lock.write().unwrap().entity_index %= instance_lock.read().unwrap().entities.len() as u8;
+        println!("{}", instance_lock.read().unwrap().entity_index);
+    }
+}
 
 pub fn ai_handover(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
     assert!(world.read().unwrap().fighter_components.contains_key(&source), "Entity does not have FigherComponent!");
@@ -136,4 +163,3 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
         }
     }
 }
-    
