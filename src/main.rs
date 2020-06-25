@@ -128,7 +128,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                     //logger_child.write().unwrap().add_line(&random_move.use_message
                                                            //.replace("$source", &format!("Cheems {}", new_cheem.id))
                                                            //.replace("$target", &format!("Cheems {}", random_target)));
-
+                    world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().state = system::battle::BattleState::Available;
                     std::thread::sleep_ms(1000);
                 }
             });
@@ -140,7 +140,11 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
         // Update
         system::physics::velocity_system(Arc::clone(&world), &d_time);
-        system::battle::battle_loop(Arc::clone(&world));
+
+        // In reality, this guard will be much more sophisticated
+        if world.read().unwrap().battle_instance.as_ref().unwrap().read().unwrap().entities.len() > 0 {
+            system::battle::battle_loop(Arc::clone(&world));
+        }
 
         // Draw
         ggez::graphics::present(ctx)?;

@@ -115,10 +115,14 @@ pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
         BattleState::WaitingEvent => true,
         BattleState::WaitingPlayer => true,
     };
+
+    // This is technically a spin lock, kinda not epic.
+    // Potential change is to rework with channels or events
     if waiting { println!("Waiting for event handler.."); return; }
 
     let source = Arc::clone(&instance.entities[instance.entity_index as usize]);
     let (random_move, random_target) = ai_handover(source, Arc::clone(&world_lock));
+    println!("{:?} {:?}", random_move, random_target);
 
     drop(instance); // clear read lock (??? this feels wrong)
 
