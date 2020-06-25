@@ -74,7 +74,7 @@ impl BackgroundComponent {
         Component::BackgroundComponent (
             BackgroundComponent {
                 texture: Arc::clone(&texture),
-                scale: mint::Vector2 {x: 1600.0 / texture.width() as f32, y: 1200.0 / texture.height() as f32 },
+                scale: mint::Vector2 {x: 1200.0 / texture.width() as f32, y: 900.0 / texture.height() as f32 },
             }
         )
     }

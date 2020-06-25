@@ -106,24 +106,24 @@ pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
             continue;
         }
 
-        draw_container(1200.0 - TEXT_PAD,
+        draw_container(900.0 - TEXT_PAD,
                        100.0 - TEXT_PAD + (i*INTERVAL) as f32,
                        300.0, 150.0,
                        [0.2, 0.2, 0.2, 1.0].into(),
                        ctx)?;
         
         let name_text: graphics::Text = graphics::Text::new(format!("{0: <10} LVL: {1}", fighter.display_name, fighter.level));
-        graphics::draw(ctx, &name_text, (na::Point2::new(1200.0, 100.0+(i*INTERVAL) as f32), graphics::WHITE))?;
+        graphics::draw(ctx, &name_text, (na::Point2::new(900.0, 100.0+(i*INTERVAL) as f32), graphics::WHITE))?;
         
         let health_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "HP:", fighter.hp, fighter.max_hp));
-        graphics::draw(ctx, &health_text, (na::Point2::new(1200.0, 100.0+20.0+(i*INTERVAL) as f32), graphics::WHITE))?;
+        graphics::draw(ctx, &health_text, (na::Point2::new(900.0, 100.0+20.0+(i*INTERVAL) as f32), graphics::WHITE))?;
 
         let sp_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "SP:", fighter.sp, fighter.max_sp));
-        graphics::draw(ctx, &sp_text, (na::Point2::new(1200.0, 100.0+40.0+(i*INTERVAL) as f32), graphics::WHITE))?;
+        graphics::draw(ctx, &sp_text, (na::Point2::new(900.0, 100.0+40.0+(i*INTERVAL) as f32), graphics::WHITE))?;
 
         if let Some(sprite) = fighter.profile_sprite.as_ref() {
             let draw_param = graphics::DrawParam::default()
-                .dest(na::Point2::new(1350.0, 100.0 + (i*INTERVAL) as f32));
+                .dest(na::Point2::new(1050.0, 100.0 + (i*INTERVAL) as f32));
 
             graphics::draw(ctx, &**sprite, draw_param)?;
         }

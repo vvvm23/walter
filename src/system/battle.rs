@@ -130,7 +130,6 @@ pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
     let instance = instance.battle_instance.as_ref().unwrap();
     let mut instance = instance.write().unwrap();
     instance.state = BattleState::WaitingEvent;
-    println!("AAAAAAAAAA");
 }
 
 pub fn ai_handover(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {

@@ -63,9 +63,9 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     )));
 
     let entity_log = ecs::PartialEntity::new()
-        .add_component(component::physics::PositionComponent::new(10.0, 990.0))
+        .add_component(component::physics::PositionComponent::new(10.0, 740.0))
         .add_component(component::rendering::TextBoxComponent::new(
-            10, 1580.0, 200.0,
+            8, 1180.0, 150.0,
             [0.2, 0.2, 0.2, 1.0].into(), ggez::graphics::WHITE,
         ));
     let entity_log = world.write().unwrap().build_entity(entity_log);
@@ -115,7 +115,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                         .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, Some(atlas_child.get("/cheems_profile.png"))))
                         .add_component(component::physics::PositionComponent::new(-200.0, -200.0))
                         .add_component(component::physics::VelocityComponent::new(100.0, 100.0))
-                        .add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 0.5, 0.5));
+                        .add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 0.3, 0.3));
 
                     let new_cheem = world_child.write().unwrap().build_entity(entity_child);
                     world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut vec![Arc::clone(&new_cheem)]);
@@ -129,6 +129,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                                                            //.replace("$source", &format!("Cheems {}", new_cheem.id))
                                                            //.replace("$target", &format!("Cheems {}", random_target)));
                     world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().state = system::battle::BattleState::Available;
+                    logger_child.write().unwrap().add_line("Battle loop available for new action!");
                     std::thread::sleep_ms(1000);
                 }
             });
@@ -163,7 +164,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 }
 
 fn main() -> ggez::GameResult {
-    let (ctx, events_loop) = &mut init_window(1600.0, 1200.0).build()?;
+    let (ctx, events_loop) = &mut init_window(1200.0, 900.0).build()?;
 
     game_loop(ctx, events_loop)?;
 
