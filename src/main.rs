@@ -73,7 +73,45 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     logger.write().unwrap().add_line("Foobar");
     logger.write().unwrap().add_line("Doobar");
 
-    let mut make_child: bool = true;
+    let mut cheems_collection: Vec<Arc<ecs::Entity>> = Vec::new();
+
+    let cheems = ecs::PartialEntity::new()
+    .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
+    .add_component(component::physics::PositionComponent::new(150.0, 400.0))
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), -0.3, 0.3));
+
+    let new_cheems = world.write().unwrap().build_entity(cheems);
+    cheems_collection.push(Arc::clone(&new_cheems));
+
+    let cheems = ecs::PartialEntity::new()
+    .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
+    .add_component(component::physics::PositionComponent::new(300.0, 500.0))
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), -0.3, 0.3));
+
+    let new_cheems = world.write().unwrap().build_entity(cheems);
+    cheems_collection.push(Arc::clone(&new_cheems));
+
+    let cheems = ecs::PartialEntity::new()
+    .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
+    .add_component(component::physics::PositionComponent::new(600.0, 500.0))
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), 0.3, 0.3));
+
+    let new_cheems = world.write().unwrap().build_entity(cheems);
+    cheems_collection.push(Arc::clone(&new_cheems));
+
+
+    let cheems = ecs::PartialEntity::new()
+    .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png")))) 
+    .add_component(component::physics::PositionComponent::new(700.0, 400.0))
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), 0.3, 0.3));
+
+    let new_cheems = world.write().unwrap().build_entity(cheems);
+    cheems_collection.push(Arc::clone(&new_cheems));
+
+
+    world.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut cheems_collection);
+
+    //let mut make_child: bool = true;
 
     while ctx.continuing {
         ctx.timer_context.tick(); // Tell internal timer a frame has happened
@@ -100,39 +138,40 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                 _ => (),
             }
         });
-        if make_child {
-            make_child = false;
-            let world_child = Arc::clone(&world);
-            let atlas_child = Arc::clone(&texture_atlas);
-            let move_1_child = Arc::clone(&move_1);
-            let move_2_child = Arc::clone(&move_2);
-            let move_3_child = Arc::clone(&move_3);
-            let logger_child = Arc::clone(&logger);
-            thread::spawn(move || {
-                println!("Spawning Child thread");
-                for _ in 1..10000 {
-                    let entity_child = ecs::PartialEntity::new()
-                        .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, Some(atlas_child.get("/cheems_profile.png"))))
-                        .add_component(component::physics::PositionComponent::new(-200.0, -200.0))
-                        .add_component(component::physics::VelocityComponent::new(100.0, 100.0))
-                        .add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 0.3, 0.3));
 
-                    let new_cheem = world_child.write().unwrap().build_entity(entity_child);
-                    world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut vec![Arc::clone(&new_cheem)]);
+        //if make_child {
+            //make_child = false;
+            //let world_child = Arc::clone(&world);
+            //let atlas_child = Arc::clone(&texture_atlas);
+            //let move_1_child = Arc::clone(&move_1);
+            //let move_2_child = Arc::clone(&move_2);
+            //let move_3_child = Arc::clone(&move_3);
+            //let logger_child = Arc::clone(&logger);
+            //thread::spawn(move || {
+                //println!("Spawning Child thread");
+                //for _ in 1..10000 {
+                    //let entity_child = ecs::PartialEntity::new()
+                        //.add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1_child), Arc::clone(&move_2_child), Arc::clone(&move_3_child)], 100, 100, 100, 100, Some(atlas_child.get("/cheems_profile.png"))))
+                        //.add_component(component::physics::PositionComponent::new(-200.0, -200.0))
+                        //.add_component(component::physics::VelocityComponent::new(100.0, 100.0))
+                        //.add_component(component::rendering::SpriteRenderableComponent::new(atlas_child.get("/cheems.png"), 0.3, 0.3));
 
-                    //let (random_move, random_target) = system::battle::ai_handover(Arc::clone(&new_cheem), Arc::clone(&world_child));
-                    //let random_target = match random_target {
-                        //system::battle::AOEOrSingle::Single(e) => format!("{}", e.id),
-                        //system::battle::AOEOrSingle::AOE(s) => "many cheems".to_string(),
-                    //};
-                    //logger_child.write().unwrap().add_line(&random_move.use_message
-                                                           //.replace("$source", &format!("Cheems {}", new_cheem.id))
-                                                           //.replace("$target", &format!("Cheems {}", random_target)));
-                    world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().state = system::battle::BattleState::Available;
-                    std::thread::sleep_ms(1000);
-                }
-            });
-        }
+                    //let new_cheem = world_child.write().unwrap().build_entity(entity_child);
+                    //world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut vec![Arc::clone(&new_cheem)]);
+
+                    ////let (random_move, random_target) = system::battle::ai_handover(Arc::clone(&new_cheem), Arc::clone(&world_child));
+                    ////let random_target = match random_target {
+                        ////system::battle::AOEOrSingle::Single(e) => format!("{}", e.id),
+                        ////system::battle::AOEOrSingle::AOE(s) => "many cheems".to_string(),
+                    ////};
+                    ////logger_child.write().unwrap().add_line(&random_move.use_message
+                                                           ////.replace("$source", &format!("Cheems {}", new_cheem.id))
+                                                           ////.replace("$target", &format!("Cheems {}", random_target)));
+                    //world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().state = system::battle::BattleState::Available;
+                    //std::thread::sleep_ms(1000);
+                //}
+            //});
+        //}
 
         // Actual game loop
         let d_time = ggez::timer::delta(ctx);
