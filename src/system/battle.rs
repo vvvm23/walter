@@ -107,8 +107,22 @@ pub struct MoveResult {
 
 /// This function will calculate the damage, costs, etc. of an action 
 pub fn calculate_effect(world: Arc<World>, source: Arc<Entity>, selected_move: Arc<battle::Move>, target: Arc<Entity>) -> MoveResult {
-    
-    MoveResult{hit: false, hp_cost: 0, sp_cost: 0, damage: 0}
+    let mut rng = rand::thread_rng();
+    let roll: f32 = rng.gen();
+
+    let hit = roll <= selected_move.accuracy; 
+    match hit {
+        true => {
+            let roll: f32 = rng.gen();
+            let roll = roll / 10.0;
+            MoveResult { 
+                hit: true, 
+                hp_cost: selected_move.hp_cost, 
+                sp_cost: selected_move.sp_cost, 
+                damage: match selected_move.power { None => 0, Some(i) => (i as f32*roll) as u16 } }
+        },
+        false => MoveResult {hit: false, hp_cost: 0, sp_cost: 0, damage: 0},
+    }
 }
 
 /// This function will actually execute a MoveResult on the target
