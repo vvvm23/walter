@@ -133,6 +133,9 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                         ggez::event::KeyCode::Escape => ggez::event::quit(ctx),
                         _ => (),
                     },
+                    WindowEvent::MouseInput { .. } => {
+                        println!("{:?}", ggez::input::mouse::position(&ctx))
+                    },
                     _ => (),
                 },
                 _ => (),
@@ -184,8 +187,6 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         if world.read().unwrap().battle_instance.as_ref().unwrap().read().unwrap().entities.len() > 0 {
             system::battle::battle_loop(Arc::clone(&world));
         }
-
-        println!("{:?}", world.read().unwrap().battle_instance.as_ref().unwrap().read().unwrap().actions);
 
         // Draw
         ggez::graphics::present(ctx)?;
