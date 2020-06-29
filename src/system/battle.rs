@@ -25,7 +25,6 @@ use std::sync::{Arc, RwLock};
 // Not sure how to synchronise between threads, just waiting is unstable
 
 // TODO: AOE?
-// TODO: maybe we actually want to precompute some things, such as crits for animation purposes
 #[derive(Debug)]
 pub enum Action {
     Move(Arc<Entity>, Arc<battle::Move>, Arc<Entity>),
@@ -115,15 +114,16 @@ pub fn calculate_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, selected
     match hit {
         true => {
             // random deviation +-10%
-            // TODO: This is incorrect deviation, only +10%
-            let roll: f32 = rng.gen();
-            let roll = roll / 10.0;
+            let roll: f32 = rng.gen(); // [0.0, 1.0]
+            let roll = roll / 5.0; // [0.0, 0.2]
+            let roll = roll - 0.1; // [-0.1, 0.1]
+            let dev = 1.0 + roll; // dev: [0.9, 1.1] aka +-10%
 
             MoveResult { 
                 hit: true, 
                 hp_cost: selected_move.hp_cost, 
                 sp_cost: selected_move.sp_cost, 
-                hp: match selected_move.power { None => 0, Some(i) => (i as f32*roll) as u16 },
+                hp: match selected_move.power { None => 0, Some(i) => (i as f32*dev) as u16 },
                 damaging: selected_move.damaging
             }
         },
