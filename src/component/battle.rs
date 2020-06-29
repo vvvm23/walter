@@ -82,7 +82,7 @@ pub struct FighterComponent {
     pub ai: AI,
     pub moves: Vec<Arc<Move>>,
 
-    pub max_hp: u16,    pub hp: u16,
+    pub max_hp: u16,    pub hp: u16,    pub alive: bool,
     pub max_sp: u16,    pub sp: u16,
 
     pub attack: u16,    pub defence: u16,
@@ -112,7 +112,7 @@ impl FighterComponent {
                 ai: ai,
                 moves: moves,
 
-                max_hp: hp, hp: hp,
+                max_hp: hp, hp: hp, alive: true,
                 max_sp: sp, sp: sp,
                 attack: attack, defence: defence,
                 agility: agility, luck: luck,
@@ -120,5 +120,38 @@ impl FighterComponent {
                 profile_sprite: profile_sprite,
             }
         )
+    }
+
+    pub fn inc_hp(&mut self, hp: u16) {
+        if self.hp + hp > self.max_hp {
+            self.hp = self.max_hp; ()
+        }
+        self.hp += hp;
+    }
+
+    pub fn dec_hp(&mut self, hp: u16) {
+        if self.hp <= hp {
+            self.hp = 0;
+            self.alive = false; ()
+        }
+        self.hp -= hp;
+    }
+
+    pub fn inc_sp(&mut self, sp: u16) {
+        if self.sp + sp > self.max_sp {
+            self.sp = self.max_sp; ()
+        }
+        self.sp += sp;
+    }
+
+    pub fn dec_sp(&mut self, sp: u16) {
+        assert!(self.sp >= sp, "Entity didn't have enough sp");
+        self.sp -= sp;
+    }
+
+    pub fn revive(&mut self, hp_p: f32) {
+        assert!(!self.alive, "Tried to revive entity that is already alive");
+        self.alive = true;
+        self.hp = (self.max_hp as f32 * hp_p) as u16;
     }
 }

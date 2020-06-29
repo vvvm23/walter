@@ -135,12 +135,12 @@ pub fn execute_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, target: Ar
     let mut source_fighter = world.fighter_components.get(&source).unwrap().write().unwrap();
     let mut target_fighter = world.fighter_components.get(&target).unwrap().write().unwrap();
 
-    source_fighter.sp -= result.sp_cost;
-    source_fighter.hp -= result.hp_cost;
+    source_fighter.dec_sp(result.sp_cost);
+    source_fighter.dec_hp(result.hp_cost);
 
     match result.damaging {
-        true => source_fighter.hp -= result.hp,
-        false => source_fighter.hp += result.hp,
+        true => target_fighter.dec_hp(result.hp),
+        false => target_fighter.inc_hp(result.hp),
     }
 }
 
