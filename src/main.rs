@@ -44,14 +44,14 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
     let move_1 = component::battle::Move::new(
         "Cross Slash", "Slash the target twice", "$source slashed at $target!",
-        0, 10, 80, 1.0, MoveTarget::Single(SingleTarget::Ally),
+        0, 10, 80, true, 1.0, MoveTarget::Single(SingleTarget::Ally),
     );
     let move_2 = component::battle::Move::new(
         "God's Hand", "Colossal Physical Damage", "$source crushed the $target!",
-        0, 30, 120, 0.9, MoveTarget::Single(SingleTarget::Ally),
+        0, 30, 120, true, 0.9, MoveTarget::Single(SingleTarget::Ally),
     );
     let move_3 = component::battle::Move::new(
-        "Flying Press", "Channel the reckless spirit of Hawk.", "$source slams down hard from a great height!", 50, 0, 120, 0.95, MoveTarget::Single(SingleTarget::Ally),
+        "Flying Press", "Channel the reckless spirit of Hawk.", "$source slams down hard from a great height!", 50, 0, 120, true, 0.95, MoveTarget::Single(SingleTarget::Ally),
     );
 
     let entity_back = ecs::PartialEntity::new()

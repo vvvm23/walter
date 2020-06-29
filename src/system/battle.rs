@@ -102,7 +102,7 @@ impl BattleInstance {
 pub struct MoveResult {
     pub hit: bool,
     pub hp_cost: u16, pub sp_cost: u16,
-    pub damage: u16,
+    pub hp: u16, damaging: bool,
 }
 
 /// This function will calculate the damage, costs, etc. of an action 
@@ -115,21 +115,33 @@ pub fn calculate_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, selected
         true => {
             let roll: f32 = rng.gen();
             let roll = roll / 10.0;
+
             MoveResult { 
                 hit: true, 
                 hp_cost: selected_move.hp_cost, 
                 sp_cost: selected_move.sp_cost, 
-                damage: match selected_move.power { None => 0, Some(i) => (i as f32*roll) as u16 } }
+                hp: match selected_move.power { None => 0, Some(i) => (i as f32*roll) as u16 },
+                damaging: selected_move.damaging
+            }
         },
-        false => MoveResult {hit: false, hp_cost: 0, sp_cost: 0, damage: 0},
+        false => MoveResult {hit: false, hp_cost: 0, sp_cost: 0, hp: 0, damaging: selected_move.damaging},
     }
 }
 
 /// This function will actually execute a MoveResult on the target
 /// We can also generate our own MoveResult without using calculate effect to do scripted events
 pub fn execute_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, target: Arc<Entity>, result: MoveResult) {
-    let world = world.write().unwrap();
-    
+    let world = world.read().unwrap();
+    let mut source_fighter = world.fighter_components.get(&source).unwrap().write().unwrap();
+    let mut target_fighter = world.fighter_components.get(&target).unwrap().write().unwrap();
+
+    source_fighter.sp -= result.sp_cost;
+    source_fighter.hp -= result.hp_cost;
+
+    match result.damaging {
+        true => source_fighter.hp -= result.hp,
+        false => source_fighter.hp += result.hp,
+    }
 }
 
 // This function will generate battle events

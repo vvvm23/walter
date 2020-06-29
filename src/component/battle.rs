@@ -45,9 +45,10 @@ pub struct Move {
     pub use_message: String,
 
     pub hp_cost: u16, pub sp_cost: u16,
-    pub power: Option<u16>, pub accuracy: f32,
+    pub power: Option<u16>, pub damaging: bool,
+    pub accuracy: f32,
 
-    pub target: MoveTarget,
+    pub target: MoveTarget, 
 }
 
 impl Move {
@@ -55,7 +56,8 @@ impl Move {
     pub fn new(
         name: &str, description: &str, use_message: &str,
         hp_cost: u16, sp_cost: u16,
-        power: u16, accuracy: f32,
+        power: u16, damaging: bool,
+        accuracy: f32,
         target: MoveTarget,
     ) -> Arc<Move> {
         Arc::new(
@@ -63,6 +65,7 @@ impl Move {
                 name: name.to_string(), description: description.to_string(), use_message: use_message.to_string(),
                 hp_cost: hp_cost, sp_cost: sp_cost,
                 power: match power == 0 { true => None, false => Some(power) },
+                damaging: damaging,
                 accuracy: accuracy,
                 target: target,
             }
