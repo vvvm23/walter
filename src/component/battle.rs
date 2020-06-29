@@ -124,7 +124,8 @@ impl FighterComponent {
 
     pub fn inc_hp(&mut self, hp: u16) {
         if self.hp + hp > self.max_hp {
-            self.hp = self.max_hp; ()
+            self.hp = self.max_hp;
+            return;
         }
         self.hp += hp;
     }
@@ -132,14 +133,16 @@ impl FighterComponent {
     pub fn dec_hp(&mut self, hp: u16) {
         if self.hp <= hp {
             self.hp = 0;
-            self.alive = false; ()
+            self.alive = false;
+            return;
         }
         self.hp -= hp;
     }
 
     pub fn inc_sp(&mut self, sp: u16) {
         if self.sp + sp > self.max_sp {
-            self.sp = self.max_sp; ()
+            self.sp = self.max_sp; 
+            return;
         }
         self.sp += sp;
     }

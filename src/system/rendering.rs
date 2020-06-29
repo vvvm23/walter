@@ -124,6 +124,11 @@ pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
         let sp_text: graphics::Text = graphics::Text::new(format!("{0: <5} {1} / {2}", "SP:", fighter.sp, fighter.max_sp));
         graphics::draw(ctx, &sp_text, (na::Point2::new(900.0, 50.0+60.0+(i*INTERVAL) as f32), graphics::WHITE))?;
 
+        if !fighter.alive {
+            let down_text: graphics::Text = graphics::Text::new("DOWN");
+            graphics::draw(ctx, &down_text, (na::Point2::new(900.0, 50.0+80.0+(i*INTERVAL) as f32), [1.0, 0.0, 0.0, 1.0].into()))?;
+        }
+
         if let Some(sprite) = fighter.profile_sprite.as_ref() {
             let draw_param = graphics::DrawParam::default()
                 .dest(na::Point2::new(1050.0, 50.0 + (i*INTERVAL) as f32));

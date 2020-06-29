@@ -224,6 +224,7 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
     // A rather complicated set of nested matches to determine correct random targetting based on
     // available targets.
     // TODO: No possible target handling
+    // TODO: Handling of not being able to target downed for certain moves
     match &Arc::clone(&random_move).target {
         // Some AOE attack
         battle::MoveTarget::AOE(t) => (random_move, match t {
