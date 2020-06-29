@@ -106,7 +106,7 @@ pub struct MoveResult {
 }
 
 /// This function will calculate the damage, costs, etc. of an action 
-pub fn calculate_effect(world: Arc<World>, source: Arc<Entity>, selected_move: Arc<battle::Move>, target: Arc<Entity>) -> MoveResult {
+pub fn calculate_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, selected_move: Arc<battle::Move>, target: Arc<Entity>) -> MoveResult {
     let mut rng = rand::thread_rng();
     let roll: f32 = rng.gen();
 
@@ -127,8 +127,9 @@ pub fn calculate_effect(world: Arc<World>, source: Arc<Entity>, selected_move: A
 
 /// This function will actually execute a MoveResult on the target
 /// We can also generate our own MoveResult without using calculate effect to do scripted events
-pub fn execute_effect(world: Arc<World>, source: Arc<Entity>, target: Arc<Entity>, result: MoveResult) {
-
+pub fn execute_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, target: Arc<Entity>, result: MoveResult) {
+    let world = world.write().unwrap();
+    
 }
 
 // This function will generate battle events
