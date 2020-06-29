@@ -199,9 +199,16 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
     let instance = instance.battle_instance.as_ref().unwrap();
     let instance = instance.read().unwrap();
 
-    let nb_moves = source_fighter.moves.len() as u8;
+    let random_candidates: Vec<Arc<battle::Move>> = source_fighter.moves
+        .iter()
+        .filter(|m| m.sp_cost <= source_fighter.sp && m.hp_cost < source_fighter.hp)
+        .cloned()
+        .collect();
+
+    let nb_moves = random_candidates.len() as u8;
     let random_pick = rng.gen_range(0, nb_moves) as usize;
-    let random_move = Arc::clone(&source_fighter.moves[random_pick]); 
+
+    let random_move = Arc::clone(&random_candidates[random_pick]); 
     
     match &Arc::clone(&random_move).target {
         battle::MoveTarget::AOE(t) => (random_move, match t {
