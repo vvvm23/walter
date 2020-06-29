@@ -32,13 +32,8 @@ pub enum Action {
     Down(Arc<Entity>),
 }
 
-//#[derive(Debug)]
-//pub enum AOEOrSingle {
-    //Single(Arc<Entity>),
-    //AOE(battle::AOETarget),
-//}
-
 // not sure if needed yet, may just be able to infer 
+/// Defines current state of a battle loop such as blocking behaviour
 pub enum BattleState {
     Started,
     Available,
@@ -46,6 +41,7 @@ pub enum BattleState {
     WaitingEvent,
 }
 
+/// Defines current state of a battle
 pub struct BattleInstance {
     pub enemy_name: String,
     pub win_message: Option<String>,
@@ -55,8 +51,8 @@ pub struct BattleInstance {
     // music: Arc<ggez::sound::SoundData>
 
     pub entities: Vec<Arc<Entity>>,
-    pub entity_index: u8,
-    pub actions: Vec<Action>,
+    pub entity_index: u8, // current entity that is the source
+    pub actions: Vec<Action>, // action queue
     pub state: BattleState,
 }
 
@@ -73,14 +69,18 @@ impl BattleInstance {
         }
     }
 
+    /// Add an entity to the instance
     pub fn add_entities(&mut self, es: &mut Vec<Arc<Entity>>) {
         self.entities.append(es);
     }
 
+    /// Append a new action to the queue
     pub fn add_action(&mut self, action: Action) {
         self.actions.push(action);
     }
 
+    /// Helper function to partition entities into blufor and opfor, depending on the source's
+    /// perspective.
     pub fn partition_entities(&self, source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Vec<Arc<Entity>>, Vec<Arc<Entity>>) {
         let world = world.read().unwrap();
         let source_faction = &world.fighter_components.get(&source).unwrap().read().unwrap().faction;
@@ -99,6 +99,7 @@ impl BattleInstance {
     }
 } 
 
+/// Stores the result of a move to be executed later (typically after animation)
 pub struct MoveResult {
     pub hit: bool,
     pub hp_cost: u16, pub sp_cost: u16,
@@ -113,6 +114,8 @@ pub fn calculate_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, selected
     let hit = roll <= selected_move.accuracy; 
     match hit {
         true => {
+            // random deviation +-10%
+            // TODO: This is incorrect deviation, only +10%
             let roll: f32 = rng.gen();
             let roll = roll / 10.0;
 
@@ -124,12 +127,13 @@ pub fn calculate_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, selected
                 damaging: selected_move.damaging
             }
         },
-        false => MoveResult {hit: false, hp_cost: 0, sp_cost: 0, hp: 0, damaging: selected_move.damaging},
+        false => MoveResult {hit: false, hp_cost: 0, sp_cost: 0, hp: 0, damaging: selected_move.damaging}, // if it does not hit, reflect this in result
     }
 }
 
 /// This function will actually execute a MoveResult on the target
 /// We can also generate our own MoveResult without using calculate effect to do scripted events
+/// Or to force a hit, in the case of guaranteed connections
 pub fn execute_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, target: Arc<Entity>, result: MoveResult) {
     let world = world.read().unwrap();
     let mut source_fighter = world.fighter_components.get(&source).unwrap().write().unwrap();
@@ -144,8 +148,8 @@ pub fn execute_effect(world: Arc<RwLock<World>>, source: Arc<Entity>, target: Ar
     }
 }
 
-// This function will generate battle events
-// Another will handle the execution of the responses
+/// This function will generate battle events
+/// Another will handle the execution of the responses
 pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
     let instance = world_lock.read().unwrap();
     let instance = instance.battle_instance.as_ref().unwrap();
@@ -168,7 +172,6 @@ pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
 
     let source = Arc::clone(&instance.entities[instance.entity_index as usize]);
     let (random_move, random_target) = ai_handover(source, Arc::clone(&world_lock));
-    println!("{:?} {:?}", random_move, random_target);
 
     drop(instance); // clear read lock (??? this feels wrong)
 
@@ -183,6 +186,7 @@ pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
     }
 }
 
+/// Function that hands over to correct ai handler based on fighter ai enum
 pub fn ai_handover(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, Vec<Arc<Entity>>) {
     assert!(world.read().unwrap().fighter_components.contains_key(&source), "Entity does not have FigherComponent!");
     match world.read().unwrap().fighter_components.get(&source).unwrap().read().unwrap().ai {
@@ -190,6 +194,7 @@ pub fn ai_handover(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battl
     }
 }
 
+/// A completely random AI, subject only to a few checks
 pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, Vec<Arc<Entity>>) {
     let mut rng = rand::thread_rng();
     let source_fighter = world.read().unwrap();
@@ -199,6 +204,7 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
     let instance = instance.battle_instance.as_ref().unwrap();
     let instance = instance.read().unwrap();
 
+    // Filter out moves that are not possible given current sp and hp
     let random_candidates: Vec<Arc<battle::Move>> = source_fighter.moves
         .iter()
         .filter(|m| m.sp_cost <= source_fighter.sp && m.hp_cost < source_fighter.hp)
@@ -208,28 +214,45 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
     let nb_moves = random_candidates.len() as u8;
 
     if nb_moves == 0 {
+        // Implement some kind of struggle or cower move when no move is possible
         todo!("No possible move!");
     }
 
     let random_pick = rng.gen_range(0, nb_moves) as usize;
-
     let random_move = Arc::clone(&random_candidates[random_pick]); 
     
+    // A rather complicated set of nested matches to determine correct random targetting based on
+    // available targets.
+    // TODO: No possible target handling
     match &Arc::clone(&random_move).target {
+        // Some AOE attack
         battle::MoveTarget::AOE(t) => (random_move, match t {
-            battle::AOETarget::All => {
+
+            // An AOE attack on all entities in the battle. EG. Environmental changes, colossal AOE
+            // damage, special moves such as Trick Room
+            battle::AOETarget::All => { 
                 instance.entities.clone()
             },
+
+            // AOE attack on all allied entities. EG. Mass heals, buffs
             battle::AOETarget::Ally => {
                 let (blufor, _) = instance.partition_entities(Arc::clone(&source), Arc::clone(&world));
                 blufor
             },
+
+            // AOE attack on all enemy entities. EG: Mass attack, debuffs
             battle::AOETarget::Enemy => {
                 let (_, opfor) = instance.partition_entities(Arc::clone(&source), Arc::clone(&world));
                 opfor
             },
         }),
+
+        // When a move can only be used on the user itself. EG. Charge, Concentrate, Endure,
+        // We can't make someone else concentrate!
         battle::MoveTarget::Single(battle::SingleTarget::User) => (random_move, vec![Arc::clone(&source)]),
+
+        // The move can only be used on a single target (that is not just on the user). EG: Single
+        // target attacks, heals, buffs, debuffs. Usually cheaper than AOE counterparts
         battle::MoveTarget::Single(t) => {
             let (blufor, opfor) = instance.partition_entities(Arc::clone(&source), Arc::clone(&world));
             let candidate_targets = match t {
