@@ -206,6 +206,11 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
         .collect();
 
     let nb_moves = random_candidates.len() as u8;
+
+    if nb_moves == 0 {
+        todo!("No possible move!");
+    }
+
     let random_pick = rng.gen_range(0, nb_moves) as usize;
 
     let random_move = Arc::clone(&random_candidates[random_pick]); 
