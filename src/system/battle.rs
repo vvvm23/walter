@@ -99,6 +99,24 @@ impl BattleInstance {
     }
 } 
 
+pub struct MoveResult {
+    pub hit: bool,
+    pub hp_cost: u16, pub sp_cost: u16,
+    pub damage: u16,
+}
+
+/// This function will calculate the damage, costs, etc. of an action 
+pub fn calculate_effect(world: Arc<World>, source: Arc<Entity>, selected_move: Arc<battle::Move>, target: Arc<Entity>) -> MoveResult {
+    
+    MoveResult{hit: false, hp_cost: 0, sp_cost: 0, damage: 0}
+}
+
+/// This function will actually execute a MoveResult on the target
+/// We can also generate our own MoveResult without using calculate effect to do scripted events
+pub fn execute_effect(world: Arc<World>, source: Arc<Entity>, target: Arc<Entity>, result: MoveResult) {
+
+}
+
 // This function will generate battle events
 // Another will handle the execution of the responses
 pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
