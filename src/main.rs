@@ -32,6 +32,8 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     texture_atlas.load(ctx, "/cheems_profile.png");
     texture_atlas.load(ctx, "/cheems.png");
     texture_atlas.load(ctx, "/night_desert.png");
+    texture_atlas.load(ctx, "/walter.png");
+    texture_atlas.load(ctx, "/walter_profile.png");
     let texture_atlas = Arc::new(texture_atlas);
 
     let mut sound_atlas = system::audio::AudioAtlas::new();
@@ -44,14 +46,14 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
     let move_1 = component::battle::Move::new(
         "Cross Slash", "Slash the target twice", "$source slashed at $target!",
-        0, 10, 80, true, 1.0, MoveTarget::Single(SingleTarget::Ally),
+        0, 10, 80, true, 1.0, MoveTarget::Single(SingleTarget::Enemy),
     );
     let move_2 = component::battle::Move::new(
         "God's Hand", "Colossal Physical Damage", "$source crushed the $target!",
-        0, 30, 120, true, 0.9, MoveTarget::Single(SingleTarget::Ally),
+        0, 30, 120, true, 0.9, MoveTarget::Single(SingleTarget::Enemy),
     );
     let move_3 = component::battle::Move::new(
-        "Flying Press", "Channel the reckless spirit of Hawk.", "$source slams down hard from a great height!", 50, 0, 120, true, 0.95, MoveTarget::Single(SingleTarget::Ally),
+        "Flying Press", "Channel the reckless spirit of Hawk.", "$source slams down hard from a great height!", 50, 0, 120, true, 0.95, MoveTarget::Single(SingleTarget::Enemy),
     );
 
     let entity_back = ecs::PartialEntity::new()
@@ -76,7 +78,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     let mut cheems_collection: Vec<Arc<ecs::Entity>> = Vec::new();
 
     let cheems = ecs::PartialEntity::new()
-    .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
+    .add_component(component::battle::FighterComponent::new("Cheems #1", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
     .add_component(component::physics::PositionComponent::new(150.0, 400.0))
     .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), -0.3, 0.3));
 
@@ -84,7 +86,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     cheems_collection.push(Arc::clone(&new_cheems));
 
     let cheems = ecs::PartialEntity::new()
-    .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
+    .add_component(component::battle::FighterComponent::new("Cheems #2", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
     .add_component(component::physics::PositionComponent::new(300.0, 500.0))
     .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), -0.3, 0.3));
 
@@ -92,18 +94,18 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     cheems_collection.push(Arc::clone(&new_cheems));
 
     let cheems = ecs::PartialEntity::new()
-    .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
+    .add_component(component::battle::FighterComponent::new("Walter #1", 100, Faction::Enemy, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/walter_profile.png"))))
     .add_component(component::physics::PositionComponent::new(600.0, 500.0))
-    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), 0.3, 0.3));
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/walter.png"), 0.3, 0.3));
 
     let new_cheems = world.write().unwrap().build_entity(cheems);
     cheems_collection.push(Arc::clone(&new_cheems));
 
 
     let cheems = ecs::PartialEntity::new()
-    .add_component(component::battle::FighterComponent::new("Cheems", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png")))) 
+    .add_component(component::battle::FighterComponent::new("Walter #2", 100, Faction::Enemy, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/walter_profile.png")))) 
     .add_component(component::physics::PositionComponent::new(700.0, 400.0))
-    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), 0.3, 0.3));
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/walter.png"), 0.3, 0.3));
 
     let new_cheems = world.write().unwrap().build_entity(cheems);
     cheems_collection.push(Arc::clone(&new_cheems));
