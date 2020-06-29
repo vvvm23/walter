@@ -26,16 +26,17 @@ use std::sync::{Arc, RwLock};
 
 // TODO: AOE?
 // TODO: maybe we actually want to precompute some things, such as crits for animation purposes
+#[derive(Debug)]
 pub enum Action {
     Move(Arc<Entity>, Arc<battle::Move>, Arc<Entity>),
     Down(Arc<Entity>),
 }
 
-#[derive(Debug)]
-pub enum AOEOrSingle {
-    Single(Arc<Entity>),
-    AOE(battle::AOETarget),
-}
+//#[derive(Debug)]
+//pub enum AOEOrSingle {
+    //Single(Arc<Entity>),
+    //AOE(battle::AOETarget),
+//}
 
 // not sure if needed yet, may just be able to infer 
 pub enum BattleState {
@@ -130,16 +131,21 @@ pub fn battle_loop(world_lock: Arc<RwLock<World>>) {
     let instance = instance.battle_instance.as_ref().unwrap();
     let mut instance = instance.write().unwrap();
     instance.state = BattleState::WaitingEvent;
+
+    for t in &random_target {
+        let source = Arc::clone(&instance.entities[instance.entity_index as usize]);
+        instance.actions.push(Action::Move(Arc::clone(&source), Arc::clone(&random_move), Arc::clone(t)));
+    }
 }
 
-pub fn ai_handover(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
+pub fn ai_handover(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, Vec<Arc<Entity>>) {
     assert!(world.read().unwrap().fighter_components.contains_key(&source), "Entity does not have FigherComponent!");
     match world.read().unwrap().fighter_components.get(&source).unwrap().read().unwrap().ai {
         battle::AI::Random => ai_random(source, Arc::clone(&world)),
     }
 }
 
-pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, AOEOrSingle) {
+pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle::Move>, Vec<Arc<Entity>>) {
     let mut rng = rand::thread_rng();
     let source_fighter = world.read().unwrap();
     let source_fighter = source_fighter.fighter_components.get(&source).unwrap().read().unwrap();
@@ -153,8 +159,20 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
     let random_move = Arc::clone(&source_fighter.moves[random_pick]); 
     
     match &Arc::clone(&random_move).target {
-        battle::MoveTarget::AOE(t) => (random_move, AOEOrSingle::AOE(*t)),
-        battle::MoveTarget::Single(battle::SingleTarget::User) => (random_move, AOEOrSingle::Single(Arc::clone(&source))),
+        battle::MoveTarget::AOE(t) => (random_move, match t {
+            battle::AOETarget::All => {
+                instance.entities.clone()
+            },
+            battle::AOETarget::Ally => {
+                let (blufor, _) = instance.partition_entities(Arc::clone(&source), Arc::clone(&world));
+                blufor
+            },
+            battle::AOETarget::Enemy => {
+                let (_, opfor) = instance.partition_entities(Arc::clone(&source), Arc::clone(&world));
+                opfor
+            },
+        }),
+        battle::MoveTarget::Single(battle::SingleTarget::User) => (random_move, vec![Arc::clone(&source)]),
         battle::MoveTarget::Single(t) => {
             let (blufor, opfor) = instance.partition_entities(Arc::clone(&source), Arc::clone(&world));
             let candidate_targets = match t {
@@ -163,12 +181,12 @@ pub fn ai_random(source: Arc<Entity>, world: Arc<RwLock<World>>) -> (Arc<battle:
             }; 
             let nb_targets = candidate_targets.len() as u8;
             if nb_targets == 0 {
-                return (random_move, AOEOrSingle::Single(Arc::clone(&source))); // TODO: Handle this properly
+                return (random_move, vec![Arc::clone(&source)]); // TODO: Handle this properly
             }
 
             let random_pick = rng.gen_range(0, nb_targets) as usize; // panic occurs here!
             let random_target = Arc::clone(&candidate_targets[random_pick]);
-            (random_move, AOEOrSingle::Single(random_target))
+            (random_move, vec![Arc::clone(&random_target)])
         }
     }
 }

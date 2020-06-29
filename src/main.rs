@@ -129,7 +129,6 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                                                            //.replace("$source", &format!("Cheems {}", new_cheem.id))
                                                            //.replace("$target", &format!("Cheems {}", random_target)));
                     world_child.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().state = system::battle::BattleState::Available;
-                    logger_child.write().unwrap().add_line("Battle loop available for new action!");
                     std::thread::sleep_ms(1000);
                 }
             });
@@ -146,6 +145,8 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         if world.read().unwrap().battle_instance.as_ref().unwrap().read().unwrap().entities.len() > 0 {
             system::battle::battle_loop(Arc::clone(&world));
         }
+
+        println!("{:?}", world.read().unwrap().battle_instance.as_ref().unwrap().read().unwrap().actions);
 
         // Draw
         ggez::graphics::present(ctx)?;
