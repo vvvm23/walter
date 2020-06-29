@@ -133,8 +133,10 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                         ggez::event::KeyCode::Escape => ggez::event::quit(ctx),
                         _ => (),
                     },
-                    WindowEvent::MouseInput { .. } => {
-                        println!("{:?}", ggez::input::mouse::position(&ctx))
+                    WindowEvent::MouseInput { state, .. } => {
+                        if let ggez::event::winit_event::ElementState::Pressed = state {
+                            println!("{:?}", ggez::input::mouse::position(&ctx))
+                        }
                     },
                     _ => (),
                 },
