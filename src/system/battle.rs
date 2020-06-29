@@ -102,7 +102,7 @@ impl BattleInstance {
 pub struct MoveResult {
     pub hit: bool,
     pub hp_cost: u16, pub sp_cost: u16,
-    pub hp: u16, damaging: bool,
+    pub hp: u16, pub damaging: bool,
 }
 
 /// This function will calculate the damage, costs, etc. of an action 

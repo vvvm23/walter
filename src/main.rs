@@ -110,10 +110,12 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     let new_cheems = world.write().unwrap().build_entity(cheems);
     cheems_collection.push(Arc::clone(&new_cheems));
 
+    let cheems_1 = Arc::clone(&cheems_collection[0]);
+    let walter_1 = Arc::clone(&cheems_collection[2]);
 
     world.read().unwrap().battle_instance.as_ref().unwrap().write().unwrap().add_entities(&mut cheems_collection);
 
-    //let mut make_child: bool = true;
+    let mut make_child: bool = true;
 
     while ctx.continuing {
         ctx.timer_context.tick(); // Tell internal timer a frame has happened
@@ -145,6 +147,22 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
                 _ => (),
             }
         });
+
+        if make_child {
+            make_child = false;
+            let world = Arc::clone(&world);
+            let cheems_1 = Arc::clone(&cheems_1);
+            let walter_1 = Arc::clone(&walter_1);
+
+            thread::spawn(move || {
+                for _ in 1..6 {
+                    system::battle::execute_effect(Arc::clone(&world), Arc::clone(&walter_1), Arc::clone(&cheems_1), system::battle::MoveResult {
+                        hit: true, hp_cost: 0, sp_cost: 0, hp: 100, damaging: true,
+                    });
+                    std::thread::sleep_ms(2000);
+                }
+            });
+        }
 
         //if make_child {
             //make_child = false;
@@ -188,9 +206,9 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         system::physics::velocity_system(Arc::clone(&world), &d_time);
 
         // In reality, this guard will be much more sophisticated
-        if world.read().unwrap().battle_instance.as_ref().unwrap().read().unwrap().entities.len() > 0 {
-            system::battle::battle_loop(Arc::clone(&world));
-        }
+        //if world.read().unwrap().battle_instance.as_ref().unwrap().read().unwrap().entities.len() > 0 {
+            //system::battle::battle_loop(Arc::clone(&world));
+        //}
 
         // Draw
         ggez::graphics::present(ctx)?;
