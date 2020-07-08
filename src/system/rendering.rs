@@ -58,14 +58,21 @@ pub fn sprite_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context) -> 
     let world = world.read().unwrap();
     for (e, sprite) in world.sprite_components.iter() {
         let sprite = sprite.read().unwrap();
-        let point = match world.position_components.contains_key(e) {
+        let mut point = match world.position_components.contains_key(e) {
             true => {
                 let p = world.position_components.get(e).unwrap();
-                let p = p.read().unwrap();
+                let mut p = p.read().unwrap();
+
+
                 na::Point2::new(p.x, p.y)
             },
             false => na::Point2::new(0.0, 0.0),
         };
+
+        if world.idle_bob_components.contains_key(e) {
+            let bob = world.idle_bob_components.get(e).unwrap().read().unwrap();
+            point.y += bob.y;
+        }
 
         let draw_param = graphics::DrawParam::default()
             .dest(point)
@@ -125,7 +132,7 @@ pub fn ally_stats_rendering_system(world: Arc<RwLock<World>>, ctx: &mut Context)
         graphics::draw(ctx, &sp_text, (na::Point2::new(900.0, 50.0+60.0+(i*INTERVAL) as f32), graphics::WHITE))?;
 
         if !fighter.alive {
-            let down_text: graphics::Text = graphics::Text::new("DOWN");
+            let down_text: graphics::Text = graphics::Text::new("DEAD");
             graphics::draw(ctx, &down_text, (na::Point2::new(900.0, 50.0+80.0+(i*INTERVAL) as f32), [1.0, 0.0, 0.0, 1.0].into()))?;
         }
 

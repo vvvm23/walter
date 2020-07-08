@@ -11,4 +11,5 @@ pub enum Component {
     BackgroundComponent(rendering::BackgroundComponent),
     FighterComponent(battle::FighterComponent),
     TextBoxComponent(rendering::TextBoxComponent),
+    IdleBobComponent(physics::IdleBobComponent),
 }

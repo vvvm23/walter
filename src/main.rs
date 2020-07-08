@@ -15,9 +15,15 @@ fn init_window(width: f32, height: f32) -> ggez::ContextBuilder {
         ..Default::default()
     };
 
+    let ws: ggez::conf::WindowSetup = ggez::conf::WindowSetup {
+        title: "walter".to_string(),
+        ..Default::default()
+    };
+
     let cb = ggez::ContextBuilder::new("walter 0.0", "vvvm23")
         .add_resource_path(std::path::PathBuf::from("./resources"))
-        .window_mode(wm);
+        .window_mode(wm)
+        .window_setup(ws);
     cb
 }
 
@@ -38,9 +44,10 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
     let mut sound_atlas = system::audio::AudioAtlas::new();
     sound_atlas.load(ctx, "/music.flac");
+    sound_atlas.load(ctx, "/music.wav");
     let sound_atlas = Arc::new(sound_atlas);
-    //let bgm = sound_atlas.get("/music.flac");
-    //bgm.write().unwrap().play()?;
+    let bgm = sound_atlas.get("/music.wav");
+    bgm.write().unwrap().play()?;
 
     // TODO: Load audio in similar audio atlas
 
@@ -80,7 +87,8 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     let cheems = ecs::PartialEntity::new()
     .add_component(component::battle::FighterComponent::new("Cheems #1", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
     .add_component(component::physics::PositionComponent::new(150.0, 400.0))
-    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), -0.3, 0.3));
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), -0.3, 0.3))
+    .add_component(component::physics::IdleBobComponent::new(15.0, 1.5));
 
     let new_cheems = world.write().unwrap().build_entity(cheems);
     cheems_collection.push(Arc::clone(&new_cheems));
@@ -88,7 +96,8 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     let cheems = ecs::PartialEntity::new()
     .add_component(component::battle::FighterComponent::new("Cheems #2", 100, Faction::Ally, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/cheems_profile.png"))))
     .add_component(component::physics::PositionComponent::new(300.0, 500.0))
-    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), -0.3, 0.3));
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/cheems.png"), -0.3, 0.3))
+    .add_component(component::physics::IdleBobComponent::new(10.0, 0.7));
 
     let new_cheems = world.write().unwrap().build_entity(cheems);
     cheems_collection.push(Arc::clone(&new_cheems));
@@ -96,7 +105,8 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
     let cheems = ecs::PartialEntity::new()
     .add_component(component::battle::FighterComponent::new("Walter #1", 100, Faction::Enemy, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/walter_profile.png"))))
     .add_component(component::physics::PositionComponent::new(600.0, 500.0))
-    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/walter.png"), 0.3, 0.3));
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/walter.png"), 0.3, 0.3))
+    .add_component(component::physics::IdleBobComponent::new(5.0, 2.0));
 
     let new_cheems = world.write().unwrap().build_entity(cheems);
     cheems_collection.push(Arc::clone(&new_cheems));
@@ -104,8 +114,9 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
     let cheems = ecs::PartialEntity::new()
     .add_component(component::battle::FighterComponent::new("Walter #2", 100, Faction::Enemy, component::battle::AI::Random, 500, 200, vec![Arc::clone(&move_1), Arc::clone(&move_2), Arc::clone(&move_3)], 100, 100, 100, 100, Some(texture_atlas.get("/walter_profile.png")))) 
-    .add_component(component::physics::PositionComponent::new(700.0, 400.0))
-    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/walter.png"), 0.3, 0.3));
+    .add_component(component::physics::PositionComponent::new(750.0, 400.0))
+    .add_component(component::rendering::SpriteRenderableComponent::new(texture_atlas.get("/walter.png"), 0.3, 0.3))
+    .add_component(component::physics::IdleBobComponent::new(10.0, 1.0));
 
     let new_cheems = world.write().unwrap().build_entity(cheems);
     cheems_collection.push(Arc::clone(&new_cheems));
@@ -155,9 +166,9 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
             let walter_1 = Arc::clone(&walter_1);
 
             thread::spawn(move || {
-                for _ in 1..6 {
+                for _ in 1..100 {
                     system::battle::execute_effect(Arc::clone(&world), Arc::clone(&walter_1), Arc::clone(&cheems_1), system::battle::MoveResult {
-                        hit: true, hp_cost: 0, sp_cost: 0, hp: 100, damaging: true,
+                        hit: true, hp_cost: 0, sp_cost: 0, hp: 50, damaging: true,
                     });
                     std::thread::sleep_ms(2000);
                 }
@@ -204,6 +215,7 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
         // Update
         system::physics::velocity_system(Arc::clone(&world), &d_time);
+        system::physics::idle_bob_system(Arc::clone(&world), &d_time);
 
         // In reality, this guard will be much more sophisticated
         //if world.read().unwrap().battle_instance.as_ref().unwrap().read().unwrap().entities.len() > 0 {

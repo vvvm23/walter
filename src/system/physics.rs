@@ -16,3 +16,12 @@ pub fn velocity_system(world: Arc<RwLock<World>>, d_time: &f64) {
         //println!("{}: {} {}", e.id, pos.x, pos.y);
     }
 }
+
+pub fn idle_bob_system(world: Arc<RwLock<World>>, d_time: &f64) {
+    let world = world.read().unwrap();
+    let d_time = *d_time as f32;
+    for (e, bob) in world.idle_bob_components.iter() {
+        let mut bob = bob.write().unwrap();
+        bob.update(&d_time);
+    }
+}
