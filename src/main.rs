@@ -44,10 +44,10 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
 
     let mut sound_atlas = system::audio::AudioAtlas::new();
     sound_atlas.load(ctx, "/music.flac");
-    sound_atlas.load(ctx, "/music.wav");
+    //sound_atlas.load(ctx, "/music.wav");
     let sound_atlas = Arc::new(sound_atlas);
-    let bgm = sound_atlas.get("/music.wav");
-    bgm.write().unwrap().play()?;
+    //let bgm = sound_atlas.get("/music.wav");
+    //bgm.write().unwrap().play()?;
 
     // TODO: Load audio in similar audio atlas
 
