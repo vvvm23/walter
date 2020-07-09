@@ -162,15 +162,20 @@ fn game_loop(ctx: &mut ggez::Context, e_loop: &mut ggez::event::EventsLoop) -> g
         if make_child {
             make_child = false;
             let world = Arc::clone(&world);
-            let cheems_1 = Arc::clone(&cheems_1);
-            let walter_1 = Arc::clone(&walter_1);
 
             thread::spawn(move || {
-                for _ in 1..100 {
-                    system::battle::execute_effect(Arc::clone(&world), Arc::clone(&walter_1), Arc::clone(&cheems_1), system::battle::MoveResult {
-                        hit: true, hp_cost: 0, sp_cost: 0, hp: 50, damaging: true,
-                    });
-                    std::thread::sleep_ms(2000);
+                loop { // Change
+                    match world.read().unwrap().battle_instance.as_ref().unwrap().read().unwrap().state {
+                        system::battle::BattleState::WaitingEvent => {
+
+                        },
+                        system::battle::BattleState::Available => {
+
+                        },
+                        _ => {
+
+                        },
+                    }
                 }
             });
         }
