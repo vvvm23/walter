@@ -1,6 +1,9 @@
 mod ecs;
 mod component;
 mod system;
+mod util;
+
+use util::{runwrap, wunwrap};
 
 use std::sync::{Arc, RwLock};
 use std::thread;
