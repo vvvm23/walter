@@ -68,14 +68,27 @@ impl Entity {
 
 const MAX_ENTITIES: u16 = 256;
 pub struct EntityAllocator {
-    entities: Vec<Entity>,
-
+    pub entities: Vec<Arc<Entity>>,
+    in_use: [bool; MAX_ENTITIES as usize],
 }
 
 impl EntityAllocator {
     pub fn new() -> Self {
         EntityAllocator {
             entities: Vec::with_capacity(MAX_ENTITIES as usize),
+            in_use: [false; MAX_ENTITIES as usize],
         }
+    }
+
+    pub fn new_entity(&mut self) -> Arc<Entity> {
+        for (id, f) in self.in_use.iter().enumerate() {
+            if !f {
+                self.in_use[id] = true;
+                let new_entity = Arc::new(Entity::new(id as u16));
+                self.entities.push(Arc::clone(&new_entity));
+                return new_entity;
+            }
+        }
+        panic!("MAXIMUM ENTITIES EXCEEDED!")
     }
 }
