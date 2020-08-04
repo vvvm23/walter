@@ -24,7 +24,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
 pub trait Component {
-    fn get_owner(&self) -> Entity;
+    fn get_owner(&self) -> Arc<Entity>;
     fn update(&mut self) {}
 }
 impl std::fmt::Debug for dyn Component {
@@ -35,9 +35,30 @@ impl std::fmt::Debug for dyn Component {
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum ComponentType {
+    Null,
     Fighter,
     Inventory,
     Playable,
+}
+
+struct NullComponent {
+    owner: Arc<Entity>,
+}
+
+impl NullComponent {
+    fn new(owner: Arc<Entity>) -> Self {
+        NullComponent {owner: owner}
+    }
+}
+
+impl Component for NullComponent {
+    fn get_owner(&self) -> Arc<Entity> {
+        Arc::clone(&self.owner)
+    }
+
+    fn update(&mut self) {
+        println!("This Component does nothing.");
+    }
 }
 
 #[derive(Debug)]
