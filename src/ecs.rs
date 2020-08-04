@@ -22,7 +22,10 @@
 
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
-use log::{error, info};
+use log::{error, debug};
+
+use strum_macros::EnumIter;
+use strum::IntoEnumIterator;
 
 pub trait Component {
     fn get_owner(&self) -> Arc<Entity>;
@@ -34,7 +37,7 @@ impl std::fmt::Debug for dyn Component {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, EnumIter)]
 pub enum ComponentType {
     Null,
     Fighter,
@@ -58,7 +61,7 @@ impl Component for NullComponent {
     }
 
     fn update(&mut self) {
-        info!("This component does nothing.")
+        debug!("This component does nothing.")
     }
 }
 
@@ -118,14 +121,20 @@ impl EntityAllocator {
 
 pub struct State {
     pub entity_allocator: EntityAllocator,
-    components: HashMap<ComponentType, Vec<Arc<dyn Component>>>,
+    pub components: HashMap<ComponentType, Vec<Arc<dyn Component>>>,
 }
 
 impl State {
     pub fn new() -> Self {
-        State {
+        let mut s = State {
             entity_allocator: EntityAllocator::new(),
             components: HashMap::new()
+        };
+
+        for ct in ComponentType::iter() {
+            s.components.insert(ct, Vec::new());
         }
+        s
+
     }
 }

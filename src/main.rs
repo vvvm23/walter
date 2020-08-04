@@ -14,6 +14,7 @@ fn main() {
         x.new_entity();
     }
     
+    println!("{:?}", game_state.components);
     info!("This is an informative message.")
 
 }
