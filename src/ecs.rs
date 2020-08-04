@@ -89,6 +89,11 @@ impl Entity {
             None => None,
         }
     }
+
+    fn add_component(&mut self, ct: ComponentType, c: &Arc<dyn Component>) {
+        self.components.insert(ct, Arc::clone(c));
+    }
+
 }
 
 const MAX_ENTITIES: u16 = 256;
@@ -135,6 +140,16 @@ impl State {
             s.components.insert(ct, Vec::new());
         }
         s
-
     }
+
+    pub fn add_component(&mut self, ct: ComponentType, c: Arc<dyn Component>) {
+        // Get owner
+        // Obtain write lock
+        // add component to entity
+        // add component to state hashmaps
+        let e = c.get_owner();
+
+        self.components.get_mut(&ct).unwrap().push(c);
+    }
+
 }
