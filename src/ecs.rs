@@ -22,6 +22,7 @@
 
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
+use log::{error, info};
 
 pub trait Component {
     fn get_owner(&self) -> Arc<Entity>;
@@ -57,7 +58,7 @@ impl Component for NullComponent {
     }
 
     fn update(&mut self) {
-        println!("This Component does nothing.");
+        info!("This component does nothing.")
     }
 }
 
@@ -110,6 +111,21 @@ impl EntityAllocator {
                 return new_entity;
             }
         }
-        panic!("MAXIMUM ENTITIES EXCEEDED!")
+        error!("Maximum entity count reached.");
+        panic!()
+    }
+}
+
+pub struct State {
+    pub entity_allocator: EntityAllocator,
+    components: HashMap<ComponentType, Vec<Arc<dyn Component>>>,
+}
+
+impl State {
+    pub fn new() -> Self {
+        State {
+            entity_allocator: EntityAllocator::new(),
+            components: HashMap::new()
+        }
     }
 }
