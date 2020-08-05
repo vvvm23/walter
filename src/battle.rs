@@ -3,6 +3,10 @@ use crate::ecs::{Entity};
 
 #[derive(Debug)]
 pub struct Move {
+    pub name: String,
+    pub description: String,
+    pub hpc: u16, pub spc: u16,
+    pub power: u16,
 
 }
 
