@@ -5,9 +5,34 @@ use crate::ecs::{Entity};
 pub struct Move {
     pub name: String,
     pub description: String,
-    pub hpc: u16, pub spc: u16,
-    pub power: u16,
+    pub hpc: Option<u16>, pub spc: Option<u16>,
+    pub power: Option<u16>,
+}
 
+impl Move {
+    pub fn new(name: &str, description: &str) -> Self {
+        Self { 
+            name: name.to_string(),
+            description: description.to_string(),
+            hpc: None, spc: None,
+            power: None
+        }
+    }
+
+    pub fn set_hp_cost(mut self, hp: u16) -> Self {
+        self.hpc = Some(hp);
+        self
+    }
+
+    pub fn set_sp_cost(mut self, sp: u16) -> Self {
+        self.spc = Some(sp);
+        self
+    }
+
+    pub fn set_power(mut self, power: u16) -> Self {
+        self.power = Some(power);
+        self
+    }
 }
 
 #[derive(Debug)]
