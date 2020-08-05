@@ -11,17 +11,19 @@ pub enum ComponentType {
     Playable,
 }
 
+#[derive(Debug)]
 pub struct NullComponent {
-    owner: GenerationalIndex
+    pub owner: GenerationalIndex
 }
 
+#[derive(Debug)]
 pub struct PositionComponent {
-    owner: GenerationalIndex,
+    pub owner: GenerationalIndex,
     pub x: f32,
     pub y: f32,
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct GenerationalIndex {
     index: usize,
     generation: u32
@@ -82,11 +84,13 @@ impl GenerationalIndexAllocator {
 
 }
 
+#[derive(Debug)]
 struct ArrayEntry<T> {
     value: T,
     generation: u32
 }
 
+#[derive(Debug)]
 pub struct GenerationalIndexArray<T>(Vec<Option<ArrayEntry<T>>>);
 
 impl<T> GenerationalIndexArray<T> {
@@ -130,10 +134,22 @@ impl<T> GenerationalIndexArray<T> {
 type Entity = GenerationalIndex;
 type EntityMap<T> = GenerationalIndexArray<T>;
 
+const MAX_ENTITIES: usize = 256;
 pub struct State {
-    entity_allocator: GenerationalIndexAllocator,
+    pub entity_allocator: GenerationalIndexAllocator,
     
-    null_components: EntityMap<NullComponent>,
-    position_components: EntityMap<PositionComponent>,
+    pub null_components: EntityMap<NullComponent>,
+    pub position_components: EntityMap<PositionComponent>,
+}
+
+impl State {
+    pub fn new() -> Self {
+        Self {
+            entity_allocator: GenerationalIndexAllocator::new(MAX_ENTITIES),
+            
+            null_components: EntityMap::new(MAX_ENTITIES),
+            position_components: EntityMap::new(MAX_ENTITIES),
+        }
+    }
 }
 
