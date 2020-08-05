@@ -8,11 +8,4 @@ fn main() {
     println!("Aloha World!");
     
     info!("This is an informative message.");
-    
-    let mut x = ecs::State::new();
-
-    for _ in 0.. {
-        x.new_entity();
-    }
-
 }
