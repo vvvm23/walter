@@ -7,7 +7,7 @@
 /// the main state.
 /// 
 /// However, we still wish to have some way to iterate over all components of one 
-/// type. We can instead keep a HashMap<ComponentType, Vec<Arc<Component>>> in the
+/// type. We can instead keep a HashMap<ComponentType, Vec<Rc<Component>>> in the
 /// main state. We can achieve the same effect as one vector if we find a way to
 /// iterate over the enum ComponentType.
 ///
@@ -16,19 +16,17 @@
 /// components associated with that Entity. With this, we can lookup the components
 /// of an entity from the Entity struct itself or from one of its components.
 ///
-/// New entities must be created through EntityAllocator to ensure consistency 
-/// with ids.
-///
 
 use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
+use std::rc::Rc;
+use std::cell::RefCell;
 use log::{error, debug};
 
 use strum_macros::EnumIter;
 use strum::IntoEnumIterator;
 
 pub trait Component {
-    fn get_owner(&self) -> Arc<Entity>;
+    fn get_owner(&self) -> Rc<RefCell<Entity>>;
     fn update(&mut self) {}
 }
 impl std::fmt::Debug for dyn Component {
@@ -40,24 +38,25 @@ impl std::fmt::Debug for dyn Component {
 #[derive(Debug, PartialEq, Eq, Hash, EnumIter)]
 pub enum ComponentType {
     Null,
+    Position,
     Fighter,
     Inventory,
     Playable,
 }
 
 struct NullComponent {
-    owner: Arc<Entity>,
+    owner: Rc<RefCell<Entity>>,
 }
 
 impl NullComponent {
-    fn new(owner: Arc<Entity>) -> Self {
+    fn new(owner: Rc<RefCell<Entity>>) -> Self {
         NullComponent {owner: owner}
     }
 }
 
 impl Component for NullComponent {
-    fn get_owner(&self) -> Arc<Entity> {
-        Arc::clone(&self.owner)
+    fn get_owner(&self) -> Rc<RefCell<Entity>> {
+        Rc::clone(&self.owner)
     }
 
     fn update(&mut self) {
@@ -68,88 +67,77 @@ impl Component for NullComponent {
 #[derive(Debug)]
 pub struct Entity {
     pub id: u16,
-    pub x: f64,
-    pub y: f64,
-    components: HashMap<ComponentType, Arc<dyn Component>>,
+    components: HashMap<ComponentType, Rc<RefCell<dyn Component>>>,
 }
 
 impl Entity {
     fn new(id: u16) -> Self {
         Entity {
             id: id,
-            x: 0.0,
-            y: 0.0,
             components: HashMap::new()
         }
     }
     
-    fn get_component(&self, c: ComponentType) -> Option<Arc<dyn Component>> {
+    fn get_component(&self, c: ComponentType) -> Option<Rc<RefCell<dyn Component>>> {
         match self.components.get(&c) {
-            Some(a) => Some(Arc::clone(a)),
+            Some(a) => Some(Rc::clone(a)),
             None => None,
         }
     }
 
-    fn add_component(&mut self, ct: ComponentType, c: &Arc<dyn Component>) {
-        self.components.insert(ct, Arc::clone(c));
+    fn add_component(&mut self, ct: ComponentType, c: &Rc<RefCell<dyn Component>>) {
+        self.components.insert(ct, Rc::clone(c));
     }
 
 }
 
-const MAX_ENTITIES: u16 = 256;
-pub struct EntityAllocator {
-    pub entities: Vec<Arc<Entity>>,
-    in_use: [bool; MAX_ENTITIES as usize],
-}
-
-impl EntityAllocator {
-    pub fn new() -> Self {
-        EntityAllocator {
-            entities: Vec::with_capacity(MAX_ENTITIES as usize),
-            in_use: [false; MAX_ENTITIES as usize],
-        }
-    }
-
-    pub fn new_entity(&mut self) -> Arc<Entity> {
-        for (id, f) in self.in_use.iter().enumerate() {
-            if !f {
-                self.in_use[id] = true;
-                let new_entity = Arc::new(Entity::new(id as u16));
-                self.entities.push(Arc::clone(&new_entity));
-                return new_entity;
-            }
-        }
-        error!("Maximum entity count reached.");
-        panic!()
-    }
-}
-
+const MAX_ENTITIES: usize = 256;
 pub struct State {
-    pub entity_allocator: EntityAllocator,
-    pub components: HashMap<ComponentType, Vec<Arc<dyn Component>>>,
+    //pub entities: Vec<Rc<RefCell<Entity>>>,
+    pub entities: Vec<Option<Rc<RefCell<Entity>>>>,
+    pub components: HashMap<ComponentType, Vec<Rc<RefCell<dyn Component>>>>,
+    next_free: u16,
 }
 
 impl State {
     pub fn new() -> Self {
-        let mut s = State {
-            entity_allocator: EntityAllocator::new(),
-            components: HashMap::new()
+        let mut x = Self {
+            entities: vec![None; MAX_ENTITIES],
+            components: HashMap::new(),
+            next_free: 0
         };
 
         for ct in ComponentType::iter() {
-            s.components.insert(ct, Vec::new());
+            x.components.insert(ct, Vec::new());
         }
-        s
+        x
     }
 
-    pub fn add_component(&mut self, ct: ComponentType, c: Arc<dyn Component>) {
-        // Get owner
-        // Obtain write lock
-        // add component to entity
-        // add component to state hashmaps
-        let e = c.get_owner();
+    pub fn new_entity(&mut self) -> Rc<RefCell<Entity>> {
+        let mut n_id = self.next_free;
+        if let Some(_) = self.entities[n_id as usize] {
+            for c_id in self.next_free..(self.next_free+MAX_ENTITIES as u16) {
+                n_id = c_id % MAX_ENTITIES as u16;
+                if let None = self.entities[n_id as usize] {
+                    break;
+                }
+            }
 
-        self.components.get_mut(&ct).unwrap().push(c);
+            error!("Maximum Entity count reached!");
+            panic!("");
+        }
+
+        let e = Entity::new(n_id);
+        let e = Rc::new(RefCell::new(e));
+        self.entities[n_id as usize] = Some(Rc::clone(&e));
+
+        self.next_free = (n_id + 1) % MAX_ENTITIES as u16;
+        e
     }
+
+    // TODO: Add entity / component
+
+    // TODO: Delete entity / component
+    // TODO: Check Rc Count to ensure they are truly deleted
 
 }

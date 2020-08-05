@@ -7,14 +7,12 @@ fn main() {
     env_logger::init();
     println!("Aloha World!");
     
-    let mut game_state = ecs::State::new();
-    let x = &mut game_state.entity_allocator;
+    info!("This is an informative message.");
+    
+    let mut x = ecs::State::new();
 
-    for _ in 0..5 {
+    for _ in 0.. {
         x.new_entity();
     }
-    
-    println!("{:?}", game_state.components);
-    info!("This is an informative message.")
 
 }
