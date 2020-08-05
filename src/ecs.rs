@@ -1,5 +1,6 @@
 use strum_macros::EnumIter;
 use strum::IntoEnumIterator;
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Eq, Hash, EnumIter)]
 pub enum ComponentType {
@@ -11,7 +12,13 @@ pub enum ComponentType {
 }
 
 pub struct NullComponent {
-    
+    owner: GenerationalIndex
+}
+
+pub struct PositionComponent {
+    owner: GenerationalIndex,
+    pub x: f32,
+    pub y: f32,
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -123,10 +130,10 @@ impl<T> GenerationalIndexArray<T> {
 type Entity = GenerationalIndex;
 type EntityMap<T> = GenerationalIndexArray<T>;
 
-struct State {
+pub struct State {
     entity_allocator: GenerationalIndexAllocator,
     
     null_components: EntityMap<NullComponent>,
-
+    position_components: EntityMap<PositionComponent>,
 }
 
