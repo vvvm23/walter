@@ -34,8 +34,8 @@
 ///
 
 use strum_macros::EnumIter;
-use strum::IntoEnumIterator;
-use std::collections::HashMap;
+//use strum::IntoEnumIterator;
+//use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Eq, Hash, EnumIter)]
 pub enum ComponentType {
@@ -51,11 +51,27 @@ pub struct NullComponent {
     pub owner: GenerationalIndex
 }
 
+impl NullComponent {
+    fn new(owner: Entity) -> NullComponent {
+        NullComponent { owner: owner }
+    }
+}
+
 #[derive(Debug)]
 pub struct PositionComponent {
     pub owner: GenerationalIndex,
     pub x: f32,
     pub y: f32,
+}
+
+impl PositionComponent {
+    fn new(owner: Entity, x: f32, y: f32) -> PositionComponent {
+        PositionComponent {
+            owner: owner,
+            x: x,
+            y: y,
+        }
+    }
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
@@ -169,6 +185,18 @@ impl<T> GenerationalIndexArray<T> {
 type Entity = GenerationalIndex;
 type EntityMap<T> = GenerationalIndexArray<T>;
 
+impl Entity {
+    pub fn add_position(self, state: &mut State, x: f32, y: f32) -> Self {
+        state.position_components.set(self, PositionComponent::new(self.clone(), x, y));
+        self
+    }
+
+    pub fn add_null(self, state: &mut State) -> Self {
+        state.null_components.set(self, NullComponent::new(self.clone()));
+        self
+    }
+}
+
 const MAX_ENTITIES: usize = 256;
 pub struct State {
     pub entity_allocator: GenerationalIndexAllocator,
@@ -188,3 +216,9 @@ impl State {
     }
 }
 
+// Entity can have component creation builder pattern
+//
+// state.new_entity()
+//     .add_position(0.0, 0.0)
+//     .add_null();
+//

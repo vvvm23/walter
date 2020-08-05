@@ -9,13 +9,13 @@ fn main() {
     
     info!("This is an informative message.");
     
-    let mut x = ecs::State::new();
-    let e1 = x.entity_allocator.allocate();
-    x.null_components.set(e1, ecs::NullComponent{owner: e1.clone()});
-    x.position_components.set(e1, ecs::PositionComponent{owner: e1.clone(), x: 0.0, y: 0.0});
+    let mut state = ecs::State::new();
+    let e1 = state.entity_allocator.allocate()
+        .add_position(&mut state, 0.0, 0.0)
+        .add_null(&mut state);
 
-    println!("{:?}", x.null_components.get(e1));
-    println!("{:?}", x.position_components.get(e1));
+    println!("{:?}", state.null_components.get(e1));
+    println!("{:?}", state.position_components.get(e1));
 
-    println!("{:?}", x.null_components);
+    println!("{:?}", state.null_components);
 }
