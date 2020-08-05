@@ -10,12 +10,18 @@ fn main() {
     info!("This is an informative message.");
     
     let mut state = ecs::State::new();
-    let e1 = state.entity_allocator.allocate()
+    let e1 = state.new_entity()
         .add_position(&mut state, 0.0, 0.0)
         .add_null(&mut state);
 
     println!("{:?}", state.null_components.get(e1));
     println!("{:?}", state.position_components.get(e1));
+    println!("{:?}", state.entity_allocator.free);
+    assert_eq!(true, e1.has_component(&mut state, ecs::ComponentType::Null));
 
-    println!("{:?}", state.null_components);
+    state.delete_entity(e1);
+
+    println!("{:?}", state.null_components.get(e1));
+    println!("{:?}", state.position_components.get(e1));
+    println!("{:?}", state.entity_allocator.free);
 }

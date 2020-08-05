@@ -94,7 +94,7 @@ struct AllocatorEntry {
 pub struct GenerationalIndexAllocator {
     max_index: usize,
     entries: Vec<AllocatorEntry>,
-    free: Vec<usize>
+    pub free: Vec<usize>
 }
 
 impl GenerationalIndexAllocator {
@@ -157,6 +157,10 @@ impl<T> GenerationalIndexArray<T> {
         self.0[index.index()] = Some(ArrayEntry {value: value, generation: index.generation});
     }
 
+    fn unset(&mut self, index: GenerationalIndex) {
+        self.0[index.index()] = None;
+    }
+
     pub fn get(&self, index: GenerationalIndex) -> Option<&T> {
         match self.0.get(index.index()).unwrap() {
             Some(e) => {
@@ -184,8 +188,8 @@ impl<T> GenerationalIndexArray<T> {
 
 type Entity = GenerationalIndex;
 type EntityMap<T> = GenerationalIndexArray<T>;
-
 impl Entity {
+    // TODO: is it possible to have this without having state too?
     pub fn add_position(self, state: &mut State, x: f32, y: f32) -> Self {
         state.position_components.set(self, PositionComponent::new(self.clone(), x, y));
         self
@@ -194,6 +198,32 @@ impl Entity {
     pub fn add_null(self, state: &mut State) -> Self {
         state.null_components.set(self, NullComponent::new(self.clone()));
         self
+    }
+
+    pub fn remove_component(&self, state: &mut State, ct: ComponentType) -> bool {
+        match ct {
+            ComponentType::Position => {
+                state.position_components.unset(*self);
+                true
+            },
+            ComponentType::Null => {
+                state.null_components.unset(*self);
+                true
+            }
+            _ => false
+        }
+    }
+
+    pub fn has_component(&self, state: &mut State, ct: ComponentType) -> bool {
+        match ct {
+            ComponentType::Position => {
+                if let Some(_) = state.position_components.get(*self) { true } else { false }
+            },
+            ComponentType::Null => {
+                if let Some(_) = state.null_components.get(*self) { true } else { false }
+            },
+            _ => false
+        }
     }
 }
 
@@ -214,11 +244,14 @@ impl State {
             position_components: EntityMap::new(MAX_ENTITIES),
         }
     }
-}
 
-// Entity can have component creation builder pattern
-//
-// state.new_entity()
-//     .add_position(0.0, 0.0)
-//     .add_null();
-//
+    pub fn new_entity(&mut self) -> Entity {
+        self.entity_allocator.allocate()
+    }
+
+    pub fn delete_entity(&mut self, entity: Entity) -> bool {
+        self.null_components.unset(entity);
+        self.position_components.unset(entity);
+        self.entity_allocator.deallocate(entity)
+    }
+}
