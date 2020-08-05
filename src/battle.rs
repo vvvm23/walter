@@ -50,27 +50,61 @@ pub struct FighterComponent {
 }
 
 impl FighterComponent {
-    pub fn new(
-        owner: Entity, 
-        level: u8, 
-        max_hp: u32, max_sp: u32,
-        attack: u32, defence: u32,
-        agility: u32, luck: u32) -> FighterComponent {
+    pub fn new(owner: Entity) -> FighterComponent {
             FighterComponent {
                 owner: owner,
-                level: level,
+                level: 0,
 
-                max_hp: max_hp, hp: max_hp,
-                max_sp: max_sp, sp: max_sp,
+                max_hp: 0, hp: 0,
+                max_sp: 0, sp: 0,
 
-                attack: attack, defence: defence,
-                agility: agility, luck: luck,
+                attack: 0, defence: 0,
+                agility: 0, luck: 0,
                 moves: vec![]
             }
     }
 
+    // Builder patterns, not to be confused with setters/getters
     pub fn add_move(mut self, m: &Rc<Move>) -> Self {
         self.moves.push(Rc::clone(m));
         self
     }
+
+    pub fn set_level(mut self, level: u8) -> Self {
+        self.level = level;
+        self
+    }
+
+    pub fn set_max_hp(mut self, hp: u32) -> Self {
+        self.max_hp = hp;
+        self.hp = hp;
+        self
+    }
+
+    pub fn set_max_sp(mut self, sp: u32) -> Self {
+        self.max_sp = sp;
+        self.sp = sp;
+        self
+    }
+
+    pub fn set_attack(mut self, atk: u32) -> Self {
+        self.attack = atk;
+        self
+    }
+
+    pub fn set_defence(mut self, def: u32) -> Self {
+        self.defence = def;
+        self
+    }
+
+    pub fn set_agility(mut self, agi: u32) -> Self {
+        self.agility = agi;
+        self
+    }
+
+    pub fn set_luck(mut self, luk: u32) -> Self {
+        self.luck = luk;
+        self
+    }
+
 }
