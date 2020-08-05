@@ -1,3 +1,38 @@
+/// Walter ECS System
+///
+/// At the start of the game, use ecs::State::new() to create a new game state
+///
+/// You can then create entities by calling state.entity_allocator.allocate().
+/// This will return a GenerationalIndex corresponding to the newly created
+/// entity.
+///
+/// To create a component, call it's ::new static method.
+///
+/// To register this newly created component 'c', call .set on the corresponding
+/// container in State with the Entity and Component you wish to add.
+///
+/// To access a component from an Entity, call .get on the corresponding container.
+///
+/// You can also get a mutable reference with .get_mut
+///
+/// To get all components of a given type you can iterate through the container, 
+/// skipping any None entries.
+///
+/// Example:
+///
+///     let mut state = ecs::State::new();
+///     let e1 = state.entity_allocator.allocate();
+///     let nc = ecs::NullComponent::new( ... );
+///     let pc = ecs::PositionComponent::new( ... );
+///
+///     state.null_components.set(e1, nc);
+///     state.position_components.set(e1, pc);
+///
+///     println!("{:?}", x.null_components.get(e1));
+///
+///     println!("{:?}", x.position_components);
+///
+
 use strum_macros::EnumIter;
 use strum::IntoEnumIterator;
 use std::collections::HashMap;
