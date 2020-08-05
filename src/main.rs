@@ -7,7 +7,6 @@ use std::rc::Rc;
 
 fn main() {
     env_logger::init();
-    println!("Aloha World!");
     
     info!("This is an informative message.");
     
@@ -19,7 +18,7 @@ fn main() {
         .set_attack(99).set_defence(99)
         .set_agility(99).set_luck(99)
         .add_move(
-            &Rc::new(battle::Move::new("Megidolaon", "Colossal Almighty damage to all enemies.")
+            &Rc::new(battle::Move::new("Megidolaon", "Colossal damage to all enemies.")
             .set_hp_cost(0)
             .set_sp_cost(48)
             .set_power(100))
@@ -32,14 +31,12 @@ fn main() {
     println!("{:?}", state.null_components.get(e1));
     println!("{:?}", state.position_components.get(e1));
     println!("{:?}", state.fighter_components.get(e1));
-    println!("{:?}", state.entity_allocator.free);
-    assert_eq!(true, e1.has_component(&mut state, ecs::ComponentType::Null));
+    assert_eq!(true, e1.has_component(&state, ecs::ComponentType::Null));
     e1.remove_component(&mut state, ecs::ComponentType::Null);
-    assert_eq!(false, e1.has_component(&mut state, ecs::ComponentType::Null));
+    assert_eq!(false, e1.has_component(&state, ecs::ComponentType::Null));
 
     state.delete_entity(e1);
 
     println!("{:?}", state.null_components.get(e1));
     println!("{:?}", state.position_components.get(e1));
-    println!("{:?}", state.entity_allocator.free);
 }

@@ -1,3 +1,4 @@
+// TODO: Update this doc to include the new helper functions
 /// Walter ECS System
 ///
 /// At the start of the game, use ecs::State::new() to create a new game state
@@ -36,7 +37,6 @@
 use crate::battle;
 use strum_macros::EnumIter;
 //use strum::IntoEnumIterator;
-//use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Eq, Hash, EnumIter)]
 pub enum ComponentType {
@@ -76,6 +76,7 @@ impl PositionComponent {
     }
 }
 
+// TODO: Maybe move GenerationalArray to separate file
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct GenerationalIndex {
     index: usize,
@@ -225,7 +226,7 @@ impl Entity {
         }
     }
 
-    pub fn has_component(&self, state: &mut State, ct: ComponentType) -> bool {
+    pub fn has_component(&self, state: &State, ct: ComponentType) -> bool {
         match ct {
             ComponentType::Position => {
                 if let Some(_) = state.position_components.get(*self) { true } else { false }

@@ -19,20 +19,9 @@ impl Move {
         }
     }
 
-    pub fn set_hp_cost(mut self, hp: u16) -> Self {
-        self.hpc = Some(hp);
-        self
-    }
-
-    pub fn set_sp_cost(mut self, sp: u16) -> Self {
-        self.spc = Some(sp);
-        self
-    }
-
-    pub fn set_power(mut self, power: u16) -> Self {
-        self.power = Some(power);
-        self
-    }
+    pub fn set_hp_cost(mut self, hp: u16) -> Self { self.hpc = Some(hp); self }
+    pub fn set_sp_cost(mut self, sp: u16) -> Self { self.spc = Some(sp); self }
+    pub fn set_power(mut self, power: u16) -> Self { self.power = Some(power); self }
 }
 
 #[derive(Debug)]
@@ -50,61 +39,27 @@ pub struct FighterComponent {
 }
 
 impl FighterComponent {
-    pub fn new(owner: Entity) -> FighterComponent {
-            FighterComponent {
-                owner: owner,
-                level: 0,
+    pub fn new(owner: Entity) -> Self {
+        FighterComponent {
+            owner: owner,
+            level: 0,
 
-                max_hp: 0, hp: 0,
-                max_sp: 0, sp: 0,
+            max_hp: 0, hp: 0,
+            max_sp: 0, sp: 0,
 
-                attack: 0, defence: 0,
-                agility: 0, luck: 0,
-                moves: vec![]
-            }
+            attack: 0, defence: 0,
+            agility: 0, luck: 0,
+            moves: vec![]
+        }
     }
 
     // Builder patterns, not to be confused with setters/getters
-    pub fn add_move(mut self, m: &Rc<Move>) -> Self {
-        self.moves.push(Rc::clone(m));
-        self
-    }
-
-    pub fn set_level(mut self, level: u8) -> Self {
-        self.level = level;
-        self
-    }
-
-    pub fn set_max_hp(mut self, hp: u32) -> Self {
-        self.max_hp = hp;
-        self.hp = hp;
-        self
-    }
-
-    pub fn set_max_sp(mut self, sp: u32) -> Self {
-        self.max_sp = sp;
-        self.sp = sp;
-        self
-    }
-
-    pub fn set_attack(mut self, atk: u32) -> Self {
-        self.attack = atk;
-        self
-    }
-
-    pub fn set_defence(mut self, def: u32) -> Self {
-        self.defence = def;
-        self
-    }
-
-    pub fn set_agility(mut self, agi: u32) -> Self {
-        self.agility = agi;
-        self
-    }
-
-    pub fn set_luck(mut self, luk: u32) -> Self {
-        self.luck = luk;
-        self
-    }
-
+    pub fn add_move(mut self, m: &Rc<Move>) -> Self { self.moves.push(Rc::clone(m)); self }
+    pub fn set_level(mut self, level: u8) -> Self { self.level = level; self }
+    pub fn set_max_hp(mut self, hp: u32) -> Self { self.max_hp = hp; self.hp = hp; self }
+    pub fn set_max_sp(mut self, sp: u32) -> Self { self.max_sp = sp; self.sp = sp; self }
+    pub fn set_attack(mut self, atk: u32) -> Self { self.attack = atk; self }
+    pub fn set_defence(mut self, def: u32) -> Self { self.defence = def; self }
+    pub fn set_agility(mut self, agi: u32) -> Self { self.agility = agi; self }
+    pub fn set_luck(mut self, luk: u32) -> Self { self.luck = luk; self }
 }
