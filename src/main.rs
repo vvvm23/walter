@@ -8,4 +8,13 @@ fn main() {
     println!("Aloha World!");
     
     info!("This is an informative message.");
+
+    let mut x = ecs::GenerationalIndexAllocator::new(256);
+
+    loop {
+        let i1 = x.allocate();
+        println!("{:?}", i1);
+        x.deallocate(i1);
+    }
+
 }
