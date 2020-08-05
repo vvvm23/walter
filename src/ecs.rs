@@ -33,6 +33,7 @@
 ///     println!("{:?}", x.position_components);
 ///
 
+use crate::battle;
 use strum_macros::EnumIter;
 //use strum::IntoEnumIterator;
 //use std::collections::HashMap;
@@ -46,6 +47,7 @@ pub enum ComponentType {
     Playable,
 }
 
+// TODO: Move components to different files
 #[derive(Debug)]
 pub struct NullComponent {
     pub owner: GenerationalIndex
@@ -186,7 +188,7 @@ impl<T> GenerationalIndexArray<T> {
     }
 }
 
-type Entity = GenerationalIndex;
+pub type Entity = GenerationalIndex;
 type EntityMap<T> = GenerationalIndexArray<T>;
 impl Entity {
     // TODO: is it possible to have this without having state too?
@@ -200,6 +202,11 @@ impl Entity {
         self
     }
 
+    pub fn add_fighter(self, state: &mut State, f: battle::FighterComponent) -> Self {
+        state.fighter_components.set(self, f);
+        self
+    }
+
     pub fn remove_component(&self, state: &mut State, ct: ComponentType) -> bool {
         match ct {
             ComponentType::Position => {
@@ -208,6 +215,10 @@ impl Entity {
             },
             ComponentType::Null => {
                 state.null_components.unset(*self);
+                true
+            },
+            ComponentType::Fighter => {
+                state.fighter_components.unset(*self);
                 true
             }
             _ => false
@@ -222,6 +233,9 @@ impl Entity {
             ComponentType::Null => {
                 if let Some(_) = state.null_components.get(*self) { true } else { false }
             },
+            ComponentType::Fighter => {
+                if let Some(_) = state.fighter_components.get(*self) { true } else { false }
+            }
             _ => false
         }
     }
@@ -233,6 +247,7 @@ pub struct State {
     
     pub null_components: EntityMap<NullComponent>,
     pub position_components: EntityMap<PositionComponent>,
+    pub fighter_components: EntityMap<battle::FighterComponent>,
 }
 
 impl State {
@@ -242,6 +257,7 @@ impl State {
             
             null_components: EntityMap::new(MAX_ENTITIES),
             position_components: EntityMap::new(MAX_ENTITIES),
+            fighter_components: EntityMap::new(MAX_ENTITIES),
         }
     }
 
@@ -252,6 +268,7 @@ impl State {
     pub fn delete_entity(&mut self, entity: Entity) -> bool {
         self.null_components.unset(entity);
         self.position_components.unset(entity);
+        self.fighter_components.unset(entity);
         self.entity_allocator.deallocate(entity)
     }
 }
