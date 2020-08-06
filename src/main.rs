@@ -1,5 +1,6 @@
 mod ecs;
 mod battle;
+mod rendering;
 use log;
 use log::{info, error, debug};
 use env_logger;
@@ -39,4 +40,5 @@ fn main() {
 
     println!("{:?}", state.null_components.get(e1));
     println!("{:?}", state.position_components.get(e1));
+
 }
