@@ -49,6 +49,18 @@ fn main() {
         //.add_sprite(&mut state, &mut window, "./resources/walter.png")
         //.add_null(&mut state);
 
+    let e2 = state.new_entity()
+        .add_position(&mut state, 0.0, 0.0)
+        .add_sprite(&mut state, &mut window, "./resources/cheems.png");
+
+    {
+        let e2_sprite = state.sprite_components.get_mut(e2).unwrap();
+        e2_sprite.set_scale(0.2);
+        e2_sprite.scene_add(&mut window);
+    }
+
+    let mut cheems = vec![e2];
+
     let mut walters: Vec<(ecs::Entity, f32, f32)> = vec![];
     for _ in 0..128 {
         let e = state.new_entity()
@@ -63,24 +75,8 @@ fn main() {
         walters.push((e, 0.0, interval));
     }
 
-    let e2 = state.new_entity()
-        .add_position(&mut state, 0.4, 0.4)
-        .add_sprite(&mut state, &mut window, "./resources/cheems.png");
-
-    //{
-        //let e1_sprite = state.sprite_components.get_mut(e1).unwrap();
-        //e1_sprite.set_scale(0.2);
-        //e1_sprite.scene_add(&mut window);
-    //}
-
-    {
-        let e2_sprite = state.sprite_components.get_mut(e2).unwrap();
-        e2_sprite.set_scale(0.2);
-        e2_sprite.scene_add(&mut window);
-    }
-
-
-    let CHEEMS_INTERVAL: f32 = 1.0;
+    let CHEEMS_INTERVAL: f32 = 0.5;
+    let MAX_CHEEMS: usize = 100;
     let mut cheems_timer: f32 = 0.0;
 
     let mut now = SystemTime::now();
@@ -93,6 +89,39 @@ fn main() {
         
         cheems_timer += elapsed;
 
+        //if walter_timer > WALT_INTERVAL {
+            //let e1_pos = state.position_components.get_mut(e1).unwrap();
+            //let e1_sprite = state.sprite_components.get_mut(e1).unwrap();
+            //e1_pos.x = rng.gen::<f32>() * 2.0 - 1.0;
+            //e1_pos.y = rng.gen::<f32>() * 2.0 - 1.0;
+            //e1_sprite.update_pos([e1_pos.x, e1_pos.y, 0.0]);
+            //walter_timer -= WALT_INTERVAL;
+        //}
+
+        if cheems_timer > CHEEMS_INTERVAL {
+            for c in cheems.iter() {
+                let c_pos = state.position_components.get_mut(*c).unwrap();
+                let c_sprite = state.sprite_components.get_mut(*c).unwrap();
+
+                c_pos.x = rng.gen::<f32>() * 2.0 - 1.0;
+                c_pos.y = rng.gen::<f32>() * 2.0 - 1.0;
+                c_sprite.update_pos([c_pos.x, c_pos.y, 0.0]);
+            }
+    
+            if cheems.len() < MAX_CHEEMS {
+                let new_c = state.new_entity()
+                    .add_position(&mut state, 0.0, 0.0)
+                    .add_sprite(&mut state, &mut window, "./resources/cheems.png");
+
+                let new_c_sprite = state.sprite_components.get_mut(new_c).unwrap();
+                new_c_sprite.set_scale(0.2);
+                new_c_sprite.scene_add(&mut window);
+                cheems.push(new_c);
+            }
+
+            cheems_timer -= CHEEMS_INTERVAL;
+        }
+
         for w in walters.iter_mut() {
             w.1 += elapsed;
             if w.1 > w.2 {
@@ -104,25 +133,6 @@ fn main() {
                 e_sprite.update_pos([e_pos.x, e_pos.y, 0.0]);
             }
         }
-
-        //if walter_timer > WALT_INTERVAL {
-            //let e1_pos = state.position_components.get_mut(e1).unwrap();
-            //let e1_sprite = state.sprite_components.get_mut(e1).unwrap();
-            //e1_pos.x = rng.gen::<f32>() * 2.0 - 1.0;
-            //e1_pos.y = rng.gen::<f32>() * 2.0 - 1.0;
-            //e1_sprite.update_pos([e1_pos.x, e1_pos.y, 0.0]);
-            //walter_timer -= WALT_INTERVAL;
-        //}
-
-        if cheems_timer > CHEEMS_INTERVAL {
-            let e2_pos = state.position_components.get_mut(e2).unwrap();
-            let e2_sprite = state.sprite_components.get_mut(e2).unwrap();
-            e2_pos.x = rng.gen::<f32>() * 2.0 - 1.0;
-            e2_pos.y = rng.gen::<f32>() * 2.0 - 1.0;
-            e2_sprite.update_pos([e2_pos.x, e2_pos.y, 0.0]);
-            cheems_timer -= CHEEMS_INTERVAL;
-        }
-
 
         window.render(&camera);
     }
