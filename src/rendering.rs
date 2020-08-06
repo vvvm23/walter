@@ -1,6 +1,8 @@
 use three;
 use three::Object;
 
+// TODO: MeshRegistry, load all entities with instanced rendering for extra speed
+
 type Texture = three::Texture<[f32; 4]>;
 
 pub struct SpriteComponent {
