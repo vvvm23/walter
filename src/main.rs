@@ -23,7 +23,8 @@ fn main() {
         .vsync(true)
         .build();
 
-    window.scene.background = three::Background::Color(0x630012);
+    //window.scene.background = three::Background::Color(0x630012);
+    window.scene.background = three::Background::Texture(window.factory.load_texture("./resources/night_desert.png"));
 
     let cam_centre = [0.0, 0.0];
     let cam_yex = 1.0;
@@ -88,15 +89,6 @@ fn main() {
         now = SystemTime::now();
         
         cheems_timer += elapsed;
-
-        //if walter_timer > WALT_INTERVAL {
-            //let e1_pos = state.position_components.get_mut(e1).unwrap();
-            //let e1_sprite = state.sprite_components.get_mut(e1).unwrap();
-            //e1_pos.x = rng.gen::<f32>() * 2.0 - 1.0;
-            //e1_pos.y = rng.gen::<f32>() * 2.0 - 1.0;
-            //e1_sprite.update_pos([e1_pos.x, e1_pos.y, 0.0]);
-            //walter_timer -= WALT_INTERVAL;
-        //}
 
         if cheems_timer > CHEEMS_INTERVAL {
             for c in cheems.iter() {

@@ -39,35 +39,3 @@ impl SpriteComponent {
         self.mesh.set_position(pos);
     }
 }
-
-
-//use std::collections::HashMap;
-//use std::rc::Rc;
-
-//type Texture = three::Texture<[f32; 4]>;
-
-//const MAX_TEXTURES: usize = 256;
-//pub struct TextureRegistry {
-    //textures: Vec<Option<Rc<Texture>>>,
-    //file_map: HashMap<String, usize>,
-//}
-
-//impl TextureRegistry {
-    //pub fn new() -> Self {
-        //Self {
-            //textures: vec![None; MAX_TEXTURES],
-            //file_map: HashMap::new(),
-        //}
-    //}
-
-    //fn load_texture(&mut self, win: three::Window, path: String) -> Rc<Texture> {
-        
-    //}
-
-    //pub fn get_texture(&mut self, win: three::Window, path: String) -> Rc<Texture> {
-        //match self.file_map.get(&path) {
-            //Some(i) => Rc::clone(self.textures[*i]),
-            //None => (),
-        //}
-    //}
-//}
