@@ -5,6 +5,7 @@ use log;
 use log::{info, error, debug};
 use env_logger;
 use std::rc::Rc;
+use std::time::SystemTime;
 
 fn main() {
     env_logger::init();
@@ -40,5 +41,25 @@ fn main() {
 
     println!("{:?}", state.null_components.get(e1));
     println!("{:?}", state.position_components.get(e1));
+
+    let mut window = three::window::Window::builder("walter 0.0").dimensions(1200.0, 900.0).build();
+
+    window.scene.background = three::Background::Color(0x630012);
+
+    let cam_centre = [0.0, 0.0];
+    let cam_yex = 1.0;
+    let cam_zrange = -5.0 .. 5.0;
+    let camera = window.factory.orthographic_camera(cam_centre, cam_yex, cam_zrange);
+
+    let mut now = SystemTime::now();
+    while window.update() && !window.input.hit(three::KEY_ESCAPE) {
+        let elapsed = match now.elapsed() {
+            Ok(elapsed) => elapsed.as_secs_f32(),
+            Err(_) => 1000.0 / 60.0
+        };
+        now = SystemTime::now();
+
+        window.render(&camera);
+    }
 
 }

@@ -34,7 +34,10 @@
 ///     println!("{:?}", x.position_components);
 ///
 
+use three;
+
 use crate::battle;
+use crate::rendering;
 use strum_macros::EnumIter;
 //use strum::IntoEnumIterator;
 
@@ -43,8 +46,7 @@ pub enum ComponentType {
     Null,
     Position,
     Fighter,
-    Inventory,
-    Playable,
+    Sprite,
 }
 
 // TODO: Move components to different files
@@ -208,35 +210,27 @@ impl Entity {
         self
     }
 
+    pub fn add_sprite(self, state: &mut State, win: &mut three::Window, path: &str) -> Self {
+        state.sprite_components.set(self, rendering::SpriteComponent::new(win, path));
+        self
+    }
+
     pub fn remove_component(&self, state: &mut State, ct: ComponentType) -> bool {
         match ct {
-            ComponentType::Position => {
-                state.position_components.unset(*self);
-                true
-            },
-            ComponentType::Null => {
-                state.null_components.unset(*self);
-                true
-            },
-            ComponentType::Fighter => {
-                state.fighter_components.unset(*self);
-                true
-            }
+            ComponentType::Position => { state.position_components.unset(*self); true },
+            ComponentType::Null => { state.null_components.unset(*self); true },
+            ComponentType::Fighter => { state.fighter_components.unset(*self); true },
+            ComponentType::Sprite => { state.sprite_components.unset(*self); true }
             _ => false
         }
     }
 
     pub fn has_component(&self, state: &State, ct: ComponentType) -> bool {
         match ct {
-            ComponentType::Position => {
-                if let Some(_) = state.position_components.get(*self) { true } else { false }
-            },
-            ComponentType::Null => {
-                if let Some(_) = state.null_components.get(*self) { true } else { false }
-            },
-            ComponentType::Fighter => {
-                if let Some(_) = state.fighter_components.get(*self) { true } else { false }
-            }
+            ComponentType::Position => { if let Some(_) = state.position_components.get(*self) { true } else { false } },
+            ComponentType::Null => { if let Some(_) = state.null_components.get(*self) { true } else { false } },
+            ComponentType::Fighter => { if let Some(_) = state.fighter_components.get(*self) { true } else { false } },
+            ComponentType::Sprite => { if let Some(_) = state.fighter_components.get(*self) { true } else { false } },
             _ => false
         }
     }
@@ -249,6 +243,7 @@ pub struct State {
     pub null_components: EntityMap<NullComponent>,
     pub position_components: EntityMap<PositionComponent>,
     pub fighter_components: EntityMap<battle::FighterComponent>,
+    pub sprite_components: EntityMap<rendering::SpriteComponent>,
 }
 
 impl State {
@@ -259,6 +254,7 @@ impl State {
             null_components: EntityMap::new(MAX_ENTITIES),
             position_components: EntityMap::new(MAX_ENTITIES),
             fighter_components: EntityMap::new(MAX_ENTITIES),
+            sprite_components: EntityMap::new(MAX_ENTITIES),
         }
     }
 
@@ -270,6 +266,8 @@ impl State {
         self.null_components.unset(entity);
         self.position_components.unset(entity);
         self.fighter_components.unset(entity);
+        self.sprite_components.unset(entity);
+
         self.entity_allocator.deallocate(entity)
     }
 }
