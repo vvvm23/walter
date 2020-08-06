@@ -4,7 +4,6 @@ use three::Object;
 type Texture = three::Texture<[f32; 4]>;
 
 pub struct SpriteComponent {
-    scale: f32,
     mesh: three::Sprite,
 }
 
@@ -12,7 +11,6 @@ impl SpriteComponent {
     pub fn new(win: &mut three::Window, path: &str) -> Self {
         let texture = win.factory.load_texture(path);
         Self {
-            scale: 1.0,
             mesh: win.factory.sprite(three::material::Sprite { map: texture }),
         }
     }
@@ -24,7 +22,7 @@ impl SpriteComponent {
 
     pub fn set_scale(&mut self, scale: f32) {
         assert!(scale > 0.0);
-        self.scale = scale;
+        self.mesh.set_scale(scale);
     }
 
     pub fn scene_add(&self, win: &mut three::Window) {

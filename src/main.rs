@@ -1,17 +1,35 @@
 mod ecs;
 mod battle;
 mod rendering;
+
 use log;
 use log::{info, error, debug};
 use env_logger;
+
 use std::rc::Rc;
 use std::time::SystemTime;
 
+use rand;
+use rand::prelude::*;
+
 fn main() {
     env_logger::init();
-    
+    let mut rng = rand::thread_rng();
+
     info!("This is an informative message.");
     
+    let mut window = three::window::Window::builder("walter 0.0")
+        .dimensions(1200.0, 900.0)
+        .vsync(true)
+        .build();
+
+    window.scene.background = three::Background::Color(0x630012);
+
+    let cam_centre = [0.0, 0.0];
+    let cam_yex = 1.0;
+    let cam_zrange = -5.0 .. 5.0;
+    let camera = window.factory.orthographic_camera(cam_centre, cam_yex, cam_zrange);
+
     let mut state = ecs::State::new();
     let e1 = state.new_entity();
     let fc = battle::FighterComponent::new(e1.clone())
@@ -28,31 +46,17 @@ fn main() {
 
     e1.add_fighter(&mut state, fc)
         .add_position(&mut state, 0.0, 0.0)
+        .add_sprite(&mut state, &mut window, "./resources/walter.png")
         .add_null(&mut state);
 
-    println!("{:?}", state.null_components.get(e1));
-    println!("{:?}", state.position_components.get(e1));
-    println!("{:?}", state.fighter_components.get(e1));
-    assert_eq!(true, e1.has_component(&state, ecs::ComponentType::Null));
-    e1.remove_component(&mut state, ecs::ComponentType::Null);
-    assert_eq!(false, e1.has_component(&state, ecs::ComponentType::Null));
+    {
+        let e1_sprite = state.sprite_components.get_mut(e1).unwrap();
+        e1_sprite.set_scale(0.2);
+        e1_sprite.scene_add(&mut window);
+    }
 
-    state.delete_entity(e1);
-
-    println!("{:?}", state.null_components.get(e1));
-    println!("{:?}", state.position_components.get(e1));
-
-    let mut window = three::window::Window::builder("walter 0.0")
-        .dimensions(1200.0, 900.0)
-        .vsync(true)
-        .build();
-
-    window.scene.background = three::Background::Color(0x630012);
-
-    let cam_centre = [0.0, 0.0];
-    let cam_yex = 1.0;
-    let cam_zrange = -5.0 .. 5.0;
-    let camera = window.factory.orthographic_camera(cam_centre, cam_yex, cam_zrange);
+    let WALT_INTERVAL: f32 = 0.2;
+    let mut walter_timer: f32 = 0.0;
 
     let mut now = SystemTime::now();
     while window.update() && !window.input.hit(three::KEY_ESCAPE) {
@@ -62,7 +66,16 @@ fn main() {
         };
         now = SystemTime::now();
         
-        println!("{:?}", 1.0 / elapsed);
+        walter_timer += elapsed;
+        if walter_timer > WALT_INTERVAL {
+            let e1_pos = state.position_components.get_mut(e1).unwrap();
+            let e1_sprite = state.sprite_components.get_mut(e1).unwrap();
+            e1_pos.x = rng.gen::<f32>() * 2.0 - 1.0;
+            e1_pos.y = rng.gen::<f32>() * 2.0 - 1.0;
+            e1_sprite.update_pos([e1_pos.x, e1_pos.y, 0.0]);
+            walter_timer -= WALT_INTERVAL;
+        }
+
 
         window.render(&camera);
     }
