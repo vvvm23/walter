@@ -42,7 +42,10 @@ fn main() {
     println!("{:?}", state.null_components.get(e1));
     println!("{:?}", state.position_components.get(e1));
 
-    let mut window = three::window::Window::builder("walter 0.0").dimensions(1200.0, 900.0).build();
+    let mut window = three::window::Window::builder("walter 0.0")
+        .dimensions(1200.0, 900.0)
+        .vsync(true)
+        .build();
 
     window.scene.background = three::Background::Color(0x630012);
 
@@ -58,6 +61,8 @@ fn main() {
             Err(_) => 1000.0 / 60.0
         };
         now = SystemTime::now();
+        
+        println!("{:?}", 1.0 / elapsed);
 
         window.render(&camera);
     }

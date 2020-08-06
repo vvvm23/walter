@@ -1,29 +1,45 @@
 use three;
+use three::Object;
 
 type Texture = three::Texture<[f32; 4]>;
 
 pub struct SpriteComponent {
-    texture: Texture,
     scale: f32,
+    mesh: three::Sprite,
 }
 
 impl SpriteComponent {
     pub fn new(win: &mut three::Window, path: &str) -> Self {
+        let texture = win.factory.load_texture(path);
         Self {
-            texture: win.factory.load_texture(path),
-            scale: 1.0
+            scale: 1.0,
+            mesh: win.factory.sprite(three::material::Sprite { map: texture }),
         }
     }
 
     pub fn change_texture(&mut self, win: &mut three::Window, path: &str) {
-        self.texture = win.factory.load_texture(path);
+        let texture = win.factory.load_texture(path);
+        self.mesh = win.factory.sprite(three::material::Sprite { map: texture });
     }
 
     pub fn set_scale(&mut self, scale: f32) {
         assert!(scale > 0.0);
         self.scale = scale;
     }
+
+    pub fn scene_add(&self, win: &mut three::Window) {
+        win.scene.add(&self.mesh);
+    }
+
+    pub fn scene_remove(&self, win: &mut three::Window) {
+        win.scene.remove(&self.mesh);
+    }
+
+    pub fn update_pos(&mut self, pos: [f32; 3]) {
+        self.mesh.set_position(pos);
+    }
 }
+
 
 //use std::collections::HashMap;
 //use std::rc::Rc;
