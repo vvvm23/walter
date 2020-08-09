@@ -231,6 +231,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "35193597ff846c905e135b66b7a88876a8b684d269a24fa0f6086988fc2197c8"
 
 [[package]]
+name = "claxon"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4bfbf56724aa9eca8afa4fcfadeb479e722935bb2a0900c2d37e0cc477af0688"
+
+[[package]]
 name = "cloudabi"
 version = "0.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -328,6 +334,23 @@ dependencies = [
  "lazy_static",
  "libc",
  "stdweb",
+ "winapi",
+]
+
+[[package]]
+name = "cpal"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b55d55d69f403f62a95bd3c04b431e0aedf5120c70f15d07a8edd234443dd59"
+dependencies = [
+ "alsa-sys",
+ "core-foundation-sys 0.6.2",
+ "coreaudio-rs",
+ "lazy_static",
+ "libc",
+ "num-traits 0.2.12",
+ "stdweb",
+ "thiserror",
  "winapi",
 ]
 
@@ -834,6 +857,17 @@ dependencies = [
  "byteorder",
  "ogg",
  "smallvec",
+]
+
+[[package]]
+name = "lewton"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be42bea7971f4ba0ea1e215730c29bc1ff9bd2a9c10013912f42a8dcf8d77c0d"
+dependencies = [
+ "byteorder",
+ "ogg",
+ "tinyvec",
 ]
 
 [[package]]
@@ -1512,11 +1546,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "10cb47941163cb747978d13a5c1b5c8fcd17f501817c4b77b9d69aed9ea240bc"
 dependencies = [
  "cgmath 0.14.1",
- "claxon",
- "cpal",
+ "claxon 0.3.3",
+ "cpal 0.8.2",
  "hound",
  "lazy_static",
- "lewton",
+ "lewton 0.9.4",
+ "minimp3",
+]
+
+[[package]]
+name = "rodio"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73bbf260262fd5501b7a17d6827e0d25c1127e921eb177150a060faf6e217a70"
+dependencies = [
+ "claxon 0.4.3",
+ "cpal 0.11.0",
+ "hound",
+ "lazy_static",
+ "lewton 0.10.1",
  "minimp3",
 ]
 
@@ -1744,6 +1792,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "thiserror"
+version = "1.0.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7dfdd070ccd8ccb78f4ad66bf1982dc37f620ef696c6b5028fe2ed83dd3d0d08"
+dependencies = [
+ "thiserror-impl",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "1.0.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd80fc12f73063ac132ac92aceea36734f04a1d93c1240c6944e23a3b8841793"
+dependencies = [
+ "proc-macro2 1.0.19",
+ "quote 1.0.7",
+ "syn 1.0.37",
+]
+
+[[package]]
 name = "thread_local"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1778,7 +1846,7 @@ dependencies = [
  "obj",
  "phf",
  "quick-error",
- "rodio",
+ "rodio 0.8.1",
  "vec_map",
 ]
 
@@ -1793,6 +1861,12 @@ dependencies = [
  "num-derive",
  "num-traits 0.2.12",
 ]
+
+[[package]]
+name = "tinyvec"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53953d2d3a5ad81d9f844a32f14ebb121f50b650cd59d0ee2a07cf13c617efed"
 
 [[package]]
 name = "twox-hash"
@@ -1857,6 +1931,7 @@ dependencies = [
  "env_logger",
  "log",
  "rand 0.7.3",
+ "rodio 0.11.0",
  "strum",
  "strum_macros",
  "three",

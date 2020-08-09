@@ -1,6 +1,7 @@
 mod ecs;
 mod battle;
 mod rendering;
+mod audio;
 
 use log;
 use log::{info, error, debug};
