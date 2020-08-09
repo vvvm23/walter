@@ -19,6 +19,9 @@ fn main() {
 
     info!("This is an informative message.");
     
+    let mut audio_system = audio::AudioSystem::new();
+    audio_system.play_music("resources/music.flac", 0.5);
+
     let mut window = three::window::Window::builder("walter 0.0")
         .dimensions(1200.0, 900.0)
         .vsync(true)
@@ -51,9 +54,25 @@ fn main() {
         .add_sprite(&mut state, &mut window, "./resources/walter.png")
         .add_null(&mut state);
 
-    let mut e1_sprite = state.sprite_components.get_mut(e1).unwrap();
-    e1_sprite.set_scale(0.1);
-    e1_sprite.scene_add(&mut window);
+    {
+        let mut e1_sprite = state.sprite_components.get_mut(e1).unwrap();
+        e1_sprite.set_scale(0.2);
+        e1_sprite.scene_add(&mut window);
+    }
+
+    let e2 = state.new_entity()
+        .add_position(&mut state, -0.5, -0.1)
+        .add_sprite(&mut state, &mut window, "resources/cheems.png")
+        .add_null(&mut state);
+
+    {
+        let mut e2_sprite = state.sprite_components.get_mut(e2).unwrap();
+        e2_sprite.set_scale(0.2);
+        e2_sprite.scene_add(&mut window);
+        e2_sprite.update_pos([0.5, -0.1, 0.2]);
+    }
+    let mut timer = 0.0;
+    let mut audio_int: f32 = rng.gen::<f32>() * 1.0 + 0.1;
 
     let mut now = SystemTime::now();
     while window.update() && !window.input.hit(three::KEY_ESCAPE) {
@@ -63,7 +82,20 @@ fn main() {
         };
         now = SystemTime::now();
 
+        timer += elapsed;
+        if timer > audio_int {
+            if rand::random() {
+                audio_system.play_sound("resources/Gun1.ogg", 0.5);
+            } else {
+                audio_system.play_sound("resources/Gun2.ogg", 0.5);
+            }
+
+            timer = 0.0;
+            audio_int = rng.gen::<f32>() * 1.0 + 0.1;
+        }
+
         window.render(&camera);
+        audio_system.update();
     }
 
 }
