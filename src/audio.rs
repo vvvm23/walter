@@ -47,7 +47,7 @@ impl AudioSystem {
         if self.nb_pending == 0 {
             return;
         }
-
+    
         let command = self.decode_queue[0].clone();
         let file = std::fs::File::open(command.path).unwrap();
         let source = rodio::Decoder::new(std::io::BufReader::new(file)).unwrap();
@@ -56,33 +56,36 @@ impl AudioSystem {
         match command.audio_type {
             AudioType::Audio => {
                 self.sound_sink[self.next_sink].append(source);
+                self.sound_sink[self.next_sink].set_volume(command.volume);
                 self.next_sink += 1;
                 if self.next_sink == NB_SINKS {
                     self.next_sink = 0;
                 }
             },
             AudioType::Music => {
-                self.music_sink.stop();
+                //self.music_sink.stop();
                 self.music_sink.append(source);
-                self.music_sink.play();
+                self.music_sink.set_volume(command.volume);
+               //self.music_sink.play();
             },
         };
+        self.nb_pending -= 1;
     }
 
-    pub fn play_sound(&mut self, path: &str) {
+    pub fn play_sound(&mut self, path: &str, volume: f32) {
         self.decode_queue.push(AudioCommand {
             audio_type: AudioType::Audio,
             path: path.to_string(),
-            volume: 0.5,
+            volume: volume,
         });
         self.nb_pending += 1;
     }
 
-    pub fn play_music(&mut self, path: &str) {
+    pub fn play_music(&mut self, path: &str, volume: f32) {
         self.decode_queue.push(AudioCommand {
             audio_type: AudioType::Music,
             path: path.to_string(),
-            volume: 0.5,
+            volume: volume,
         });
         self.nb_pending += 1;
     }
